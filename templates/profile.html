@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - BalikWika</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --warning-color: #f39c12;
+            --purple-color: #9b59b6;
+            --orange-color: #e67e22;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --text-color: #34495e;
+            --text-light: #7f8c8d;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Instrument Serif', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            line-height: 1.6;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: var(--border-radius);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo img {
+            width: 180px;
+            height: 90px;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .nav-item {
+            padding: 18px 24px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            color: var(--white);
+            font-weight: 500;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .nav-item:nth-child(2) { 
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+        }
+        .nav-item:nth-child(3) { 
+            background: linear-gradient(135deg, var(--warning-color), #d68910);
+        }
+        .nav-item:nth-child(4) { 
+            background: linear-gradient(135deg, var(--secondary-color), #27ae60);
+        }
+        .nav-item:nth-child(5) { 
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+        }
+        .nav-item:nth-child(6) { 
+            background: linear-gradient(135deg, var(--purple-color), #8e44ad);
+        }
+        .nav-item:nth-child(7) { 
+            background: linear-gradient(135deg, var(--orange-color), #d35400);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+
+         .profile-container {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 50px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .profile-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(52, 73, 94, 0.1);
+            position: relative;
+        }
+
+        .profile-picture-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-picture {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 4px solid var(--white);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, 
+#f8f9fa, 
+#e9ecef);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-picture i {
+            font-size: 48px;
+            color: var(--text-light);
+        }
+
+        .edit-picture-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: linear-gradient(135deg, var(--primary-color), 
+            #2980b9);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            padding: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+            transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .edit-picture-btn:hover {
+            background: linear-gradient(135deg, 
+            #2980b9, var(--primary-color));
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h1 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 36px;
+            color: var(--dark-color);
+            margin-bottom: 12px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--dark-color), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .profile-info p {
+            color: var(--text-light);
+            font-size: 18px;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .profile-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .field-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 30px;
+            border-bottom: 1px solid rgba(52, 73, 94, 0.1);
+            transition: var(--transition);
+            border-radius: var(--border-radius);
+            margin-bottom: 8px;
+        }
+
+        .field-group:hover {
+            background: rgba(52, 152, 219, 0.05);
+            transform: translateX(5px);
+        }
+
+        .field-group:last-child {
+            border-bottom: none;
+        }
+
+        .field-label {
+            font-size: 20px;
+            color: var(--dark-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 120px;
+        }
+
+        .field-label i {
+            font-size: 20px;
+            color: var(--primary-color);
+            width: 24px;
+            text-align: center;
+        }
+
+        .field-value {
+            font-size: 18px;
+            color: var(--text-color);
+            font-weight: 500;
+            flex: 1;
+            margin: 0 20px;
+        }
+
+        .edit-btn {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: 'Instrument Serif', serif;
+            transition: var(--transition);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .edit-btn:hover {
+            background: linear-gradient(135deg, #2980b9, var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+    background: white;
+    margin: 3% auto;
+    padding: 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 550px;
+    max-height: 90vh; /* Add this - limits height to 90% of viewport */
+    overflow-y: auto; /* Add this - enables vertical scrolling */
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .modal-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 28px;
+            color: var(--dark-color);
+            font-weight: 700;
+        }
+
+        /* Logout Modal Styles */
+.logout-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.logout-modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: logoutModalSlideIn 0.3s ease-out;
+}
+
+@keyframes logoutModalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.logout-modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logout-modal-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fee2e2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #dc2626;
+}
+
+.logout-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.logout-modal-body {
+    padding: 16px 24px 24px;
+}
+
+.logout-modal-message {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.logout-modal-actions {
+    padding: 16px 24px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    background: none;
+}
+
+.logout-btn-cancel {
+    background: #fff;
+    color: #6b7280;
+    border-color: #d1d5db;
+}
+
+.logout-btn-cancel:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.logout-btn-confirm {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+.logout-btn-confirm:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.logout-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.logout-close:hover {
+    color: #6b7280;
+}
+
+ .password-wrapper {
+        position: relative;
+    }
+    .password-wrapper input {
+        width: 100%;
+        padding-right: 30px;
+    }
+    .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #888;
+    }
+
+    .password-requirements {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.password-requirements p {
+    margin: 0 0 8px 0;
+    font-weight: bold;
+}
+
+.password-requirements ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.password-requirements li {
+    margin-bottom: 4px;
+    transition: color 0.3s ease;
+}
+
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: var(--transition);
+            padding: 5px;
+            border-radius: 50%;
+        }
+
+        .close-btn:hover {
+            color: var(--accent-color);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 16px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 18px;
+            border: 2px solid var(--light-color);
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            background: white;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            width: 100%; /* Ensure it takes full width */
+            margin: 0 auto; /* Center horizontally if needed */
+            text-align: center; /* Optional fallback for inline elements */
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Instrument Serif', serif;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            color: white;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: white;
+            box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(149, 165, 166, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+            color: white;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c0392b, var(--accent-color));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(231, 76, 60, 0.4);
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            display: none;
+            font-weight: 500;
+            animation: alertSlideIn 0.3s ease-out;
+        }
+
+        @keyframes alertSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: rgba(46, 204, 113, 0.1);
+            color: #155724;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #721c24;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 50px;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: var(--transition);
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: #2980b9;
+            transform: scale(1.02);
+        }
+
+        .file-upload-area i {
+            font-size: 52px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .file-upload-area p {
+            color: var(--text-color);
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .crop-container {
+            max-width: 100%;
+            margin: 25px 0;
+        }
+
+        .crop-container img {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+        }
+
+        .crop-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 1024px) {
+            .profile-container {
+                padding: 30px;
+            }
+            
+            .profile-header {
+                gap: 25px;
+            }
+            
+            .profile-picture {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 15px;
+                gap: 8px;
+            }
+            
+            .nav-item {
+                padding: 12px 16px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .profile-container {
+                padding: 25px;
+                margin-top: 0;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .profile-info h1 {
+                font-size: 28px;
+            }
+            
+            .field-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 20px 15px;
+            }
+            
+            .field-value {
+                margin: 0;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+                padding: 25px;
+            }
+            
+            .crop-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="/static/balikwika.png" alt="BalikWika Logo">
+        </div>
+        
+        <a href="{{ url_for('student_dashboard') }}" class="nav-item">Dashboard</a>
+        <a href="{{ url_for('mga_aralin') }}" class="nav-item">Mga aralin</a>
+        <a href="{{ url_for('mga_pagsusulit') }}" class="nav-item">Pagsusulit</a>
+        <a href="{{ url_for('profile') }}" class="nav-item active">Aking profile</a>
+        <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
+    </div>
+
+    <div class="main-content">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-picture-container">
+                    <div class="profile-picture" id="profilePicture">
+                        {% if profile_picture %}
+    <img src="data:image/jpeg;base64,{{ profile_picture }}" alt="Profile Picture">
+{% else %}
+    <div class="profile-placeholder">
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="50" fill="#e2e8f0"/>
+            <circle cx="50" cy="35" r="15" fill="#94a3b8"/>
+            <path d="M20 80 C20 65, 35 55, 50 55 C65 55, 80 65, 80 80" fill="#94a3b8"/>
+        </svg>
+    </div>
+{% endif %}
+<input type="file" id="fileInput" accept="image/*" style="display: none;">
+                    </div>
+                    <button class="edit-picture-btn" onclick="openPictureModal()">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="profile-info">
+                    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+                    <p>{{ user.email }}</p>
+                </div>
+            </div>
+
+            <div class="profile-fields">
+                <div class="field-group">
+                    <span class="field-label">
+                        <i class="fas fa-user"></i>
+                        Name
+                    </span>
+                    <span class="field-value">{{ user.first_name }} {{ user.last_name }}</span>
+                    <button class="edit-btn" onclick="openEditModal()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+
+                <div class="field-group">
+                    <span class="field-label">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </span>
+                    <span class="field-value">{{ user.email }}</span>
+                    <button class="edit-btn" onclick="openEditModal()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+
+                <div class="field-group">
+                    <span class="field-label">
+                        <i class="fas fa-lock"></i>
+                        Password
+                    </span>
+                    <span class="field-value">••••••••</span>
+                    <button class="edit-btn" onclick="openPasswordModal()">
+                        <i class="fas fa-edit"></i> Change
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Profile</h2>
+                <button class="close-btn" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <div class="alert alert-success" id="editSuccess"></div>
+            <div class="alert alert-error" id="editError"></div>
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="first_name" value="{{ user.first_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="last_name" value="{{ user.last_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+                <div class="button-container">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+   <!-- Change Password Modal -->
+<div id="passwordModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Change Password</h2>
+            <button class="close-btn" onclick="closeModal('passwordModal')">&times;</button>
+        </div>
+        <div class="alert alert-success" id="passwordSuccess"></div>
+        <div class="alert alert-error" id="passwordError"></div>
+        <form id="passwordForm">
+            <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="currentPassword" name="current_password" required>
+                    <i class="fas fa-eye-slash toggle-password" data-target="currentPassword"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="newPassword" name="new_password" required>
+                    <i class="fas fa-eye-slash toggle-password" data-target="newPassword"></i>
+                </div>
+            </div>
+            
+             <div class="password-requirements" id="passwordRequirements" style="display: none; margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 4px; font-size: 14px;">
+        <p style="margin: 0 0 8px 0; font-weight: bold;">Password must contain:</p>
+        <ul style="margin: 0; padding-left: 20px;">
+            <li id="req-length">At least 8 characters</li>
+            <li id="req-upper">One uppercase letter</li>
+            <li id="req-lower">One lowercase letter</li>
+            <li id="req-number">One number</li>
+            <li id="req-special">One special character (!@#$%^&*)</li>
+        </ul>
+    </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="confirmPassword" name="confirm_password" required>
+                    <i class="fas fa-eye-slash toggle-password" data-target="confirmPassword"></i>
+                </div>
+            </div>
+            <div class="button-container">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-key"></i> Change Password
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('passwordModal')">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Profile Picture Modal -->
+    <div id="pictureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Update Profile Picture</h2>
+                <button class="close-btn" onclick="closeModal('pictureModal')">&times;</button>
+            </div>
+            <div class="alert alert-success" id="pictureSuccess"></div>
+            <div class="alert alert-error" id="pictureError"></div>
+ 
+            <div id="pictureMenu" class="button-container" style="flex-direction: column; gap: 16px; margin-bottom: 30px;">
+            <button class="btn btn-danger" onclick="removeProfilePicture()">
+            <i class="fas fa-trash"></i> Remove Current Picture
+            </button>
+            <button class="btn btn-primary" onclick="showUploadArea()">
+            <i class="fas fa-upload"></i> Upload New Picture
+        </button>
+            </div>
+
+            <div class="file-upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload or drag and drop your image here</p>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+
+            <div class="crop-container" id="cropContainer" style="display: none;">
+                <img id="cropImage" style="max-width: 100%;">
+                <div class="button-container">
+                    <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">
+                        <i class="fas fa-save"></i> Save Picture
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetCropper()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="removeProfilePicture()">
+                        <i class="fas fa-trash"></i> Remove Picture
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+<div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-content">
+        <span class="logout-close" id="closeModal"></span>
+        <div class="logout-modal-header">
+            <div class="logout-modal-icon">⚠️</div>
+            <h2 class="logout-modal-title" style="font-weight: bold;">Confirm Logout</h2>
+        </div>
+        <div class="logout-modal-body">
+            <p class="logout-modal-message" style="font-size: larger;">
+                Are you sure you want to logout? You will be redirected to the login page.
+            </p>
+        </div>
+        <div class="logout-modal-actions">
+            <button class="logout-btn logout-btn-cancel" id="cancelLogout">Cancel</button>
+            <a href="{{ url_for('logout') }}" class="logout-btn logout-btn-confirm">Logout</a>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+
+// Modal functions
+function openEditModal() {
+    document.getElementById('editModal').style.display = 'block';
+}
+
+function openPasswordModal() {
+    document.getElementById('passwordModal').style.display = 'block';
+}
+
+function openPictureModal() {
+    document.getElementById('pictureModal').style.display = 'block';
+
+    const menu = document.getElementById('pictureMenu');
+    const uploadArea = document.getElementById('uploadArea');
+    const cropContainer = document.getElementById('cropContainer');
+
+    if (menu) menu.style.display = 'flex';
+    if (uploadArea) uploadArea.style.display = 'none';
+    if (cropContainer) cropContainer.style.display = 'none';
+}
+
+function showUploadArea() {
+    const menu = document.getElementById('pictureMenu');
+    const uploadArea = document.getElementById('uploadArea');
+
+    if (menu) menu.style.display = 'none';
+    if (uploadArea) uploadArea.style.display = 'block';
+}
+
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    const cropContainer = document.getElementById('cropContainer');
+    const uploadArea = document.getElementById('uploadArea');
+    if (cropContainer) cropContainer.style.display = 'none';
+    if (uploadArea) uploadArea.style.display = 'block';
+}
+
+// Unified alert function
+function showAlert(alertId, message) {
+    const allAlerts = ['editSuccess', 'editError', 'passwordSuccess', 'passwordError', 'pictureSuccess', 'pictureError'];
+
+    // Hide all alerts first
+    allAlerts.forEach(id => {
+        const alert = document.getElementById(id);
+        if (alert) alert.style.display = 'none';
+    });
+
+    // Show the requested alert
+    const alert = document.getElementById(alertId);
+    if (alert) {
+        alert.textContent = message;
+        alert.style.display = 'block';
+
+        setTimeout(() => {
+            alert.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// File upload handling
+function initFileUpload() {
+    const uploadArea = document.getElementById('uploadArea');
+    const profileEditArea = document.getElementById('profileEditArea');
+    const profileMenu = document.getElementById('profileMenu');
+    const fileInput = document.getElementById('fileInput');
+    const uploadOption = document.getElementById('uploadOption');
+    const removeOption = document.getElementById('removeOption');
+    
+    // Handle click on placeholder (no profile picture)
+    if (uploadArea) {
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+    }
+    
+    // Handle click on existing profile picture
+    if (profileEditArea) {
+        profileEditArea.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileMenu.style.display = profileMenu.style.display === 'block' ? 'none' : 'block';
+        });
+    }
+    
+    // Handle upload option
+    if (uploadOption) {
+        uploadOption.addEventListener('click', function() {
+            profileMenu.style.display = 'none';
+            fileInput.click();
+        });
+    }
+    
+    // Handle remove option
+    if (removeOption) {
+        removeOption.addEventListener('click', function() {
+            profileMenu.style.display = 'none';
+            if (confirm('Are you sure you want to remove your profile picture?')) {
+                removeProfilePicture();
+            }
+        });
+    }
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function() {
+        if (profileMenu) {
+            profileMenu.style.display = 'none';
+        }
+    });
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        });
+    }
+}
+
+function handleFileUpload(file) {
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Only PNG, JPG, JPEG, and GIF are allowed');
+        return;
+    }
+
+    // Create FormData to send the file
+    const formData = new FormData();
+    formData.append('profile_picture', file);
+
+    // Send to your Flask route
+    fetch('/upload_profile_picture', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show the new picture
+            location.reload();
+        } else {
+            alert('Upload failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Upload failed. Please try again.');
+    });
+}
+
+function removeProfilePicture() {
+    fetch('/remove_profile_picture', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload the page to show the placeholder
+            location.reload();
+        } else {
+            alert('Failed to remove profile picture: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to remove profile picture. Please try again.');
+    });
+}
+
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+            handleFileUpload(file);
+        }
+    });
+
+
+function handleFileUpload(file) {
+    if (!file.type.startsWith('image/')) {
+        showAlert('pictureError', 'Please select a valid image file.');
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        showAlert('pictureError', 'File size must be less than 5MB.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const cropImage = document.getElementById('cropImage');
+        const uploadArea = document.getElementById('uploadArea');
+        const cropContainer = document.getElementById('cropContainer');
+        
+        if (!cropImage || !uploadArea || !cropContainer) return;
+
+        cropImage.src = e.target.result;
+        
+        uploadArea.style.display = 'none';
+        cropContainer.style.display = 'block';
+        
+        if (cropper) {
+            cropper.destroy();
+        }
+        
+        cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 2,
+            autoCropArea: 1,
+            responsive: true,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+function resetCropper() {
+    const cropContainer = document.getElementById('cropContainer');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    
+    if (cropContainer) cropContainer.style.display = 'none';
+    if (uploadArea) uploadArea.style.display = 'block';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    if (fileInput) fileInput.value = '';
+}
+
+function saveCroppedImage() {
+    if (!cropper) return;
+
+    const canvas = cropper.getCroppedCanvas({
+        width: 200,
+        height: 200,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+    });
+
+    canvas.toBlob(function(blob) {
+        const formData = new FormData();
+        formData.append('profile_picture', blob, 'profile.jpg');
+
+        fetch('/upload_profile_picture', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('pictureSuccess', 'Profile picture updated successfully!');
+                
+                // Update the profile picture in the UI
+                const profilePicture = document.getElementById('profilePicture');
+                if (profilePicture) {
+                    // Remove existing content
+                    profilePicture.innerHTML = '';
+                    
+                    // Add new image
+                    const img = document.createElement('img');
+                    img.src = canvas.toDataURL();
+                    img.alt = 'Profile Picture';
+                    profilePicture.appendChild(img);
+                }
+                
+                setTimeout(() => {
+                    closeModal('pictureModal');
+                }, 1500);
+            } else {
+                showAlert('pictureError', data.message || 'Failed to update profile picture.');
+            }
+        })
+        .catch(error => {
+            showAlert('pictureError', 'An error occurred while updating the profile picture.');
+            console.error('Error:', error);
+        });
+    }, 'image/jpeg', 0.8);
+}
+
+function removeProfilePicture() {
+    fetch('/remove_profile_picture', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('pictureSuccess', 'Profile picture removed successfully!');
+            
+            // Update the profile picture in the UI
+            const profilePicture = document.getElementById('profilePicture');
+            if (profilePicture) {
+               profilePicture.innerHTML = `
+    <div class="profile-placeholder">
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="50" fill="#e2e8f0"/>
+            <circle cx="50" cy="35" r="15" fill="#94a3b8"/>
+            <path d="M20 80 C20 65, 35 55, 50 55 C65 55, 80 65, 80 80" fill="#94a3b8"/>
+        </svg>
+    </div>
+`;
+            }
+            
+            setTimeout(() => {
+                closeModal('pictureModal');
+            }, 1500);
+        } else {
+            showAlert('pictureError', data.message || 'Failed to remove profile picture.');
+        }
+    })
+    .catch(error => {
+        showAlert('pictureError', 'An error occurred while removing the profile picture.');
+        console.error('Error:', error);
+    });
+}
+
+// Password strength validation
+function validatePasswordStrength(password) {
+    const requirements = {
+        length: /.{8,}/.test(password),
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    return requirements;
+}
+
+function updatePasswordRequirements(password) {
+    const requirements = validatePasswordStrength(password);
+    const requirementsDiv = document.getElementById('passwordRequirements');
+    
+    if (!requirementsDiv) return;
+
+    // Show requirements when user starts typing
+    if (password.length > 0) {
+        requirementsDiv.style.display = 'block';
+    } else {
+        requirementsDiv.style.display = 'none';
+        return;
+    }
+
+    // Update each requirement
+    const reqElements = {
+        length: document.getElementById('req-length'),
+        upper: document.getElementById('req-upper'),
+        lower: document.getElementById('req-lower'),
+        number: document.getElementById('req-number'),
+        special: document.getElementById('req-special')
+    };
+
+    Object.keys(requirements).forEach(key => {
+        const element = reqElements[key];
+        if (element) {
+            if (requirements[key]) {
+                element.style.color = 'green';
+                element.style.textDecoration = 'line-through';
+            } else {
+                element.style.color = 'red';
+                element.style.textDecoration = 'none';
+            }
+        }
+    });
+}
+
+function isPasswordValid(password) {
+    const requirements = validatePasswordStrength(password);
+    return Object.values(requirements).every(req => req);
+}
+
+// Initialize password toggle functionality
+function initPasswordToggle() {
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+        icon.addEventListener('click', () => {
+            const targetId = icon.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            if (input) {
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            }
+        });
+    });
+}
+
+// Initialize forms
+function initForms() {
+    // Edit profile form
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('/update_profile', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('editSuccess', 'Profile updated successfully!');
+                    
+                    // Update the profile info in the UI
+                    const firstName = document.getElementById('firstName')?.value || '';
+                    const lastName = document.getElementById('lastName')?.value || '';
+                    const email = document.getElementById('email')?.value || '';
+                    
+                    const profileName = document.querySelector('.profile-info h1');
+                    const profileEmail = document.querySelector('.profile-info p');
+                    
+                    if (profileName) profileName.textContent = `${firstName} ${lastName}`;
+                    if (profileEmail) profileEmail.textContent = email;
+                    
+                    document.querySelectorAll('.field-value').forEach((element, index) => {
+                        if (index === 0) element.textContent = `${firstName} ${lastName}`;
+                        if (index === 1) element.textContent = email;
+                    });
+                    
+                    setTimeout(() => {
+                        closeModal('editModal');
+                    }, 1500);
+                } else {
+                    showAlert('editError', data.message || 'Failed to update profile.');
+                }
+            })
+            .catch(error => {
+                showAlert('editError', 'An error occurred while updating the profile.');
+                console.error('Error:', error);
+            });
+        });
+    }
+
+    // Password change form
+    const passwordForm = document.getElementById('passwordForm');
+    if (passwordForm) {
+        // Add real-time password requirements checking
+        const newPasswordInput = document.getElementById('newPassword');
+        if (newPasswordInput) {
+            newPasswordInput.addEventListener('input', function() {
+                updatePasswordRequirements(this.value);
+            });
+
+            newPasswordInput.addEventListener('focus', function() {
+                if (this.value.length > 0) {
+                    updatePasswordRequirements(this.value);
+                }
+            });
+
+            newPasswordInput.addEventListener('blur', function() {
+                const requirementsDiv = document.getElementById('passwordRequirements');
+                if (requirementsDiv && this.value.length === 0) {
+                    requirementsDiv.style.display = 'none';
+                }
+            });
+        }
+
+        passwordForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const newPassword = document.getElementById('newPassword')?.value || '';
+            const confirmPassword = document.getElementById('confirmPassword')?.value || '';
+
+            if (!isPasswordValid(newPassword)) {
+                showAlert('passwordError', 'Password must meet all requirements listed above.');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                showAlert('passwordError', 'Passwords do not match.');
+                return;
+            }
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/change_password_ajax', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert('passwordSuccess', result.message || 'Password changed successfully!');
+                    this.reset();
+                    // Hide requirements after successful reset
+                    const requirementsDiv = document.getElementById('passwordRequirements');
+                    if (requirementsDiv) {
+                        requirementsDiv.style.display = 'none';
+                    }
+                    setTimeout(() => {
+                        closeModal('passwordModal');
+                    }, 1500);
+                } else {
+                    showAlert('passwordError', result.message || 'Failed to change password.');
+                }
+            } catch (error) {
+                showAlert('passwordError', 'An error occurred while changing the password.');
+                console.error('Error:', error);
+            }
+        });
+    }
+}
+
+// Initialize modal functionality
+function initModals() {
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        const modals = ['editModal', 'passwordModal', 'pictureModal', 'logoutModal'];
+        modals.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal && event.target === modal) {
+                if (modalId === 'logoutModal') {
+                    modal.style.display = 'none';
+                } else {
+                    closeModal(modalId);
+                }
+            }
+        });
+    });
+
+    // Initialize logout modal
+    const logoutBtn = document.getElementById('logout-btn');
+    const logoutModal = document.getElementById('logoutModal');
+    const closeLogout = document.getElementById('closeModal');
+    const cancelLogout = document.getElementById('cancelLogout');
+
+    if (logoutBtn && logoutModal) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoutModal.style.display = 'block';
+        });
+    }
+
+    if (closeLogout && logoutModal) {
+        closeLogout.addEventListener('click', function() {
+            logoutModal.style.display = 'none';
+        });
+    }
+
+    if (cancelLogout && logoutModal) {
+        cancelLogout.addEventListener('click', function() {
+            logoutModal.style.display = 'none';
+        });
+    }
+}
+
+// Initialize animations
+function initAnimations() {
+    const cards = document.querySelectorAll('.profile-container');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+}
+
+// Main initialization function
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Profile page loaded successfully');
+    
+    // Initialize all components
+    initFileUpload();
+    initPasswordToggle();
+    initForms();
+    initModals();
+    initAnimations();
+});
+
+    </script>
+</body>
+</html>
