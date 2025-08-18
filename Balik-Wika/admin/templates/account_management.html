@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Account Management</title>
+  <link rel="stylesheet" href="{{ url_for('admin.static', filename='account_style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="logo-container">
+        <img src="{{ url_for('admin.static', filename='bwlogo.png') }}" alt="Balik Wika Logo" class="logo" />
+        
+      </div>
+      <nav class="nav-menu">
+        <a class="nav-btn red" href="{{ url_for('admin.index') }}">Dashboard</a>
+        <a class="nav-btn yellow" href="{{ url_for('admin.students') }}">Mga Estudyante</a>
+        <a class="nav-btn teal" href="{{ url_for('admin.teachers') }}">Mga Guro</a>
+
+        <div class="dropdown-wrapper">
+          <button class="nav-btn violet" onclick="toggleDropdown()">Settings <i class="fas fa-caret-down dropdown-icon"></i></button>
+          <div class="dropdown" id="settingsDropdown">
+            <a href="{{ url_for('admin.account') }}">Account Management</a>
+            <a href="{{ url_for('admin.reports') }}">Reports</a>
+          </div>
+        </div>
+      </nav>
+      <button class="logout-btn" onclick="showLogoutModal()">Mag log-out</button>
+    </aside>
+
+
+    <main class="main">
+      <h1 class="main-title">Account Management</h1>
+      <hr class="divider" />
+
+      <div class="card">
+        <h3>Update Admin Profile Info</h3>
+        <form method="POST">
+          <div class="form-group">
+            <label>First Name:</label>
+            <div class="input-icon">
+              <input type="text" name="first_name" id="first_name" value="{{ admin.first_name }}" disabled>
+              <i class="fas fa-pen edit-icon" onclick="enableEdit('first_name')"></i>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Last Name:</label>
+            <div class="input-icon">
+              <input type="text" name="last_name" id="last_name" value="{{ admin.last_name }}" disabled>
+              <i class="fas fa-pen edit-icon" onclick="enableEdit('last_name')"></i>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Email:</label>
+            <div class="input-icon">
+              <input type="email" name="email" id="email" value="{{ admin.email }}" disabled>
+              <i class="fas fa-pen edit-icon" onclick="enableEdit('email')"></i>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
+            <button type="submit" class="form-btn">Save Changes</button>
+            <button type="button" class="form-btn orange" onclick="openModal()">Change Password</button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+<!-- Password Change Modal -->
+<div class="modal" id="passwordModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h3>Change Password</h3>
+    <form action="{{ url_for('admin.change_password') }}" method="POST">
+      <label>Current Password:</label>
+      <div class="password-container">
+        <input type="password" name="current_password" id="current_password" required>
+        <i class="fas fa-eye toggle-eye" onclick="togglePassword('current_password', this)"></i>
+      </div>
+
+      <label>New Password:</label>
+      <div class="password-container">
+        <input type="password" name="new_password" id="new_password" required>
+        <i class="fas fa-eye toggle-eye" onclick="togglePassword('new_password', this)"></i>
+      </div>
+
+      <label>Confirm New Password:</label>
+      <div class="password-container">
+        <input type="password" name="confirm_password" id="confirm_password" required>
+        <i class="fas fa-eye toggle-eye" onclick="togglePassword('confirm_password', this)"></i>
+      </div>
+
+      <button type="submit">Update Password</button>
+    </form>
+  </div>
+</div>
+
+  <!-- Logout Confirmation Modal -->
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="hideLogoutModal()">&times;</span>
+      <div class="modal-header">
+        <div class="modal-icon">⚠️</div>
+        <h2 class="modal-title">Confirm Logout</h2>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">
+          Are you sure you want to logout? You will be redirected to the login page.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" onclick="hideLogoutModal()">Cancel</button>
+        <button class="btn btn-confirm" onclick="confirmLogout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Notification Modal -->
+<div class="modal" id="notifyModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeNotifyModal()">&times;</span>
+    <p id="notifyMessage"></p>
+  </div>
+</div>
+
+<style>
+  .card {
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 25px 30px;
+    border-radius: 12px;
+    max-width: 1500px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.15);
+  }
+
+  .card h3 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+    font-size: 16px;
+  }
+
+  .input-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-icon input {
+    flex: 1;
+    padding: 10px 40px 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #f9f9f9;
+    transition: border 0.3s;
+  }
+
+  .input-icon input:focus {
+    border-color: #8e44ad;
+    outline: none;
+    background-color: #fff;
+  }
+
+  .edit-icon {
+    position: absolute;
+    right: 12px;
+    color: #888;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  .edit-icon:hover {
+    color: #333;
+  }
+
+  .form-btn {
+    flex: 1;
+    background-color: #8e44ad;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s;
+    text-align: center;
+  }
+
+  .form-btn:hover {
+    background-color: #732d91;
+  }
+
+  .form-btn.orange {
+    background-color: #e67e22;
+  }
+
+  .form-btn.orange:hover {
+    background-color: #cf711c;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+  }
+
+  .modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 25px 30px;
+    border-radius: 12px;
+    max-width: 400px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    position: relative;
+    text-align: center;
+  }
+
+  .modal-content h3 {
+    margin-top: 0;
+  }
+
+  .modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  .modal-content button {
+    width: 100%;
+    padding: 10px;
+    background-color: #8e44ad;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .modal-content button:hover {
+    background-color: #732d91;
+  }
+
+  .close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+  }
+
+  .close:hover {
+    color: #333;
+  }
+
+  .password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .password-container input {
+    width: 100%;
+    padding-right: 40px;
+  }
+
+  .toggle-eye {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-80%);
+    color: #888;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  function enableEdit(fieldId) {
+    document.getElementById(fieldId).disabled = false;
+    document.getElementById(fieldId).focus();
+  }
+
+  document.querySelector('form').addEventListener('submit', function () {
+    document.querySelectorAll('input').forEach(input => input.disabled = false);
+  });
+
+  function openModal() {
+    document.getElementById("passwordModal").style.display = "block";
+  }
+
+  function closeModal() {
+    document.getElementById("passwordModal").style.display = "none";
+  }
+
+  function closeNotifyModal() {
+    document.getElementById("notifyModal").style.display = "none";
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const message = params.get('message');
+  const notifyMessages = {
+    incorrect: "The current password is incorrect.",
+    mismatch: "New password and confirm password do not match.",
+    success: "Password changed successfully."
+  };
+
+  if (message && notifyMessages[message]) {
+    document.getElementById("notifyMessage").innerText = notifyMessages[message];
+    document.getElementById("notifyModal").style.display = "block";
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById("passwordModal");
+    const notify = document.getElementById("notifyModal");
+    if (event.target == modal) modal.style.display = "none";
+    if (event.target == notify) notify.style.display = "none";
+  }
+
+  function togglePassword(fieldId, icon) {
+    const input = document.getElementById(fieldId);
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+    } else {
+      input.type = "password";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    }
+  }
+
+  function toggleDropdown() {
+    document.getElementById("settingsDropdown").classList.toggle("show");
+  }
+
+  window.addEventListener("click", function(e) {
+    if (!e.target.matches(".violet")) {
+      const dropdown = document.getElementById("settingsDropdown");
+      if (dropdown.classList.contains("show")) {
+        dropdown.classList.remove("show");
+      }
+    }
+  });
+
+  // Logout functionality
+    function showLogoutModal() {
+      document.getElementById("logoutModal").style.display = "block";
+    }
+
+    function hideLogoutModal() {
+      document.getElementById("logoutModal").style.display = "none";
+    }
+
+    function confirmLogout() {
+      // Redirect to Flask logout route
+      window.location.href = "{{ url_for('admin.logout') }}";
+    }
+
+    // Close modal when clicking outside of it
+    window.addEventListener("click", function(e) {
+      const modal = document.getElementById("logoutModal");
+      if (e.target === modal) {
+        hideLogoutModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        hideLogoutModal();
+      }
+    });
+
+</script>
+</body>
+</html>

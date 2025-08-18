@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reports</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+
+    .logo {
+      width: 120px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 40px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #999;
+      text-align: left;
+    }
+
+    th {
+      background-color: #eee;
+    }
+  </style>
+</head>
+<body onload="window.print()">
+  <img src="{{ url_for('admin.static', filename='bwlogo.png') }}" class="logo" alt="Logo">
+
+  <h2>Teachers Report</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Registered At</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for teacher in teachers %}
+      <tr>
+        <td>{{ teacher[0] }}</td>
+        <td>{{ teacher[1] }}</td>
+        <td>{{ teacher[2] }}</td>
+        <td>{{ teacher[3] }}</td>
+        <td>{{ teacher[4] or 'N/A' }}</td>
+        <td>{{ teacher[5] or 'Inactive' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Users Report</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Registered At</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user[0] }}</td>
+        <td>{{ user[2] }}</td>
+        <td>{{ user[3] }}</td>
+        <td>{{ user[1] }}</td>
+        <td>{{ user[4] or 'N/A' }}</td>
+        <td>{{ user[5] or 'Pending' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Admin Report</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for admin in admins %}
+      <tr>
+        <td>{{ admin[0] }}</td>
+        <td>{{ admin[1] }}</td>
+        <td>{{ admin[2] }}</td>
+        <td>{{ admin[3] }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

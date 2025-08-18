@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - BalikWika</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --accent-color: #e74c3c;
+    --warning-color: #f39c12;
+    --purple-color: #9b59b6;
+    --orange-color: #e67e22;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --text-color: #34495e;
+    --text-light: #7f8c8d;
+    --white: #ffffff;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Instrument Serif', serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    min-height: 100vh;
+    display: flex;
+    line-height: 1.6;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.sidebar {
+    width: 280px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: var(--border-radius);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logo img {
+    width: 180px;
+    height: 90px;
+    object-fit: contain;
+    transition: var(--transition);
+}
+
+.logo:hover img {
+    transform: scale(1.05);
+}
+
+.nav-item {
+    padding: 18px 24px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    color: var(--white);
+    font-weight: 500;
+    text-align: center;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.nav-item:hover::before {
+    left: 100%;
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, var(--accent-color), #c0392b);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.nav-item:nth-child(3) { 
+    background: linear-gradient(135deg, var(--warning-color), #d68910);
+}
+.nav-item:nth-child(4) { 
+    background: linear-gradient(135deg, var(--secondary-color), #27ae60);
+}
+.nav-item:nth-child(5) { 
+    background: linear-gradient(135deg, var(--primary-color), #2980b9);
+}
+.nav-item:nth-child(6) { 
+    background: linear-gradient(135deg, var(--purple-color), #8e44ad);
+}
+.nav-item:nth-child(7) { 
+    background: linear-gradient(135deg, var(--orange-color), #d35400);
+}
+
+.nav-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    margin: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fee2e2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #dc2626;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.modal-body {
+    padding: 16px 24px 24px;
+}
+
+.modal-message {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.modal-actions {
+    padding: 16px 24px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    background: none;
+}
+
+.btn-cancel {
+    background: #fff;
+    color: #6b7280;
+    border-color: #d1d5db;
+}
+
+.btn-cancel:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.btn-confirm {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+.btn-confirm:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close:hover {
+    color: #6b7280;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.date {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: white;
+    font-size: 18px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 25px;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+}
+
+.user-info:hover {
+    /* Soft, natural background */
+    background: rgba(245, 248, 252, 0.8);
+    
+    /* Gentle shadow that grows smoothly */
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.06),
+        0 3px 12px rgba(0, 0, 0, 0.04);
+    
+    /* Very subtle lift - barely noticeable but felt */
+    transform: translateY(-1px);
+}
+
+/* Focus state for accessibility */
+.user-info:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.5);
+    outline-offset: 2px;
+}
+
+
+.user-info a {
+    display: flex !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    gap: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e74c3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    overflow: hidden; 
+}
+
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.user-details h3 {
+    margin: 0;
+    color: #333;
+    font-size: 16px;
+    white-space: nowrap; 
+}
+
+.user-details p {
+    margin: 0;
+    color: #666;
+    font-size: 12px;
+}
+
+.welcome-section,
+.dashboard-grid > div,
+.leaderboard-list > .leaderboard-item,
+.suggested-topics {
+opacity: 0;
+transform: translateY(20px);
+}
+
+.welcome-section {
+    position: relative;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/static/student-hero.gif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 1;
+    z-index: 1;
+}
+
+.welcome-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    z-index: 2;
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 3;
+}
+
+.welcome-title {
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 300;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.welcome-subtitle {
+    color: #666;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.5;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.progress-section {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.progress-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.progress-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e74c3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.progress-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+.points-section {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.points-section .section-title {
+    margin-bottom: 20px;
+}
+
+.points-display {
+    margin-bottom: 10px;
+}
+
+.points-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 25px;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.star-icon {
+    width: 25px;
+    height: 25px;
+    background: #f39c12;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+}
+
+.points-subtitle {
+    margin-top: 15px;
+    color: #666;
+    font-size: 14px;
+}
+
+.leaderboard-section {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.see-all {
+    color: #e74c3c;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.see-all:hover {
+    color: #c0392b;
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.leaderboard-item:hover {
+    background: #e9ecef;
+}
+
+.rank-badge {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rank-badge.gold { 
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+.rank-badge.silver { 
+    background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%);
+    box-shadow: 0 4px 15px rgba(192, 192, 192, 0.4);
+}
+.rank-badge.bronze { 
+    background: linear-gradient(135deg, #CD7F32 0%, #B8860B 100%);
+    box-shadow: 0 4px 15px rgba(205, 127, 50, 0.4);
+}
+.rank-badge.other { 
+    background: #bdc3c7; 
+    font-size: 14px;
+}
+
+.suggested-topics {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.topics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 15px;
+}
+
+.topic-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.topic-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.topic-info h3 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.topic-type {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.view-btn {
+    background: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.view-btn:hover {
+    background: #c0392b;
+}
+
+.topic-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 15px;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .topics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .topic-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .topic-image {
+        width: 100px;
+        height: 100px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="sidebar">
+        <div class="logo">
+            <img src="/static/balikwika.png" alt="BalikWika Logo">
+        </div>
+        
+        <a href="{{ url_for('student_dashboard') }}" class="nav-item active">Dashboard</a>
+        <a href="{{ url_for('mga_aralin') }}" class="nav-item">Mga aralin</a>
+        <a href="{{ url_for('mga_pagsusulit') }}" class="nav-item">Pagsusulit</a>
+        <a href="{{ url_for('profile') }}" class="nav-item">Aking profile</a>
+        <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="date" id="currentDate">{{ current_date if current_date else "July 14, 2025" }}</div>
+
+            <div class="user-info">
+                <a href="{{ url_for('profile') }}">
+                    <div class="user-avatar">
+                        {% if profile_picture %}
+                            <img src="data:image/jpeg;base64,{{ profile_picture }}" alt="Avatar">
+                        {% else %}
+                            {{ user.first_name[0] if user.first_name else '?' }}
+                        {% endif %}
+                    </div>
+                    <div class="user-details">
+                        <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Maligayang pagbabalik, {{ user.first_name }}!</h1>
+                <p class="welcome-subtitle">
+                    Pagbutihin mo upang lagi kang nasa itaas ng leaderboard!<br>
+                    Kahanga-hanga ang inyong paggawa sa bawat kurso.
+                </p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="progress-section">
+                <h2 class="section-title" style="font-weight: bold;">Educational Progress</h2>
+                
+                <div class="progress-item">
+                    <div class="progress-circle">5%</div>
+                    <div class="progress-text">Pangngalan Course Completion</div>
+                </div>
+                
+                <div class="progress-item">
+                    <div class="progress-circle">5%</div>
+                    <div class="progress-text">Pandiwa Course Completion</div>
+                </div>
+                
+                <div class="progress-item">
+                    <div class="progress-circle">5%</div>
+                    <div class="progress-text">Pang-uri Course Completion</div>
+                </div>
+                
+                <div class="progress-item">
+                    <div class="progress-circle">5%</div>
+                    <div class="progress-text">Panghalip Course Completion</div>
+                </div>
+            </div>
+
+            <div class="points-section">
+                <h2 class="section-title" style="font-weight: bold;">Points</h2>
+                
+                <div class="points-display">
+                    <div class="points-badge">
+                        <div class="star-icon">★</div>
+                        <span>2875 points</span>
+                    </div>
+                    <p class="points-subtitle">Points for leaderboard</p>
+                </div>
+            </div>
+
+            <div class="leaderboard-section">
+                <div class="section-header">
+                    <h2 class="section-title" style="font-weight: bold;">Leaderboard</h2>
+                    <a href="#" class="see-all">See all</a>
+                </div>
+                
+                <div class="leaderboard-list">
+                    <div class="leaderboard-item">
+                        <div class="rank-badge gold">★</div>
+                        <div class="user-avatar" style="background: #f39c12;">T</div>
+                        <span style="color: #333; font-weight: 500;">Trinity Rosales</span>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank-badge silver">★</div>
+                        <div class="user-avatar" style="background: #95a5a6;">B</div>
+                        <span style="color: #333; font-weight: 500;">Bee Abrantes</span>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank-badge bronze">★</div>
+                        <div class="user-avatar" style="background: #e67e22;">K</div>
+                        <span style="color: #333; font-weight: 500;">Kyla Estrella</span>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank-badge other">4</div>
+                        <div class="user-avatar" style="background: #e74c3c;">J</div>
+                        <span style="color: #333; font-weight: 500;">Juan Dela Cruz</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="suggested-topics">
+            <div class="section-header">
+                <h2 class="section-title" style="font-weight: bold;">Suggested Topics</h2>
+                <a href="#" class="see-all">See all</a>
+            </div>
+            
+            <div class="topics-grid">
+                <div class="topic-card">
+                    <div class="topic-info">
+                        <h3>Pangngalan</h3>
+                        <p class="topic-type">(noun)</p>
+                        <a href="#" class="view-btn">View</a>
+                    </div>
+                    <img src="/static/pangngalan.png" alt="Pangngalan Character" class="topic-image">
+                </div>
+                
+                <div class="topic-card">
+                    <div class="topic-info">
+                        <h3>Pandiwa</h3>
+                        <p class="topic-type">(verb)</p>
+                        <a href="#" class="view-btn">View</a>
+                    </div>
+                    <img src="/static/pandiwa.png" alt="Pandiwa Character" class="topic-image">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+<div id="logoutModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeModal"></span>
+        <div class="modal-header">
+            <div class="modal-icon">⚠️</div>
+            <h2 class="modal-title" style="font-weight: bold;">Confirm Logout</h2>
+        </div>
+        <div class="modal-body">
+            <p class="modal-message" style="font-size: larger;">
+                Are you sure you want to logout? You will be redirected to the login page.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" id="cancelLogout">Cancel</button>
+            <a href="{{ url_for('logout') }}" class="btn btn-confirm">Logout</a>
+        </div>
+    </div>
+</div>
+
+    <script>
+    // Display current date
+    function updateDate() {
+        const now = new Date();
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            weekday: 'long'
+        };
+        const dateString = now.toLocaleDateString('en-US', options);
+        document.getElementById('currentDate').textContent = dateString;
+    }
+
+    // Update date when page loads
+    updateDate();
+
+    // Add smooth scrolling for navigation links
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (this.getAttribute('href') === '#') {
+                e.preventDefault();
+                // Add functionality for navigation items
+            }
+        });
+    });
+
+    // Animate key dashboard sections
+    document.addEventListener('DOMContentLoaded', function () {
+        const animateSequentially = (elements) => {
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    el.style.transition = 'all 0.6s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        };
+
+        // Select multiple section blocks
+        const welcome = document.querySelectorAll('.welcome-section');
+        const gridItems = document.querySelectorAll('.dashboard-grid > div');
+        const leaderboardItems = document.querySelectorAll('.leaderboard-list > .leaderboard-item');
+        const suggestedTopics = document.querySelectorAll('.suggested-topics');
+
+        animateSequentially([...welcome, ...gridItems, ...leaderboardItems, ...suggestedTopics]);
+    });
+
+    // Modal functionality
+const modal = document.getElementById('logoutModal');
+const logoutBtn = document.getElementById('logout-btn');
+const closeModal = document.getElementById('closeModal');
+const cancelLogout = document.getElementById('cancelLogout');
+
+// Open modal when logout button is clicked
+logoutBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    modal.style.display = 'block';
+});
+
+// Close modal when X is clicked
+closeModal.addEventListener('click', function() {
+    modal.style.display = 'none';
+});
+
+// Close modal when Cancel is clicked
+cancelLogout.addEventListener('click', function() {
+    modal.style.display = 'none';
+});
+
+// Close modal when clicking outside of it
+window.addEventListener('click', function(event) {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+});
+</script>
+</body>
+</html>

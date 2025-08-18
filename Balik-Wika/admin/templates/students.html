@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mga Estudyante</title>
+  <link rel="stylesheet" href="{{ url_for('admin.static', filename='students-style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet">
+  <style>
+     .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      font-family: 'Instrument Serif', serif;
+    }
+
+    .modal-header {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .modal-footer {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+    } 
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .btn.cancel { background-color: #ccc; }
+    .btn.save { background-color: #2ecc71; color: white; }
+    .btn.delete-marked {
+      background-color: #e74c3c;
+      color: white;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<style>
+  body {
+    background-image: url("{{ url_for('admin.static', filename='adminbg.jpg') }}");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+</style>
+
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="logo-container">
+        <img src="{{ url_for('admin.static', filename='bwlogo.png') }}" alt="Balik Wika Logo" class="logo" />
+        
+      </div>
+      <nav class="nav-menu">
+        <a class="nav-btn red" href="{{ url_for('admin.index') }}">Dashboard</a>
+        <a class="nav-btn yellow" href="{{ url_for('admin.students') }}">Mga Estudyante</a>
+        <a class="nav-btn teal" href="{{ url_for('admin.teachers') }}">Mga Guro</a>
+
+        <div class="dropdown-wrapper">
+          <button class="nav-btn violet" onclick="toggleDropdown()">Settings <i class="fas fa-caret-down dropdown-icon"></i></button>
+          <div class="dropdown" id="settingsDropdown">
+            <a href="{{ url_for('admin.account') }}">Account Management</a>
+            <a href="{{ url_for('admin.reports') }}">Reports</a>
+          </div>
+        </div>
+      </nav>
+      <button class="logout-btn" onclick="showLogoutModal()">Mag log-out</button>
+    </aside>
+
+    <main class="main">
+      <h1 class="main-title">Mga Estudyante <span class="count">{{ students|length }}</span></h1>
+      <hr class="divider" />
+
+      <div class="search-box" style="display: flex; align-items: center;">
+        <input type="text" id="searchInput" placeholder="Search..." style="width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
+        <button class="btn delete-marked" onclick="deleteMarkedUsers()">Delete marked users</button>
+        <a href="{{ url_for('admin.print_students') }}" target="_blank" class="btn" style="background-color: #2c3e50; color: white; margin-left: 10px;">
+        I-print ang Mga Estudyante
+      </a>
+
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="checkAll"></th>
+            <th>ID</th>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Email</th>
+            <th>Registered at</th>
+            <th>Status</th>
+            <th>Edit status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+          <tr data-id="{{ student.id }}" data-type="student" data-status="{{ student.status }}">
+            <td><input type="checkbox" class="row-checkbox"></td>
+            <td>{{ student.id }}</td>
+            <td>{{ student.first_name }}</td>
+            <td>{{ student.last_name }}</td>
+            <td>{{ student.email }}</td>
+            <td>{{ student.registered_at or 'N/A' }}</td>
+            <td><span class="status {{ student.status|lower }}">{{ student.status }}</span></td>
+            <td class="actions">
+              <i class="fas fa-pen edit" onclick="openModal(this)"></i>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </main>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <div class="modal-header">Edit Status</div>
+      <label for="statusSelect">Change status:</label>
+      <select id="statusSelect">
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+      </select>
+      <div class="modal-footer">
+        <button class="btn cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn save" onclick="saveStatus()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- No User Found Modal -->
+  <div class="modal" id="noResultsModal">
+    <div class="modal-content">
+      <div class="modal-header">No user found</div>
+      <p>No matching student found in the list.</p>
+      <div class="modal-footer">
+        <button class="btn cancel" onclick="closeNoResultsModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+   <!-- Logout Confirmation Modal -->
+  <div id="logoutModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="hideLogoutModal()">&times;</span>
+      <div class="modal-header">
+        <div class="modal-icon">⚠️</div>
+        <h2 class="modal-title">Confirm Logout</h2>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">
+          Are you sure you want to logout? You will be redirected to the login page.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-cancel" onclick="hideLogoutModal()">Cancel</button>
+        <button class="btn btn-confirm" onclick="confirmLogout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentRow = null;
+
+    function toggleDropdown() {
+      document.getElementById("settingsDropdown").classList.toggle("show");
+    }
+
+    window.addEventListener("click", function(e) {
+      if (!e.target.matches(".violet")) {
+        const dropdown = document.getElementById("settingsDropdown");
+        if (dropdown.classList.contains("show")) {
+          dropdown.classList.remove("show");
+        }
+      }
+    });
+
+    function openModal(icon) {
+      currentRow = icon.closest("tr");
+      const status = currentRow.dataset.status;
+      document.getElementById("statusSelect").value = status;
+      document.getElementById("editModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("editModal").style.display = "none";
+    }
+
+    function saveStatus() {
+  const newStatus = document.getElementById("statusSelect").value.toLowerCase();
+  const userId = currentRow.dataset.id;  // this is the correct selected ID
+  const userType = currentRow.dataset.type || 'student'; // fallback if type is not set
+
+  fetch('/admin/update-status', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: userId,
+      status: newStatus,
+      type: userType
+    })
+  })
+    .then(response => response.json())
+    .then(data => {
+      currentRow.dataset.status = newStatus;
+      const statusSpan = currentRow.querySelector(".status");
+      statusSpan.innerText = newStatus;
+      statusSpan.className = `status ${newStatus}`;
+      closeModal();
+    })
+    .catch(error => {
+      console.error("Error updating status:", error);
+      alert("Failed to update status.");
+    });
+}
+
+    function closeNoResultsModal() {
+      document.getElementById("noResultsModal").style.display = "none";
+    }
+
+    document.getElementById("searchInput").addEventListener("input", function () {
+      const filter = this.value.toLowerCase();
+      const rows = document.querySelectorAll("tbody tr");
+      let found = false;
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const isMatch = text.includes(filter);
+        row.style.display = isMatch ? "" : "none";
+        if (isMatch) found = true;
+      });
+
+      if (!found && filter.trim() !== "") {
+        document.getElementById("noResultsModal").style.display = "flex";
+      }
+    });
+
+    document.getElementById("checkAll").addEventListener("change", function () {
+      document.querySelectorAll(".row-checkbox").forEach(cb => cb.checked = this.checked);
+    });
+
+    function deleteMarkedUsers() {
+  const selectedRows = document.querySelectorAll(".row-checkbox:checked");
+  if (selectedRows.length === 0) {
+    alert("Please select at least one user to delete.");
+    return;
+  }
+
+  const confirmed = confirm("Are you sure you want to delete the selected users?");
+  if (!confirmed) return;
+
+  const ids = Array.from(selectedRows).map(cb => parseInt(cb.closest("tr").dataset.id));
+
+  fetch('/admin/delete-users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ids: ids, // ✅ use the correct variable
+      type: 'student'
+    })
+  })
+    .then(response => response.json())
+    .then(data => {
+      alert(data.message);
+      location.reload(); // Refresh to reflect deletions
+    })
+    .catch(error => {
+      console.error("Error deleting users:", error);
+      alert("Failed to delete users.");
+    });
+}
+
+ // Logout functionality
+    function showLogoutModal() {
+      document.getElementById("logoutModal").style.display = "block";
+    }
+
+    function hideLogoutModal() {
+      document.getElementById("logoutModal").style.display = "none";
+    }
+
+    function confirmLogout() {
+      // Redirect to Flask logout route
+      window.location.href = "{{ url_for('admin.logout') }}";
+    }
+
+    // Close modal when clicking outside of it
+    window.addEventListener("click", function(e) {
+      const modal = document.getElementById("logoutModal");
+      if (e.target === modal) {
+        hideLogoutModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") {
+        hideLogoutModal();
+      }
+    });
+  </script>
+</body>
+</html>
