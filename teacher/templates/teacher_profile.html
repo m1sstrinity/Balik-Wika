@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - BalikWika</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <link rel="stylesheet" href="{{ url_for('teacher.static', filename='profile.css') }}" />
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="/static/balikwika.png" alt="BalikWika Logo">
+        </div>
+        
+        <a href="{{ url_for('teacher.teacher_dashboard') }}" class="nav-item">Dashboard</a>
+        <a href="{{ url_for('teacher.mga_aralin') }}" class="nav-item">Mga aralin</a>
+        <a href="{{ url_for('teacher.mga_pagsusulit') }}" class="nav-item">Pagsusulit</a>
+        <a href="{{ url_for('teacher.profile') }}" class="nav-item active">Aking profile</a>
+        <!-- Trigger button -->
+<a href="#" id="triggerLogout" class="nav-item">Mag-log Out</a>
+
+    </div>
+
+    <div class="main-content">
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-picture-container">
+                    <div class="profile-picture" id="profilePicture">
+                        {% if profile_picture %}
+                            <img src="data:image/jpeg;base64,{{ profile_picture }}" alt="Profile Picture">
+                        {% else %}
+                            <i class="fas fa-user"></i>
+                        {% endif %}
+                    </div>
+                    <button class="edit-picture-btn" onclick="openPictureModal()">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="profile-info">
+                    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+                    <p>{{ user.email }}</p>
+                </div>
+            </div>
+
+            <div class="profile-fields">
+                <div class="field-group">
+                    <span class="field-label">
+                        <i class="fas fa-user"></i>
+                        Name
+                    </span>
+                    <span class="field-value">{{ user.first_name }} {{ user.last_name }}</span>
+                    <button class="edit-btn" onclick="openEditModal()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+
+                <div class="field-group">
+                    <span class="field-label">
+                        <i class="fas fa-envelope"></i>
+                        Email
+                    </span>
+                    <span class="field-value">{{ user.email }}</span>
+                    <button class="edit-btn" onclick="openEditModal()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+
+                <div class="field-group">
+                    <span class="field-label"><i class="fas fa-lock"></i> Password</span>
+                    <span class="field-value" data-password="{{ user.password }}">••••••••</span>
+                    <button class="edit-btn" onclick="openPasswordModal()">
+                        <i class="fas fa-edit"></i> Change
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Profile</h2>
+                <button class="close-btn" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <div class="alert alert-success" id="editSuccess"></div>
+            <div class="alert alert-error" id="editError"></div>
+            <form id="editForm" action="/update_profile" method="POST">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="first_name" value="{{ user.first_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="last_name" value="{{ user.last_name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Change Password</h2>
+                <button class="close-btn" onclick="closeModal('passwordModal')">&times;</button>
+            </div>
+            <div class="alert alert-success" id="passwordSuccess"></div>
+            <div class="alert alert-error" id="passwordError"></div>
+            <form id="passwordForm" method="POST" action="/change_password_ajax">
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" name="current_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" name="new_password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" name="confirm_password" required>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('passwordModal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+   <!-- Profile Picture Modal -->
+    <div id="pictureModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Update Profile Picture</h2>
+                <button class="close-btn" onclick="closeModal('pictureModal')">&times;</button>
+            </div>
+            <div class="alert alert-success" id="pictureSuccess"></div>
+            <div class="alert alert-error" id="pictureError"></div>
+ 
+            <div id="pictureMenu" class="button-container" style="flex-direction: column; gap: 16px; margin-bottom: 30px;">
+            <button class="btn btn-danger" onclick="removeProfilePicture()">
+            <i class="fas fa-trash"></i> Remove Current Picture
+            </button>
+            <button class="btn btn-primary" onclick="showUploadArea()">
+            <i class="fas fa-upload"></i> Upload New Picture
+        </button>
+            </div>
+
+            <div class="file-upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Click to upload or drag and drop your image here</p>
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+            </div>
+
+            <div class="crop-container" id="cropContainer" style="display: none;">
+                <img id="cropImage" style="max-width: 100%;">
+                <div class="button-container">
+                    <button type="button" class="btn btn-primary" onclick="saveCroppedImage()">
+                        <i class="fas fa-save"></i> Save Picture
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetCropper()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="removeProfilePicture()">
+                        <i class="fas fa-trash"></i> Remove Picture
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+<div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-content">
+        <span class="logout-close" id="closeModal"></span>
+        <div class="logout-modal-header">
+            <div class="logout-modal-icon">⚠️</div>
+            <h2 class="logout-modal-title">Confirm Logout</h2>
+        </div>
+        <div class="logout-modal-body">
+            <p class="logout-modal-message">
+                Are you sure you want to logout? You will be redirected to the login page.
+            </p>
+        </div>
+        <div class="logout-modal-actions">
+            <button class="logout-btn logout-btn-cancel" id="cancelLogout">Cancel</button>
+            <a href="{{ url_for('logout') }}" class="logout-btn logout-btn-confirm">Logout</a>
+        </div>
+    </div>
+</div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        let cropper;
+
+        // Modal functions
+        function openEditModal() {
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'block';
+        }
+
+        function openPictureModal() {
+    document.getElementById('pictureModal').style.display = 'block';
+
+    const menu = document.getElementById('pictureMenu');
+    const uploadArea = document.getElementById('uploadArea');
+    const cropContainer = document.getElementById('cropContainer');
+
+    if (menu) menu.style.display = 'flex';
+    if (uploadArea) uploadArea.style.display = 'none';
+    if (cropContainer) cropContainer.style.display = 'none';
+}
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            document.getElementById('cropContainer').style.display = 'none';
+            document.getElementById('uploadArea').style.display = 'block';
+        }
+
+        function showUploadArea() {
+            const menu = document.getElementById('pictureMenu');
+            const uploadArea = document.getElementById('uploadArea');
+
+            if (menu) menu.style.display = 'none';
+            if (uploadArea) uploadArea.style.display = 'block';
+        }
+
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = ['editModal', 'passwordModal', 'pictureModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    closeModal(modalId);
+                }
+            });
+        }
+
+        // File upload handling
+        document.getElementById('uploadArea').addEventListener('click', function() {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        });
+
+        // Drag and drop functionality
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFileUpload(file);
+            }
+        });
+
+        function handleFileUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                showAlert('pictureError', 'Please select a valid image file.');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showAlert('pictureError', 'File size must be less than 5MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const cropImage = document.getElementById('cropImage');
+                cropImage.src = e.target.result;
+                
+                document.getElementById('uploadArea').style.display = 'none';
+                document.getElementById('cropContainer').style.display = 'block';
+                
+                if (cropper) {
+                    cropper.destroy();
+                }
+                
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 2,
+                    autoCropArea: 1,
+                    responsive: true,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: false,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false,
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetCropper() {
+            document.getElementById('cropContainer').style.display = 'none';
+            document.getElementById('uploadArea').style.display = 'block';
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            document.getElementById('fileInput').value = '';
+        }
+
+        function saveCroppedImage() {
+            if (!cropper) return;
+
+            const canvas = cropper.getCroppedCanvas({
+                width: 200,
+                height: 200,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+
+            canvas.toBlob(function(blob) {
+                const formData = new FormData();
+                formData.append('profile_picture', blob, 'profile.jpg');
+
+                fetch('/teacher/upload_profile_picture', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert('pictureSuccess', 'Profile picture updated successfully!');
+                        
+                        // Update the profile picture in the UI
+                        const profilePicture = document.getElementById('profilePicture');
+                        const img = profilePicture.querySelector('img') || document.createElement('img');
+                        img.src = canvas.toDataURL();
+                        img.alt = 'Profile Picture';
+                        
+                        if (!profilePicture.querySelector('img')) {
+                            profilePicture.innerHTML = '';
+                            profilePicture.appendChild(img);
+                        }
+                        
+                        // Re-add the edit button if it was removed
+                        if (!profilePicture.querySelector('.edit-picture-btn')) {
+                            const editBtn = document.createElement('button');
+                            editBtn.className = 'edit-picture-btn';
+                            editBtn.onclick = openPictureModal;
+                            editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                            profilePicture.appendChild(editBtn);
+                        }
+                        
+                        setTimeout(() => {
+                            closeModal('pictureModal');
+                        }, 1500);
+                    } else {
+                        showAlert('pictureError', data.message || 'Failed to update profile picture.');
+                    }
+                })
+                .catch(error => {
+                    showAlert('pictureError', 'An error occurred while updating the profile picture.');
+                    console.error('Error:', error);
+                });
+            }, 'image/jpeg', 0.8);
+        }
+
+        function removeProfilePicture() {
+            fetch('/teacher/remove_profile_picture', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('pictureSuccess', 'Profile picture removed successfully!');
+                    
+                    // Update the profile picture in the UI
+                    const profilePicture = document.getElementById('profilePicture');
+                    profilePicture.innerHTML = '<i class="fas fa-user"></i>';
+                    
+                    // Re-add the edit button
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'edit-picture-btn';
+                    editBtn.onclick = openPictureModal;
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                    profilePicture.appendChild(editBtn);
+                    
+                    setTimeout(() => {
+                        closeModal('pictureModal');
+                    }, 1500);
+                } else {
+                    showAlert('pictureError', data.message || 'Failed to remove profile picture.');
+                }
+            })
+            .catch(error => {
+                showAlert('pictureError', 'An error occurred while removing the profile picture.');
+                console.error('Error:', error);
+            });
+        }
+
+        // Form submission handlers
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('/teacher/update_profile', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('editSuccess', 'Profile updated successfully!');
+                    
+                    // Update the profile info in the UI
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const email = document.getElementById('email').value;
+                    
+                    document.querySelector('.profile-info h1').textContent = `${firstName} ${lastName}`;
+                    document.querySelector('.profile-info p').textContent = email;
+                    
+                    document.querySelectorAll('.field-value').forEach((element, index) => {
+                        if (index === 0) element.textContent = `${firstName} ${lastName}`;
+                        if (index === 1) element.textContent = email;
+                    });
+                    
+                    setTimeout(() => {
+                        closeModal('editModal');
+                    }, 1500);
+                } else {
+                    showAlert('editError', data.message || 'Failed to update profile.');
+                }
+            })
+            .catch(error => {
+                showAlert('editError', 'An error occurred while updating the profile.');
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showAlert('passwordError', 'New passwords do not match.');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showAlert('passwordError', 'Password must be at least 8 characters long.');
+                return;
+            }
+            
+            const formData = new FormData(this);
+            
+            fetch('/teacher/change_password_ajax', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('passwordSuccess', 'Password changed successfully!');
+                    this.reset();
+                    setTimeout(() => {
+                        closeModal('passwordModal');
+                    }, 1500);
+                } else {
+                    showAlert('passwordError', data.message || 'Failed to change password.');
+                }
+            })
+            .catch(error => {
+                showAlert('passwordError', 'An error occurred while changing the password.');
+                console.error('Error:', error);
+            });
+        });
+
+        function showAlert(alertId, message) {
+            const allAlerts = ['editSuccess', 'editError', 'passwordSuccess', 'passwordError', 'pictureSuccess', 'pictureError'];
+
+            // Hide all alerts first
+            allAlerts.forEach(id => {
+                const alert = document.getElementById(id);
+                if (alert) alert.style.display = 'none';
+            });
+
+            // Show the requested alert
+            const alert = document.getElementById(alertId);
+            alert.textContent = message;
+            alert.style.display = 'block';
+
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize tooltips or additional functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any initialization code here
+            console.log('Profile page loaded successfully');
+        });
+        
+        // Add smooth animations
+        const cards = document.querySelectorAll('.profile-container');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.6s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // === Logout Modal Logic === //
+document.addEventListener('DOMContentLoaded', function () {
+    const logoutModal = document.getElementById('logoutModal');
+    const logoutClose = document.getElementById('closeModal');
+    const cancelLogout = document.getElementById('cancelLogout');
+    const logoutTrigger = document.getElementById('triggerLogout'); // <- You must have a button/link with this ID to trigger logout
+
+    // Open logout modal
+    if (logoutTrigger) {
+        logoutTrigger.addEventListener('click', function (e) {
+            e.preventDefault();
+            logoutModal.style.display = 'block';
+        });
+    }
+
+    // Close modal when clicking the close button or cancel
+    if (logoutClose) {
+        logoutClose.addEventListener('click', function () {
+            logoutModal.style.display = 'none';
+        });
+    }
+
+    if (cancelLogout) {
+        cancelLogout.addEventListener('click', function () {
+            logoutModal.style.display = 'none';
+        });
+    }
+
+    // Close when clicking outside the modal
+    window.addEventListener('click', function (event) {
+        if (event.target === logoutModal) {
+            logoutModal.style.display = 'none';
+        }
+    });
+});
+
+        
+    </script>
+</body>
+</html>

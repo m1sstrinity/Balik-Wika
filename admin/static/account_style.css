@@ -1,0 +1,291 @@
+/* Main Content */
+.main {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  color: black;
+}
+
+.main-title {
+  font-size: 26px;
+  margin-bottom: 25px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+/* General */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Instrument Serif', serif;
+  background-image: url('adminbg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: black;
+}
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+}
+
+.divider {
+  border: none;
+  border-top: 2px solid #ccc;
+  margin: 10px 0 20px;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background-color: #fff;
+  border-right: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 10px;
+  color: black;
+}
+
+.logo-container {
+  margin-bottom: 30px;
+}
+
+.logo {
+  width: 140px;
+}
+
+.nav-menu {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: auto;
+}
+
+/* Button-like styling for anchor tags */
+.nav-btn {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: 'Instrument Serif', serif;
+  background-color: transparent;
+  font-size: 16px;
+}
+
+.nav-btn:hover {
+  opacity: 0.9;
+}
+
+.red { background-color: #e74c3c; }
+.yellow { background-color: #f1c40f; }
+.teal { background-color: #1abc9c;}
+.violet { background-color: #8e44ad; }
+
+/* Dropdown beside button */
+.dropdown-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown {
+  position: absolute;
+  left: 110%;
+  top: 0;
+  display: none;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+.dropdown.show {
+  display: flex;
+}
+
+.dropdown a {
+  background-color: #d1b3e0;
+  color: black;
+  padding: 10px 20px;
+  min-width: 160px;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  cursor: pointer;
+  font-family: 'Instrument Serif', serif;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.dropdown button:hover {
+  background-color: #c39bd3;
+}
+
+.logout-btn {
+  margin-top: 20px;
+  background-color: #e67e22;
+  color: black;
+  font-weight: bold;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+  transition: 0.2s;
+  font-family: 'Instrument Serif', serif;
+  font-size: 16px;
+}
+
+.logout-btn:hover {
+  opacity: 0.9;
+}
+
+.icon {
+  color: black;
+}
+
+.icon.right {
+  margin-left: 8px;
+}
+
+.dropdown-icon {
+  margin-left: 8px;
+  font-size: 0.9em;
+}
+
+/* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 0;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 20px 20px 10px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .modal-message {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      padding: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      font-family: 'Instrument Serif', serif;
+      font-size: 14px;
+    }
+
+    .btn-cancel {
+      background-color: #95a5a6;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background-color: #7f8c8d;
+    }
+
+    .btn-confirm {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .btn-confirm:hover {
+      background-color: #c0392b;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 10px 15px 0 0;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+

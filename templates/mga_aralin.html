@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mga Aralin - BalikWika</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --warning-color: #f39c12;
+            --purple-color: #9b59b6;
+            --orange-color: #e67e22;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --text-color: #34495e;
+            --text-light: #7f8c8d;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Instrument Serif', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            line-height: 1.6;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: var(--border-radius);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo img {
+            width: 180px;
+            height: 90px;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .nav-item {
+            padding: 18px 24px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            color: var(--white);
+            font-weight: 500;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+       .nav-item:nth-child(2) { 
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+        }
+        .nav-item:nth-child(3) { 
+            background: linear-gradient(135deg, var(--warning-color), #d68910);
+        }
+        .nav-item:nth-child(4) { 
+            background: linear-gradient(135deg, var(--secondary-color), #27ae60);
+        }
+        .nav-item:nth-child(5) { 
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+        }
+        .nav-item:nth-child(6) { 
+            background: linear-gradient(135deg, var(--purple-color), #8e44ad);
+        }
+        .nav-item:nth-child(7) { 
+            background: linear-gradient(135deg, var(--orange-color), #d35400);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 42px;
+            color: white;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 50px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 18px;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .subject-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }   
+
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .subject-card.pangngalan::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #e74c3c;
+        }
+
+        .subject-card.pandiwa::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #2ecc71;
+        }
+
+        .subject-card.pang-uri::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #3498db;
+        }
+
+        .subject-card.panghalip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #9b59b6;
+        }
+
+        .subject-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .subject-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subject-description {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .lesson-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+
+        .modal-header {
+            padding: 30px;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        /* Logout Modal Styles */
+.logout-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.logout-modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: logoutModalSlideIn 0.3s ease-out;
+}
+
+@keyframes logoutModalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.logout-modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logout-modal-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fee2e2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #dc2626;
+}
+
+.logout-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.logout-modal-body {
+    padding: 16px 24px 24px;
+}
+
+.logout-modal-message {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.logout-modal-actions {
+    padding: 16px 24px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    background: none;
+}
+
+.logout-btn-cancel {
+    background: #fff;
+    color: #6b7280;
+    border-color: #d1d5db;
+}
+
+.logout-btn-cancel:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.logout-btn-confirm {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+.logout-btn-confirm:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.logout-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.logout-close:hover {
+    color: #6b7280;
+}
+
+
+        .lessons-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .lesson-item {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .lesson-item:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .lesson-item-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .lesson-item-preview {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .lesson-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .lesson-content-modal .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .lesson-content-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+        }
+
+        .lesson-content-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+            background: #f8f9fa;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .teacher-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .teacher-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #e74c3c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 10px;
+            }
+            
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: stretch;
+            }
+            
+            .page-title {
+                text-align: center;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+   <div class="sidebar">
+        <div class="logo">
+            <img src="/static/balikwika.png" alt="BalikWika Logo">
+        </div>
+        
+        <a href="{{ url_for('student_dashboard') }}" class="nav-item">Dashboard</a>
+        <a href="{{ url_for('mga_aralin') }}" class="nav-item active">Mga aralin</a>
+        <a href="{{ url_for('mga_pagsusulit') }}" class="nav-item">Pagsusulit</a>
+        <a href="{{ url_for('profile') }}" class="nav-item">Aking profile</a>
+        <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Mga Aralin</h1>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Maghanap ng paksa..." id="searchInput">
+            </div>
+        </div>
+
+        <div class="subjects-grid" id="subjectsGrid">
+            <div class="subject-card pangngalan" onclick="openSubjectModal('Pangngalan')">
+                <div class="subject-icon">
+                    <i class="fas fa-cube"></i>
+                </div>
+                <h3 class="subject-title">Pangngalan</h3>
+                <p class="subject-description">Mga salitang tumutukoy sa mga tao, hayop, bagay, lugar, at ideya.</p>
+                <span class="lesson-count" id="pangngulanCount">0 mga aralin</span>
+            </div>
+
+            <div class="subject-card pandiwa" onclick="openSubjectModal('Pandiwa')">
+                <div class="subject-icon">
+                    <i class="fas fa-running"></i>
+                </div>
+                <h3 class="subject-title">Pandiwa</h3>
+                <p class="subject-description">Mga salitang nagsasaad ng kilos, galaw, o estado ng paksa.</p>
+                <span class="lesson-count" id="pandiwaCount">0 mga aralin</span>
+            </div>
+
+            <div class="subject-card pang-uri" onclick="openSubjectModal('Pang-uri')">
+                <div class="subject-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <h3 class="subject-title">Pang-uri</h3>
+                <p class="subject-description">Mga salitang naglalarawan sa pangngalan at panghalip.</p>
+                <span class="lesson-count" id="panguriCount">0 mga aralin</span>
+            </div>
+
+            <div class="subject-card panghalip" onclick="openSubjectModal('Panghalip')">
+                <div class="subject-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h3 class="subject-title">Panghalip</h3>
+                <p class="subject-description">Mga salitang pumapalit sa pangngalan upang iwasang pauulitin.</p>
+                <span class="lesson-count" id="panghalipCount">0 mga aralin</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Lessons Modal -->
+    <div id="subjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="subjectModalTitle">Mga Aralin</h2>
+                <p class="modal-subtitle" id="subjectModalSubtitle">Piliin ang aralin na nais ninyong tingnan</p>
+                <span class="modal-close" onclick="closeSubjectModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="lessons-list" id="lessonsList">
+                    <!-- Lessons will be populated here -->
+                </div>
+                <div class="empty-state" id="emptyLessons" style="display: none;">
+                    <i class="fas fa-book-open"></i>
+                    <h3>Walang mga aralin pa</h3>
+                    <p>Mag-antay ng mga bagong aralin mula sa inyong mga guro sa paksang ito.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lesson Content Modal -->
+    <div id="lessonModal" class="modal lesson-content-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="lessonModalTitle">Lesson Title</h2>
+                <span class="modal-close" onclick="closeLessonModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="lesson-content-text" id="lessonContent">
+                    Lesson content will appear here...
+                </div>
+            </div>
+            <div class="lesson-content-footer">
+                <div class="teacher-info">
+                    <div class="teacher-avatar" id="lessonTeacherAvatar">T</div>
+                    <div>
+                        <div style="font-weight: 600; color: #333;" id="lessonTeacherName">Teacher Name</div>
+                        <div style="font-size: 12px; color: #666;" id="lessonDate">Date</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Logout Modal -->
+<div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-content">
+        <span class="logout-close" id="closeModal"></span>
+        <div class="logout-modal-header">
+            <div class="logout-modal-icon">⚠️</div>
+            <h2 class="logout-modal-title" style="font-weight: bold;">Confirm Logout</h2>
+        </div>
+        <div class="logout-modal-body">
+            <p class="logout-modal-message" style="font-size: larger;">
+                Are you sure you want to logout? You will be redirected to the login page.
+            </p>
+        </div>
+        <div class="logout-modal-actions">
+            <button class="logout-btn logout-btn-cancel" id="cancelLogout">Cancel</button>
+            <a href="{{ url_for('logout') }}" class="logout-btn logout-btn-confirm">Logout</a>
+        </div>
+    </div>
+</div>
+
+
+
+    <script>
+        // Sample lesson data - replace with actual data from your backend
+        const lessonsData = {
+            'Pangngalan': [
+                {
+                    id: 1,
+                    title: 'Mga Uri ng Pangngalan',
+                    content: 'Ang pangngalan ay salitang tumutukoy sa mga tao, hayop, bagay, lugar, at ideya. May iba\'t ibang uri ng pangngalan:\n\n1. Pangngalaning Pantangi - mga pangngalan ng tao, lugar, at iba pa na may sariling ngalan.\n2. Pangngalaning Pambalana - mga pangngalan ng karaniwang bagay, hayop, tao.\n3. Pangngalaning Lansakan - mga pangngalan ng mga bagay na nakikita at nahahawakan.\n4. Pangngalaning Basal - mga pangngalan ng mga ideya o damdamin.\n\nHalimbawa:\n- Pangngalaning Pantangi: Juan, Pilipinas, Maynila\n- Pangngalaning Pambalana: bata, aso, bahay\n- Pangngalaning Lansakan: mesa, lapis, libro\n- Pangngalaning Basal: pagmamahal, takot, galak',
+                    teacher: 'Maria Santos',
+                    date: '2024-01-15'
+                },
+                {
+                    id: 2,
+                    title: 'Panauhan ng Pangngalan',
+                    content: 'Ang panauhan ng pangngalan ay tumutukoy sa dami ng tinutukoy ng pangngalan.\n\nMay dalawang uri ng panauhan:\n\n1. Isahan (Singular) - tumutukoy sa isang bagay lamang\n   Halimbawa: bata, aso, bahay, libro\n\n2. Maramihan (Plural) - tumutukoy sa higit sa isang bagay\n   Halimbawa: mga bata, mga aso, mga bahay, mga libro\n\nPaano ginagawang maramihan ang pangngalan:\n- Idinadagdag ang "mga" sa harap ng pangngalan\n- Minsan ay binabago ang hulihan ng salita\n- May mga pangngalang pareho ang anyo sa isahan at maramihan\n\nMga halimbawa:\n- bata → mga bata\n- guro → mga guro\n- tao → mga tao\n- bata → mga bata',
+                    teacher: 'Maria Santos',
+                    date: '2024-01-20'
+                }
+            ],
+            'Pandiwa': [
+                {
+                    id: 3,
+                    title: 'Mga Uri ng Pandiwa',
+                    content: 'Ang pandiwa ay salitang nagsasaad ng kilos, galaw, o estado ng paksa sa pangungusap.\n\nMga Uri ng Pandiwa:\n\n1. Pandiwang Palipat - ang kilos ay naglilipat mula sa gumagawa patungo sa tumatanggap\n   Halimbawa: kumain, uminom, basahin\n\n2. Pandiwang Katawanin - ang kilos ay hindi lumalabas sa gumagawa\n   Halimbawa: tumakbo, sumayaw, natulog\n\n3. Pandiwang Pangnilalaman - nagsasaad ng estado o kondisyon\n   Halimbawa: maging, manatili, magkakaroon\n\nAyon sa Panahunan:\n- Naganap (Past) - nangyari na\n- Nagaganap (Present) - nangyayari ngayon\n- Magaganap (Future) - mangyayari pa\n\nMga halimbawa:\n- Kumain si Juan. (naganap)\n- Kumakain si Juan. (nagaganap)\n- Kakain si Juan. (magaganap)',
+                    teacher: 'Jose Rizal',
+                    date: '2024-01-25'
+                }
+            ],
+            'Pang-uri': [
+                {
+                    id: 4,
+                    title: 'Mga Uri ng Pang-uri',
+                    content: 'Ang pang-uri ay salitang naglalarawan sa pangngalan at panghalip.\n\nMga Uri ng Pang-uri:\n\n1. Pang-uring Pamanahon - naglalarawan ng panahon\n   Halimbawa: malamig, mainit, maulan\n\n2. Pang-uring Panlasa - naglalarawan ng lasa\n   Halimbawa: matamis, maalat, maasim\n\n3. Pang-uring Pang-amoy - naglalarawan ng amoy\n   Halimbawa: mabango, mabaho, masarap\n\n4. Pang-uring Pandama - naglalarawan ng nararamdaman\n   Halimbawa: malambot, matigas, makapal\n\n5. Pang-uring Pananim - naglalarawan ng kulay\n   Halimbawa: pula, asul, dilaw\n\nAyon sa Antas:\n- Lantay - payak na anyo\n- Pahambing - inihahambing sa iba\n- Pasukdul - pinakamataas na anyo\n\nHalimbawa:\n- Lantay: maganda\n- Pahambing: mas maganda\n- Pasukdul: pinakamaganda',
+                    teacher: 'Ana Cruz',
+                    date: '2024-02-01'
+                }
+            ],
+            'Panghalip': [
+                {
+                    id: 5,
+                    title: 'Mga Uri ng Panghalip',
+                    content: 'Ang panghalip ay salitang pumapalit sa pangngalan upang iwasang pauulitin.\n\nMga Uri ng Panghalip:\n\n1. Panghalip Panao - tumutukoy sa mga tao\n   - Unang Panauhan: ako, kami, tayo\n   - Ikalawang Panauhan: ikaw, ka, kayo\n   - Ikatlong Panauhan: siya, sila\n\n2. Panghalip Pananong - ginagamit sa pagtatanong\n   Halimbawa: sino, ano, alin, saan\n\n3. Panghalip Pamatlig - tumutukoy sa layo ng bagay\n   - Malapit sa nagsasalita: ito, nito, dito\n   - Malapit sa kausap: iyan, niyan, diyan\n   - Malayo sa dalawa: iyon, noon, doon\n\n4. Panghalip Pamilang - tumutukoy sa bilang\n   Halimbawa: isa, dalawa, tatlo, lahat\n\n5. Panghalip Panatag - nagsasaad ng katiyakan\n   Halimbawa: lahat, bawat, sarili\n\nMga halimbawa sa pangungusap:\n- Ako ay estudyante. (Panghalip Panao)\n- Sino ang nanalo? (Panghalip Pananong)\n- Ito ang aking libro. (Panghalip Pamatlig)',
+                    teacher: 'Pedro Bautista',
+                    date: '2024-02-05'
+                }
+            ]
+        };
+
+        // Update lesson counts
+        function updateLessonCounts() {
+            document.getElementById('pangngulanCount').textContent = `${lessonsData['Pangngalan'].length} mga aralin`;
+            document.getElementById('pandiwaCount').textContent = `${lessonsData['Pandiwa'].length} mga aralin`;
+            document.getElementById('panguriCount').textContent = `${lessonsData['Pang-uri'].length} mga aralin`;
+            document.getElementById('panghalipCount').textContent = `${lessonsData['Panghalip'].length} mga aralin`;
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const subjectCards = document.querySelectorAll('.subject-card');
+            
+            subjectCards.forEach(card => {
+                const title = card.querySelector('.subject-title').textContent.toLowerCase();
+                const description = card.querySelector('.subject-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Subject modal functionality
+        function openSubjectModal(subject) {
+            document.getElementById('subjectModalTitle').textContent = `Mga Aralin sa ${subject}`;
+            document.getElementById('subjectModalSubtitle').textContent = `Piliin ang aralin na nais ninyong tingnan`;
+            
+            const lessonsList = document.getElementById('lessonsList');
+            const emptyState = document.getElementById('emptyLessons');
+            
+            lessonsList.innerHTML = '';
+            
+            if (lessonsData[subject] && lessonsData[subject].length > 0) {
+                emptyState.style.display = 'none';
+                lessonsList.style.display = 'grid';
+                
+                lessonsData[subject].forEach(lesson => {
+                    const lessonItem = document.createElement('div');
+                    lessonItem.className = 'lesson-item';
+                    lessonItem.onclick = () => openLessonModal(lesson);
+                    
+                    lessonItem.innerHTML = `
+                        <div class="lesson-item-title">${lesson.title}</div>
+                        <div class="lesson-item-preview">${lesson.content.substring(0, 100)}...</div>
+                        <div class="lesson-item-meta">
+                            <span><i class="fas fa-user"></i> ${lesson.teacher}</span>
+                            <span><i class="fas fa-calendar"></i> ${lesson.date}</span>
+                        </div>
+                    `;
+                    
+                    lessonsList.appendChild(lessonItem);
+                });
+            } else {
+                emptyState.style.display = 'block';
+                lessonsList.style.display = 'none';
+            }
+            
+            document.getElementById('subjectModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSubjectModal() {
+            document.getElementById('subjectModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Lesson modal functionality
+        function openLessonModal(lesson) {
+            document.getElementById('lessonModalTitle').textContent = lesson.title;
+            document.getElementById('lessonContent').textContent = lesson.content;
+            document.getElementById('lessonTeacherAvatar').textContent = lesson.teacher[0].toUpperCase();
+            document.getElementById('lessonTeacherName').textContent = lesson.teacher;
+            document.getElementById('lessonDate').textContent = lesson.date;
+            
+            // Close subject modal and open lesson modal
+            closeSubjectModal();
+            document.getElementById('lessonModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLessonModal() {
+            document.getElementById('lessonModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const subjectModal = document.getElementById('subjectModal');
+            const lessonModal = document.getElementById('lessonModal');
+            
+            if (event.target === subjectModal) {
+                closeSubjectModal();
+            } else if (event.target === lessonModal) {
+                closeLessonModal();
+            }
+        }
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSubjectModal();
+                closeLessonModal();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLessonCounts();
+            
+            // Add smooth animations
+            const cards = document.querySelectorAll('.subject-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+         // Logout Modal functionality
+const modal = document.getElementById('logoutModal');
+const logoutBtn = document.getElementById('logout-btn');
+const closeModal = document.getElementById('closeModal');
+const cancelLogout = document.getElementById('cancelLogout');
+
+// Open modal when logout button is clicked
+logoutBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    modal.style.display = 'block';
+});
+
+// Close modal when X is clicked
+closeModal.addEventListener('click', function() {
+    modal.style.display = 'none';
+});
+
+// Close modal when Cancel is clicked
+cancelLogout.addEventListener('click', function() {
+    modal.style.display = 'none';
+});
+
+// Close modal when clicking outside of it
+window.addEventListener('click', function(event) {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+});
+    </script>
+</body>
+</html>
