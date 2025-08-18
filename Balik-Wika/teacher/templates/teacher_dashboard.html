@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - BalikWika</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('teacher.static', filename='teacher_dashboard.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="/static/balikwika.png" alt="BalikWika Logo">
+        </div>
+        
+        <a href="{{ url_for('teacher.teacher_dashboard') }}" class="nav-item active">Dashboard</a>
+        <a href="{{ url_for('teacher.mga_aralin') }}" class="nav-item">Mga aralin</a>
+        <a href="{{ url_for('teacher.mga_pagsusulit') }}" class="nav-item">Pagsusulit</a>
+        <a href="{{ url_for('teacher.profile') }}" class="nav-item">Aking profile</a>
+        <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="date" id="currentDate"></div>
+
+            <div class="user-info">
+                <a href="{{ url_for('teacher.profile') }}" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+                    <div class="user-avatar">
+                        {% if profile_picture %}
+                            <img src="data:image/jpeg;base64,{{ profile_picture }}" alt="Avatar">
+                        {% else %}
+                            {{ user.first_name[0] if user.first_name else '?' }}
+                        {% endif %}
+                    </div>
+                    <div class="user-details">
+                        <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h1 class="welcome-title">Maligayang pagbabalik, Guro {{ teacher_name }}!</h1>
+                <p class="welcome-subtitle">
+                    Salamat sa inyong patuloy na paggabay sa mga mag-aaral.<br>
+                    Nawa'y maging makabuluhan ang bawat aralin na inyong ibinabahagi!
+                </p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Card 1: Combined Lessons + Quizzes -->
+            <div class="lessonsquizsummary-section">
+                <h2 class="section-title" style="font-weight: bold;">Lessons & Quizzes Summary</h2>
+                <div class="lessonsquizsummary-item">
+                    <div class="lessons-circle">{{ lesson_count }}</div>
+                    <div class="lessons-text">Posted Lessons</div>
+                </div>
+                <div class="lessonsquizsummary-item">
+                    <div class="quiz-circle">{{ quiz_count }}</div>
+                    <div class="quiz-text">Posted Quizzes</div>
+                </div>
+            </div>
+
+            <!-- Card 2: Centered Leaderboard -->
+            <div class="leaderboard-section">
+                <div class="section-header" style="justify-content: center;">
+                    <h2 class="section-title" style="font-weight: bold;">Leaderboard</h2>
+                </div>
+                <div class="leaderboard-list" id="leaderboard-list">
+                    <!-- Leaderboard will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Card 3: Suggested Topics -->
+            <div class="suggested-topics">
+                <div class="section-header">
+                    <h2 class="section-title" style="font-weight: bold;">Suggested Topics</h2>
+                    <a href="#" class="see-all">See all</a>
+                </div>
+
+                <div class="topics-grid">
+                    <div class="topic-card">
+                        <div class="topic-info">
+                            <h3>Pangngalan</h3>
+                            <p class="topic-type">(noun)</p>
+                            <a href="#" class="view-btn">View</a>
+                        </div>
+                        <img src="{{ url_for('teacher.static', filename='pangngalan.png') }}" alt="Pangngalan Character" class="topic-image">
+                    </div>
+
+                    <div class="topic-card">
+                        <div class="topic-info">
+                            <h3>Pandiwa</h3>
+                            <p class="topic-type">(verb)</p>
+                            <a href="#" class="view-btn">View</a>
+                        </div>
+                        <img src="{{ url_for('teacher.static', filename='pandiwa.png') }}" alt="Pandiwa Character" class="topic-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+<div id="logoutModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeModal"></span>
+        <div class="modal-header">
+            <div class="modal-icon">⚠️</div>
+            <h2 class="modal-title" style="font-weight: bold;">Confirm Logout</h2>
+        </div>
+        <div class="modal-body">
+            <p class="modal-message" style="font-size: larger;">
+                Are you sure you want to logout? You will be redirected to the login page.
+            </p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-cancel" id="cancelLogout">Cancel</button>
+            <a href="{{ url_for('logout') }}" class="btn btn-confirm">Logout</a>
+        </div>
+    </div>
+</div>
+
+    <script>
+        // Display current date
+        function updateDate() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                weekday: 'long'
+            };
+            const dateString = now.toLocaleDateString('en-US', options);
+            document.getElementById('currentDate').textContent = dateString;
+        }
+
+        // Load leaderboard data (placeholder function - you'll need to create an API endpoint)
+        function loadLeaderboard() {
+            // For now, using static data. You can replace this with an API call to your Flask backend
+            const leaderboardData = [
+                { rank: 1, name: 'Student 1', avatar: 'S', color: '#f39c12' },
+                { rank: 2, name: 'Student 2', avatar: 'S', color: '#95a5a6' },
+                { rank: 3, name: 'Student 3', avatar: 'S', color: '#e67e22' },
+                { rank: 4, name: 'Juan', avatar: 'J', color: '#e74c3c' }
+            ];
+
+            const leaderboardList = document.getElementById('leaderboard-list');
+            leaderboardList.innerHTML = '';
+
+            leaderboardData.forEach((student, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                
+                let rankBadge = '';
+                if (student.rank === 1) {
+                    rankBadge = '<div class="rank-badge gold">★</div>';
+                } else if (student.rank === 2) {
+                    rankBadge = '<div class="rank-badge silver">★</div>';
+                } else if (student.rank === 3) {
+                    rankBadge = '<div class="rank-badge bronze">★</div>';
+                } else {
+                    rankBadge = `<div class="rank-badge other">${student.rank}</div>`;
+                }
+
+                item.innerHTML = `
+                    ${rankBadge}
+                    <div class="user-avatar" style="background: ${student.color};">${student.avatar}</div>
+                    <span class="username">${student.name}</span>
+                `;
+                
+                leaderboardList.appendChild(item);
+            });
+        }
+
+        /// Navigation handler - Fixed version
+function handleNavigation() {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            // Skip the active class removal for logout button  
+            if (this.id === 'logout-btn') {
+                return; // Don't modify active states for logout
+            }
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            
+            // Don't prevent default for actual links
+            if (this.getAttribute('href') === '#') {
+                e.preventDefault();
+            } else {
+                // Add active class to clicked item
+                this.classList.add('active');
+            }
+        });
+    });
+}
+
+        // Animation function
+        function animateElements() {
+            const animateSequentially = (elements) => {
+                elements.forEach((el, index) => {
+                    if (el) {
+                        el.style.opacity = '0';
+                        el.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            el.style.transition = 'all 0.6s ease';
+                            el.style.opacity = '1';
+                            el.style.transform = 'translateY(0)';
+                        }, index * 150);
+                    }
+                });
+            };
+
+            // Select elements that exist
+            const welcome = document.querySelectorAll('.welcome-section');
+            const gridItems = document.querySelectorAll('.dashboard-grid > div');
+            const leaderboardItems = document.querySelectorAll('.leaderboard-list > .leaderboard-item');
+
+            animateSequentially([...welcome, ...gridItems, ...leaderboardItems]);
+        }
+
+        // Modal functionality
+        function initializeModal() {
+            const modal = document.getElementById('logoutModal');
+            const logoutBtn = document.getElementById('logout-btn');
+            const closeModal = document.getElementById('closeModal');
+            const cancelLogout = document.getElementById('cancelLogout');
+
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (modal) {
+                        modal.style.display = 'block';
+                    }
+                });
+            }
+
+            if (closeModal) {
+                closeModal.addEventListener('click', function() {
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            if (cancelLogout) {
+                cancelLogout.addEventListener('click', function() {
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            }
+
+            // Close modal when clicking outside of it
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDate();
+            loadLeaderboard();
+            handleNavigation();
+            initializeModal();
+            
+            // Delay animation slightly to ensure elements are rendered
+            setTimeout(animateElements, 100);
+        });
+
+        // Update date every minute
+        setInterval(updateDate, 60000);
+    </script>
+</body>
+</html>

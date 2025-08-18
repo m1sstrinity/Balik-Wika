@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mga Pagsusulit - BalikWika</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('teacher.static', filename='mga_pagsusulit.css') }}" />
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo"><img src="/static/balikwika.png" alt="BalikWika Logo" /></div>
+    <a href="{{ url_for('teacher.teacher_dashboard') }}" class="nav-item">Dashboard</a>
+    <a href="{{ url_for('teacher.mga_aralin') }}" class="nav-item">Mga aralin</a>
+    <a href="{{ url_for('teacher.mga_pagsusulit') }}" class="nav-item active">Pagsusulit</a>
+    <a href="{{ url_for('teacher.profile') }}" class="nav-item">Aking profile</a>
+    <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1 class="page-title">Mga Pagsusulit</h1>
+      <button class="add-quiz-btn" onclick="openNewQuizModal()">Magdagdag ng Pagsusulit</button>
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" class="search-input" placeholder="Maghanap ng paksa..." id="searchInput" />
+      </div>
+    </div>
+
+    <div class="subjects-grid" id="subjectsGrid">
+      
+    </div>
+  </div>
+
+  <!-- Subject Modal -->
+  <div id="subjectModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="subjectModalTitle">Mga Pagsusulit</h2>
+        <span class="modal-close" onclick="closeSubjectModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="quiz-list" id="quizList"></div>
+        <div class="empty-state" id="emptyQuizzes" style="display: none;">
+          <i class="fas fa-book-open"></i>
+          <h3>Walang mga pagsusulit pa</h3>
+          <p>Magdagdag ng bagong pagsusulit sa paksang ito.</p>
+        </div>
+        <div style="text-align: center; margin-top: 20px;">
+          <button class="add-question-btn" onclick="openAddQuestionModal()">Magdagdag ng Tanong</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Questions Modal -->
+    <div id="addQuizModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Magdagdag ng tanong</h2>
+        <span class="modal-close" onclick="closeAddQuestionModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+
+        <input type="hidden" id="quiz-id" />
+        <input type="hidden" id="user-id" value="1" />
+        <input type="hidden" id="question-subject" />
+
+              <!-- TANONG -->
+      <label></i> Ilagay ang tanong:</label>
+      <input type="text" id="question-text" placeholder="Ilagay ang tanong" style="width:100%; padding:10px; margin-bottom:15px; font-size:16px; font-weight:bold; color:#2c3e50; border:2px solid #3498db; border-radius:8px; background-color:#f0f8ff; font-family:'Instrument Serif', serif;" />
+
+      <!-- IMAGE -->
+      <label></i> Ilagay ang larawan na konektado sa tanong:</label>
+      <input type="file" id="question-image" accept="image/*" style="margin-bottom:15px; padding:6px; font-family:'Instrument Serif', serif;" />
+      <img id="imagePreview" style="max-width: 150px; display: none; border: 1px solid #ccc; padding: 5px; border-radius: 5px; margin-bottom: 15px;" />
+
+      <!-- CHOICES -->
+      <label></i> a.</label>
+      <input type="text" id="choice-a" placeholder="Choice A" class="question-choice" style="width:100%; padding:10px; margin-bottom:10px; font-size:16px; color:#2c3e50; border:2px solid #9b59b6; border-radius:8px; background-color:#f9f9ff; font-family:'Instrument Serif', serif;" />
+
+      <label></i> b.</label>
+      <input type="text" id="choice-b" placeholder="Choice B" class="question-choice" style="width:100%; padding:10px; margin-bottom:10px; font-size:16px; color:#2c3e50; border:2px solid #9b59b6; border-radius:8px; background-color:#f9f9ff; font-family:'Instrument Serif', serif;" />
+
+      <label></i> c.</label>
+      <input type="text" id="choice-c" placeholder="Choice C" class="question-choice" style="width:100%; padding:10px; margin-bottom:10px; font-size:16px; color:#2c3e50; border:2px solid #9b59b6; border-radius:8px; background-color:#f9f9ff; font-family:'Instrument Serif', serif;" />
+
+      <label></i> d.</label>
+      <input type="text" id="choice-d" placeholder="Choice D" class="question-choice" style="width:100%; padding:10px; margin-bottom:10px; font-size:16px; color:#2c3e50; border:2px solid #9b59b6; border-radius:8px; background-color:#f9f9ff; font-family:'Instrument Serif', serif;" />
+      
+      <label></i> Tamang Sagot:</label>
+      <select id="correct-answer">
+        <option value="">Piliin ang tamang sagot</option>
+        <option value="a">A</option>
+        <option value="b">B</option>
+        <option value="c">C</option>
+        <option value="d">D</option>
+      </select>
+      </div>
+      <div class="modal-body-buttons">
+        <button class="cancel-btn" onclick="closeAddQuestionModal()">Kanselahin</button>
+        <button class="add-btn" onclick="addNewQuestion()">Idagdag</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz View Modal -->
+  <div id="viewQuizModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Tanong</h2>
+        <span class="modal-close" onclick="closeViewQuizModal()">&times;</span>
+      </div>
+      <div class="modal-body" id="quizContent"></div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="modal">
+    <div class="modal-content" style="text-align: center; padding: 40px;">
+      <h2>Naidagdag na ang pagsusulit!</h2>
+      <button onclick="closeSuccessModal()">✔ Okay</button>
+    </div>
+  </div>
+
+<div id="newQuizModal" class="modal">
+  <div class="modal-content" style="max-width: 500px; padding: 30px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); background: #ffffff;">
+    <h2 style="font-family: 'Instrument Serif', serif; font-size: 24px; color: #2c3e50; margin-bottom: 15px; text-align: center;">Ilagay ang Pamagat ng Pagsusulit</h2>
+    
+    <input 
+      type="text" 
+      id="newQuizTitle" 
+      placeholder="Halimbawa: Pang-abay" 
+      style="width: 100%; padding: 12px 15px; font-size: 16px; font-family: 'Instrument Serif', serif; border: 2px solid #3498db; border-radius: 8px; background-color: #f0f8ff; color: #2c3e50; margin-bottom: 25px;"
+    />
+    
+    <div class="modal-body-buttons" style="display: flex; justify-content: flex-end; gap: 10px;">
+      <button class="cancel-btn" onclick="closeNewQuizModal()" style="padding: 10px 18px; background: #d32f2f; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">Kanselahin</button>
+      <button class="add-btn" onclick="createNewQuizCard()" style="padding: 10px 18px; background: #2ecc71; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">Idagdag</button>
+    </div>
+  </div>
+</div>
+
+<!-- Logout Modal -->
+<div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-content">
+        <span class="logout-close" id="closeModal"></span>
+        <div class="logout-modal-header">
+            <div class="logout-modal-icon">⚠️</div>
+            <h2 class="logout-modal-title">Confirm Logout</h2>
+        </div>
+        <div class="logout-modal-body">
+            <p class="logout-modal-message">
+                Are you sure you want to logout? You will be redirected to the login page.
+            </p>
+        </div>
+        <div class="logout-modal-actions">
+            <button class="logout-btn logout-btn-cancel" id="cancelLogout">Cancel</button>
+            <a href="{{ url_for('logout') }}" class="logout-btn logout-btn-confirm">Logout</a>
+        </div>
+    </div>
+</div>
+
+
+   <script>
+    let allQuizzes = [];
+    let currentSubject = '';
+    let currentImage = '';
+    let currentQuizId = null;
+
+    // Load quizzes and display subject cards
+    document.addEventListener("DOMContentLoaded", function () {
+      loadQuizzes();
+    });
+
+    function loadQuizzes() {
+      fetch('/get_quizzes')
+        .then(res => res.json())
+        .then(data => {
+          allQuizzes = data;
+          displayQuizCards(data);
+        })
+        .catch(err => {
+          console.error("Failed to load quizzes:", err);
+        });
+    }
+
+    function displayQuizCards(quizzes) {
+      const grid = document.getElementById("subjectsGrid");
+      grid.innerHTML = "";
+
+      quizzes.forEach((quiz, index) => {
+        const card = document.createElement("div");
+        card.className = "subject-card";
+        card.onclick = () => openSubjectModal(quiz.title, quiz.id);
+
+        const questionCount = quiz.questions ? quiz.questions.length : 0;
+
+        card.innerHTML = `
+          <div class="subject-icon"><i class="fas fa-cube"></i></div>
+          <h3 class="subject-title">${quiz.title}</h3>
+          <p class="subject-description">Mga tanong para sa ${quiz.title}</p>
+          <span class="quiz-count">${questionCount} mga tanong</span>
+        `;
+
+        grid.appendChild(card);
+
+        // Animate cards
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+          card.style.transition = 'all 0.6s ease';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, index * 100);
+      });
+    }
+
+    function openSubjectModal(subject, quizId) {
+      currentSubject = subject;
+      currentQuizId = quizId;
+      document.getElementById('subjectModalTitle').textContent = `Mga Tanong sa ${subject}`;
+      
+      const list = document.getElementById('quizList');
+      const empty = document.getElementById('emptyQuizzes');
+      list.innerHTML = '';
+
+      // Find the quiz and display its questions
+      const quiz = allQuizzes.find(q => q.title === subject);
+      
+      if (quiz && quiz.questions && quiz.questions.length > 0) {
+        empty.style.display = 'none';
+        quiz.questions.forEach(q => {
+          const div = document.createElement('div');
+          div.className = 'quiz-item';
+          div.innerHTML = `
+            <div class="quiz-item-title"><strong>Tanong:</strong> ${q.question_text}</div>
+            <ul>
+              <li>A. ${q.choice_a}</li>
+              <li>B. ${q.choice_b}</li>
+              <li>C. ${q.choice_c}</li>
+              <li>D. ${q.choice_d}</li>
+            </ul>
+            <div><strong>Tamang Sagot:</strong> ${q.correct_answer.toUpperCase()}</div>
+            ${q.image ? `<img src="${q.image}" alt="Question Image" style="max-width: 200px; margin-top: 10px;" />` : ''}
+          `;
+          list.appendChild(div);
+        });
+      } else {
+        empty.style.display = 'block';
+      }
+
+      document.getElementById('subjectModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSubjectModal() {
+      document.getElementById('subjectModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    function openAddQuestionModal() {
+      if (!currentSubject) {
+        alert("Please select a quiz first.");
+        return;
+      }
+      document.getElementById('addQuizModal').style.display = 'block';
+    }
+
+    function closeAddQuestionModal() {
+      document.getElementById('addQuizModal').style.display = 'none';
+      // Clear form
+      document.getElementById('question-text').value = '';
+      document.getElementById('choice-a').value = '';
+      document.getElementById('choice-b').value = '';
+      document.getElementById('choice-c').value = '';
+      document.getElementById('choice-d').value = '';
+      document.getElementById('correct-answer').value = '';
+      document.getElementById('question-image').value = '';
+      document.getElementById('imagePreview').style.display = 'none';
+    }
+
+    function addNewQuestion() {
+      const questionText = document.getElementById('question-text').value.trim();
+      const choiceA = document.getElementById('choice-a').value.trim();
+      const choiceB = document.getElementById('choice-b').value.trim();
+      const choiceC = document.getElementById('choice-c').value.trim();
+      const choiceD = document.getElementById('choice-d').value.trim();
+      const correctAnswer = document.getElementById('correct-answer').value;
+
+      // Validation
+      if (!questionText || !choiceA || !choiceB || !choiceC || !choiceD || !correctAnswer) {
+        alert("Pakitapos lahat ng fields.");
+        return;
+      }
+
+      if (!currentSubject) {
+        alert("No quiz selected.");
+        return;
+      }
+
+      // Handle image (convert to base64 if file is selected)
+      const imageInput = document.getElementById('question-image');
+      let imagePromise = Promise.resolve("");
+
+      if (imageInput.files.length > 0) {
+        imagePromise = new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            resolve(e.target.result);
+          };
+          reader.readAsDataURL(imageInput.files[0]);
+        });
+      }
+
+      imagePromise.then(imageData => {
+        // Create the question data matching your backend format
+        const questionData = {
+          question_text: questionText,
+          choice_a: choiceA,
+          choice_b: choiceB,
+          choice_c: choiceC,
+          choice_d: choiceD,
+          correct_answer: correctAnswer,
+          image: imageData,
+          quiz_title: currentSubject,  // Your backend expects quiz_title
+          subject: currentSubject      // Your backend expects subject for subject_map
+        };
+
+        // Send to backend
+        fetch('/add_question', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(questionData)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Add question to current quiz in memory
+            const quiz = allQuizzes.find(q => q.title === currentSubject);
+            if (quiz) {
+              if (!quiz.questions) quiz.questions = [];
+              quiz.questions.push({
+                question_text: questionText,
+                choice_a: choiceA,
+                choice_b: choiceB,
+                choice_c: choiceC,
+                choice_d: choiceD,
+                correct_answer: correctAnswer,
+                image: imageData
+              });
+            }
+
+            closeAddQuestionModal();
+            openSubjectModal(currentSubject, currentQuizId); // Refresh the modal
+            document.getElementById('successModal').style.display = 'block';
+            
+            // Refresh the cards to update question count
+            displayQuizCards(allQuizzes);
+          } else {
+            alert(data.message || "Hindi naidagdag ang tanong.");
+          }
+        })
+        .catch(err => {
+          console.error("Error adding question:", err);
+          alert("Hindi naidagdag ang tanong. Pakisubok ulit.");
+        });
+      });
+    }
+
+    function closeSuccessModal() {
+      document.getElementById('successModal').style.display = 'none';
+    }
+
+    function openNewQuizModal() {
+      document.getElementById('newQuizModal').style.display = 'block';
+    }
+
+    function closeNewQuizModal() {
+      document.getElementById('newQuizModal').style.display = 'none';
+      document.getElementById('newQuizTitle').value = '';
+    }
+
+    function createNewQuizCard() {
+      const title = document.getElementById('newQuizTitle').value.trim();
+      if (!title) {
+        alert("Pakitapos ang pamagat ng pagsusulit.");
+        return;
+      }
+
+      console.log("Sending quiz data:", { title: title }); // Debug log
+
+      fetch('/teacher/add_quiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title })
+      })
+      .then(res => {
+        console.log("Response status:", res.status); // Debug log
+        return res.text().then(text => {
+          console.log("Response text:", text); // Debug log
+          try {
+            const data = JSON.parse(text);
+            return { status: res.status, data: data };
+          } catch (e) {
+            return { status: res.status, data: { error: text } };
+          }
+        });
+      })
+      .then(({ status, data }) => {
+        if (status === 409) {
+          alert("May kaparehong pamagat na pagsusulit.");
+          return;
+        }
+        
+        if (status === 400) {
+          alert("Missing title - " + (data.error || "Unknown error"));
+          return;
+        }
+        
+        if (status === 401) {
+          alert("Hindi ka naka-login bilang teacher. Please login first.");
+          return;
+        }
+
+        if (status !== 200) {
+          console.error("Server error:", data);
+          alert("Server error: " + (data.error || data.message || "Unknown error"));
+          return;
+        }
+
+        // Success - add new quiz to allQuizzes array
+        const newQuiz = {
+          id: data.quiz_id,
+          title: title,
+          created_at: new Date().toISOString(),
+          questions: []
+        };
+        allQuizzes.push(newQuiz);
+
+        // Refresh the display
+        displayQuizCards(allQuizzes);
+        closeNewQuizModal();
+        alert("Naidagdag ang bagong pagsusulit.");
+      })
+      .catch(err => {
+        console.error("Network or parsing error:", err);
+        alert("Network error: Hindi naisave ang pagsusulit. Check console for details.");
+      });
+    }
+
+    // Handle image preview
+    document.getElementById('question-image').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      const preview = document.getElementById('imagePreview');
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          currentImage = e.target.result;
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      } else {
+        currentImage = '';
+        preview.src = '';
+        preview.style.display = 'none';
+      }
+    });
+
+    // Close modals when clicking outside
+    window.onclick = function (e) {
+      if (e.target.classList.contains('modal')) {
+        closeSubjectModal();
+        closeAddQuestionModal();
+        closeSuccessModal();
+        closeNewQuizModal();
+      }
+    };
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const filteredQuizzes = allQuizzes.filter(quiz => 
+        quiz.title.toLowerCase().includes(searchTerm)
+      );
+      displayQuizCards(filteredQuizzes);
+    });
+
+    // Modal functionality
+const modal = document.getElementById('logoutModal');
+const logoutBtn = document.getElementById('logout-btn');
+const closeModal = document.getElementById('closeModal');
+const cancelLogout = document.getElementById('cancelLogout');
+
+// Open modal when logout button is clicked
+logoutBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    modal.style.display = 'block';
+});
+
+// Close modal when X is clicked
+closeModal.addEventListener('click', function() {
+    modal.style.display = 'none';
+});
+
+// Close modal when Cancel is clicked
+cancelLogout.addEventListener('click', function() {
+    modal.style.display = 'none';
+});
+
+// Close modal when clicking outside of it
+window.addEventListener('click', function(event) {
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+});
+
+  </script>
+</body>
+</html>

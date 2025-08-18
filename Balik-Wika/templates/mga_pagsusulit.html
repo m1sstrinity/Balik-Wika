@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mga Pagsusulit - BalikWika</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+ :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --accent-color: #e74c3c;
+            --warning-color: #f39c12;
+            --purple-color: #9b59b6;
+            --orange-color: #e67e22;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --text-color: #34495e;
+            --text-light: #7f8c8d;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Instrument Serif', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            min-height: 100vh;
+            display: flex;
+            line-height: 1.6;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: var(--border-radius);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo img {
+            width: 180px;
+            height: 90px;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .nav-item {
+            padding: 18px 24px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            color: var(--white);
+            font-weight: 500;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-item:hover::before {
+            left: 100%;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--warning-color), #d68910);
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .nav-item:nth-child(2) { 
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+        }
+        .nav-item:nth-child(3) { 
+            background: linear-gradient(135deg, var(--warning-color), #d68910);
+        }
+        .nav-item:nth-child(4) { 
+            background: linear-gradient(135deg, var(--secondary-color), #27ae60);
+        }
+        .nav-item:nth-child(5) { 
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+        }
+        .nav-item:nth-child(6) { 
+            background: linear-gradient(135deg, var(--purple-color), #8e44ad);
+        }
+        .nav-item:nth-child(7) { 
+            background: linear-gradient(135deg, var(--orange-color), #d35400);
+        }
+
+        .nav-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .main-content {
+          flex: 1;
+          padding: 30px;
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(10px);
+          margin: 20px;
+          border-radius: var(--border-radius);
+          box-shadow: var(--shadow);
+        }
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 42px;
+    color: white;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.search-container {
+    position: relative;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 20px 12px 50px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-input:focus {
+    outline: none;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 18px;
+}
+
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.subject-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.subject-card.pangngalan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #e74c3c;
+}
+
+.subject-card.pandiwa::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #2ecc71;
+}
+
+.subject-card.pang-uri::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #3498db;
+}
+
+.subject-card.panghalip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #9b59b6;
+}
+
+.subject-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    color: #667eea;
+}
+
+.subject-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.subject-description {
+    color: #666;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.lesson-count {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-block;
+}
+
+ /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #bdc3c7;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #e74c3c;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .quiz-container {
+            text-align: center;
+        }
+
+        .quiz-question {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+
+        .quiz-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 20px auto;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .quiz-choices {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .choice-btn {
+            padding: 15px 20px;
+            border: 2px solid #ecf0f1;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-align: left;
+        }
+
+        .choice-btn:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+
+        .choice-btn.correct {
+            background: #d4edda;
+            border-color: #2ecc71;
+            color: #155724;
+        }
+
+        .choice-btn.incorrect {
+            background: #f8d7da;
+            border-color: #e74c3c;
+            color: #721c24;
+        }
+
+        .trivia-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        .trivia-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .trivia-content {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background: #2980b9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .subjects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            
+            .modal-body {
+                padding: 20px;
+            }
+        }
+
+/* Logout Modal Styles */
+.logout-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.logout-modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: logoutModalSlideIn 0.3s ease-out;
+}
+
+@keyframes logoutModalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.logout-modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logout-modal-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fee2e2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #dc2626;
+}
+
+.logout-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.logout-modal-body {
+    padding: 16px 24px 24px;
+}
+
+.logout-modal-message {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.logout-modal-actions {
+    padding: 16px 24px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.logout-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    background: none;
+}
+
+.logout-btn-cancel {
+    background: #fff;
+    color: #6b7280;
+    border-color: #d1d5db;
+}
+
+.logout-btn-cancel:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.logout-btn-confirm {
+    background: #dc2626;
+    color: white;
+    border-color: #dc2626;
+}
+
+.logout-btn-confirm:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
+.logout-close {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.logout-close:hover {
+    color: #6b7280;
+}
+
+.lessons-list {
+    display: grid;
+    gap: 15px;
+}
+
+.lesson-item {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.lesson-item:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.lesson-item-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.lesson-item-preview {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.lesson-item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #999;
+}
+
+.lesson-content-modal .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.lesson-content-text {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    white-space: pre-wrap;
+}
+
+.lesson-content-footer {
+    padding: 20px 30px;
+    border-top: 1px solid #eee;
+    background: #f8f9fa;
+    border-radius: 0 0 20px 20px;
+}
+
+.teacher-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.teacher-avatar {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #e74c3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.empty-state i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.empty-state h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.dropdown-menu {
+    display: none;
+    flex-direction: column;
+    padding-left: 20px;
+    margin-top: -10px;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #9b59b6;
+}
+
+/* Horizontal Dropdown beside Settings */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu-horizontal {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px;
+    border-radius: 10px;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 10;
+    white-space: nowrap;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown:hover .dropdown-menu-horizontal {
+    display: flex;
+}
+
+.dropdown-item {
+    background: #9b59b6;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.3s;
+    text-align: center;
+}
+
+.dropdown-item:hover {
+    background: #8e44ad;
+}   
+
+.add-lesson-btn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    margin-left: 20px;
+}
+.add-lesson-btn:hover {
+    background-color: #27ae60;
+}
+
+#lessonForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#lessonForm input,
+#lessonForm textarea,
+#lessonForm select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+#lessonForm button {
+    background-color: #3498db;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+#lessonForm button:hover {
+    background-color: #2980b9;
+}
+#addLessonBtn {
+  background-color: #00695c;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#addLessonBtn:hover {
+  background-color: #004d40;
+}
+#addQuizModal input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 16px;
+  }
+
+  #addQuizModal input[type="file"] {
+    margin-top: 8px;
+    font-family: 'Instrument Serif', serif;
+  }
+
+  #addQuizModal label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 15px;
+  }
+  
+
+  #addQuizModal .modal-body {
+    padding: 20px;
+  }
+
+  #addQuizModal .modal-body button {
+    padding: 8px 16px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #00695c;
+    color: white;
+  }
+
+  #addQuizModal .modal-body button:hover {
+    background-color: #004d40;
+  }
+  .empty-state i,
+    .empty-state h3,
+    .empty-state p {
+    color: black;
+}
+
+/* Success modal "Okay" button style */
+.success-modal-button {
+  margin-top: 20px;
+  padding: 12px 25px;
+  font-size: 16px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.success-modal-button:hover {
+  background-color: #27ae60;
+}
+
+
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+    }
+    
+    .subjects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+    }
+    
+    .page-title {
+        text-align: center;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+}
+</style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="logo"><img src="/static/balikwika.png" alt="BalikWika Logo"></div>
+    <a href="{{ url_for('dashboard') }}" class="nav-item">Dashboard</a>
+    <a href="{{ url_for('mga_aralin') }}" class="nav-item">Mga aralin</a>
+    <a href="{{ url_for('mga_pagsusulit') }}" class="nav-item active">Pagsusulit</a>
+    <a href="{{ url_for('profile') }}" class="nav-item">Aking profile</a>
+    <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
+  </div>
+
+  <body>
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Mga Pagsusulit</h1>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Maghanap ng paksa..." id="searchInput">
+            </div>
+        </div>
+
+        <div class="subjects-grid" id="subjectsGrid">
+            <div class="subject-card pangngalan" onclick="openSubjectModal('Pangngalan')">
+                <div class="subject-icon"><i class="fas fa-cube"></i></div>
+                <h3 class="subject-title">Pangngalan</h3>
+                <p class="subject-description">Mga salitang tumutukoy sa mga tao, hayop, bagay, lugar, at ideya.</p>
+                <span class="lesson-count">1 pagsusulit</span>
+            </div>
+
+            <div class="subject-card pandiwa" onclick="openSubjectModal('Pandiwa')">
+                <div class="subject-icon"><i class="fas fa-running"></i></div>
+                <h3 class="subject-title">Pandiwa</h3>
+                <p class="subject-description">Mga salitang nagsasaad ng kilos, galaw, o estado ng paksa.</p>
+                <span class="lesson-count">1 pagsusulit</span>
+            </div>
+
+            <div class="subject-card pang-uri" onclick="openSubjectModal('Pang-uri')">
+                <div class="subject-icon"><i class="fas fa-palette"></i></div>
+                <h3 class="subject-title">Pang-uri</h3>
+                <p class="subject-description">Mga salitang naglalarawan sa pangngalan at panghalip.</p>
+                <span class="lesson-count">1 pagsusulit</span>
+            </div>
+
+            <div class="subject-card panghalip" onclick="openSubjectModal('Panghalip')">
+                <div class="subject-icon"><i class="fas fa-user-friends"></i></div>
+                <h3 class="subject-title">Panghalip</h3>
+                <p class="subject-description">Mga salitang pumapalit sa pangngalan upang iwasang pauulitin.</p>
+                <span class="lesson-count">1 pagsusulit</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Modal -->
+    <div id="subjectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="subjectModalTitle">Mga Pagsusulit</h2>
+                <span class="modal-close" onclick="closeSubjectModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="quiz-container" id="quizContainer">
+                    <div class="quiz-question" id="quizQuestion"></div>
+                    <img id="quizImage" class="quiz-image" style="display: none;">
+                    <div class="quiz-choices" id="quizChoices"></div>
+                    <div class="trivia-section" id="triviaSection">
+                        <h3 class="trivia-title">
+                            <i class="fas fa-lightbulb"></i>
+                            Nakakalingang Kaalaman
+                        </h3>
+                        <p class="trivia-content" id="triviaContent"></p>
+                        <button class="reset-btn" onclick="resetQuiz()">Subukan Muli</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- Logout Modal -->
+<div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-content">
+        <span class="logout-close" id="closeModal"></span>
+        <div class="logout-modal-header">
+            <div class="logout-modal-icon">⚠️</div>
+            <h2 class="logout-modal-title" style="font-weight: bold;">Confirm Logout</h2>
+        </div>
+        <div class="logout-modal-body">
+            <p class="logout-modal-message" style="font-size: larger;">
+                Are you sure you want to logout? You will be redirected to the login page.
+            </p>
+        </div>
+        <div class="logout-modal-actions">
+            <button class="logout-btn logout-btn-cancel" id="cancelLogout">Cancel</button>
+            <a href="{{ url_for('logout') }}" class="logout-btn logout-btn-confirm">Logout</a>
+        </div>
+    </div>
+</div>
+
+<script>
+  // Original quiz data structure
+const quizData = {
+  'Pangngalan': [],
+  'Pandiwa': [],
+  'Pang-uri': [],
+  'Panghalip': []
+};
+
+// Hardcoded quizzes for each subject
+const hardcodedQuizzes = {
+  'Pangngalan': {
+    question: 'Alin sa mga sumusunod ang HINDI pangngalan?',
+    choices: ['Bahay', 'Takbo', 'Mesa', 'Pusa'],
+    correctAnswer: 1, // Index of correct answer (0-based)
+    trivia: 'Ang pangngalan ay mga salitang tumutukoy sa mga tao (guro, bata), hayop (aso, pusa), bagay (mesa, libro), lugar (Manila, paaralan), at mga ideya (pagmamahal, kapayapaan). Ang "takbo" ay pandiwa dahil ito ay kilos.'
+  },
+  'Pandiwa': {
+    question: 'Ano ang tawag sa pandiwa na nagsasaad ng kilos na ginagawa ngayon?',
+    choices: ['Pangnagdaan', 'Pangkasalukuyan', 'Panghinaharap', 'Pawatas'],
+    correctAnswer: 1,
+    trivia: 'Ang pandiwa ay may tatlong panahunan: Pangnagdaan (nagtakbo), Pangkasalukuyan (tumatakbo), at Panghinaharap (tatakbo). May ding Pawatas (tumakbo ka) na ginagamit sa pagbibigay ng utos o payo.'
+  },
+  'Pang-uri': {
+    question: 'Alin sa mga sumusunod ang pang-uri?',
+    choices: ['Kumain', 'Maganda', 'Siya', 'Bahay'],
+    correctAnswer: 1,
+    trivia: 'Ang pang-uri ay naglalarawan sa pangngalan at panghalip. Maaari itong tumukoy sa hugis (bilog), kulay (pula), laki (malaki), dami (marami), at iba pang katangian. Ginagamit din ang mga pang-uri sa paghahambing tulad ng "mas maganda" at "pinakamabango".'
+  },
+  'Panghalip': {
+    question: 'Alin sa mga sumusunod ang panghalip?',
+    choices: ['Juan', 'Sila', 'Takbo', 'Paaralan'],
+    correctAnswer: 1,
+    trivia: 'Ang panghalip ay pumapalit sa pangngalan upang iwasang paulit-ulit na banggitin ang pangngalan. Halimbawa: Si Maria ay mabait. Siya ay masipag din. Ang "siya" ay panghalip na pumapalit kay Maria. May iba\'t ibang uri ng panghalip tulad ng panao (ako, ikaw, siya), pamatlig (ito, iyan, iyon), at pananong (sino, ano, alin).'
+  }
+};
+
+let currentSubject = '';
+let quizAnswered = false;
+let showingHardcodedQuiz = false;
+
+function openSubjectModal(subject) {
+  currentSubject = subject;
+  document.getElementById('subjectModalTitle').textContent = `Mga Pagsusulit sa ${subject}`;
+  document.getElementById('subjectModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  
+  // Show hardcoded quiz first, then user-created quizzes
+  showingHardcodedQuiz = true;
+  loadHardcodedQuiz();
+}
+
+function closeSubjectModal() {
+  document.getElementById('subjectModal').style.display = 'none';
+  document.body.style.overflow = 'auto';
+  resetQuiz();
+  showingHardcodedQuiz = false;
+}
+
+function loadHardcodedQuiz() {
+  const modalBody = document.querySelector('#subjectModal .modal-body');
+  
+  // Create quiz container HTML
+  modalBody.innerHTML = `
+    <div class="quiz-container" id="quizContainer">
+      <div class="quiz-question" id="quizQuestion"></div>
+      <img id="quizImage" class="quiz-image" style="display: none;">
+      <div class="quiz-choices" id="quizChoices"></div>
+      <div class="trivia-section" id="triviaSection" style="display: none;">
+        <h3 class="trivia-title">
+          <i class="fas fa-lightbulb"></i>
+          Nakakalingang Kaalaman
+        </h3>
+        <p class="trivia-content" id="triviaContent"></p>
+        <div style="margin-top: 20px;">
+          <button class="reset-btn" onclick="resetQuiz()">Subukan Muli</button>
+          <button class="reset-btn" onclick="showUserQuizzes()" style="margin-left: 10px; background: #2ecc71;">Tingnan ang Iba Pang Quiz</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const quiz = hardcodedQuizzes[currentSubject];
+  if (!quiz) return;
+
+  document.getElementById('quizQuestion').textContent = quiz.question;
+  
+  const choicesContainer = document.getElementById('quizChoices');
+  choicesContainer.innerHTML = '';
+
+  quiz.choices.forEach((choice, index) => {
+    const button = document.createElement('button');
+    button.className = 'choice-btn';
+    button.textContent = `${String.fromCharCode(65 + index)}. ${choice}`;
+    button.onclick = () => selectAnswer(index);
+    choicesContainer.appendChild(button);
+  });
+
+  quizAnswered = false;
+}
+
+function selectAnswer(selectedIndex) {
+  if (quizAnswered) return;
+
+  const quiz = hardcodedQuizzes[currentSubject];
+  const choices = document.querySelectorAll('.choice-btn');
+  
+  choices.forEach((choice, index) => {
+    if (index === quiz.correctAnswer) {
+      choice.classList.add('correct');
+    } else if (index === selectedIndex && index !== quiz.correctAnswer) {
+      choice.classList.add('incorrect');
+    }
+    choice.style.pointerEvents = 'none';
+  });
+
+  setTimeout(() => {
+    showTrivia();
+  }, 1000);
+
+  quizAnswered = true;
+}
+
+function showTrivia() {
+  const quiz = hardcodedQuizzes[currentSubject];
+  document.getElementById('triviaContent').textContent = quiz.trivia;
+  document.getElementById('triviaSection').style.display = 'block';
+}
+
+function resetQuiz() {
+  if (showingHardcodedQuiz) {
+    const choices = document.querySelectorAll('.choice-btn');
+    choices.forEach(choice => {
+      choice.classList.remove('correct', 'incorrect');
+      choice.style.pointerEvents = 'auto';
+    });
+    document.getElementById('triviaSection').style.display = 'none';
+    quizAnswered = false;
+  }
+}
+
+function showUserQuizzes() {
+  showingHardcodedQuiz = false;
+  const modalBody = document.querySelector('#subjectModal .modal-body');
+  
+  // Switch to original quiz list view
+  modalBody.innerHTML = `
+    <div class="quiz-navigation" style="margin-bottom: 20px; text-align: center;">
+      <button onclick="loadHardcodedQuiz(); showingHardcodedQuiz = true;" style="padding: 10px 20px; margin-right: 10px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        <i class="fas fa-star"></i> Pangunahing Quiz
+      </button>
+    </div>
+    <div class="lessons-list" id="lessonsList"></div>
+    <div class="empty-state" id="emptyLessons" style="display: none;">
+      <i class="fas fa-book-open"></i>
+      <h3>Walang mga karagdagang pagsusulit pa</h3>
+      <p>Magdagdag ng sariling quiz para sa ${currentSubject}</p>
+    </div>
+  `;
+  
+  updateQuizList();
+}
+
+function openAddQuizModal() {
+  document.getElementById('addQuizModal').style.display = 'block';
+}
+
+function closeAddQuizModal() {
+  document.getElementById('addQuizModal').style.display = 'none';
+}
+
+function submitQuiz() {
+  const question = document.getElementById('quizQuestion').value;
+  const imageInput = document.getElementById('quizImage');
+  const imageFile = imageInput.files[0];
+
+  const choices = Array.from(document.querySelectorAll('#addQuizModal input[type="text"]'))
+    .slice(1, 5)  // Skip the question input
+    .map(input => input.value);
+
+  if (!question || choices.some(c => !c)) {
+    alert("Pakitapos lahat ng fields.");
+    return;
+  }
+
+  const newQuiz = {
+    question: question,
+    choices: choices,
+    imageSrc: ''
+  };
+
+  if (imageFile) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      newQuiz.imageSrc = e.target.result;
+      saveQuiz(newQuiz);
+    };
+    reader.readAsDataURL(imageFile);
+  } else {
+    saveQuiz(newQuiz);
+  }
+
+  document.getElementById('addQuizModal').style.display = 'none';
+}
+
+function saveQuiz(quiz) {
+  quizData[currentSubject].push(quiz);
+  updateQuizList();
+  document.getElementById('successModal').style.display = 'block';
+}
+
+function updateQuizList() {
+  const list = document.getElementById('lessonsList');
+  if (!list) return;
+  
+  list.innerHTML = '';
+
+  const quizzes = quizData[currentSubject];
+  if (quizzes.length === 0) {
+    document.getElementById('emptyLessons').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('emptyLessons').style.display = 'none';
+
+  quizzes.forEach((quiz, index) => {
+    const container = document.createElement('div');
+    container.style.border = "1px solid #ccc";
+    container.style.padding = "10px";
+    container.style.marginBottom = "10px";
+    container.style.borderRadius = "5px";
+    container.style.backgroundColor = "#fdfdfd";
+
+    const question = document.createElement('p');
+    question.innerHTML = `<strong>Tanong ${index + 1}:</strong> ${quiz.question}`;
+    container.appendChild(question);
+
+    if (quiz.imageSrc) {
+      const img = document.createElement('img');
+      img.src = quiz.imageSrc;
+      img.style.maxWidth = "100px";
+      img.style.marginBottom = "10px";
+      container.appendChild(img);
+    }
+
+    quiz.choices.forEach((choice, i) => {
+      const choiceItem = document.createElement('p');
+      choiceItem.textContent = `${String.fromCharCode(97 + i)}. ${choice}`;
+      container.appendChild(choiceItem);
+    });
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = "🗑️ Alisin";
+    removeBtn.style.marginTop = "10px";
+    removeBtn.style.backgroundColor = "#e74c3c";
+    removeBtn.style.color = "#fff";
+    removeBtn.style.border = "none";
+    removeBtn.style.padding = "5px 10px";
+    removeBtn.style.borderRadius = "5px";
+    removeBtn.style.cursor = "pointer";
+    removeBtn.onclick = () => {
+      quizData[currentSubject].splice(index, 1);
+      updateQuizList();
+    };
+    container.appendChild(removeBtn);
+    list.appendChild(container);
+  });
+}
+
+function closeSuccessModal() {
+  document.getElementById('successModal').style.display = 'none';
+  showUserQuizzes();
+}
+
+function toggleDropdown() {
+  const dd = document.getElementById('settings-dropdown');
+  dd.style.display = dd.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function () {
+  const term = this.value.toLowerCase();
+  document.querySelectorAll('.subject-card').forEach(card => {
+    const title = card.querySelector('.subject-title').textContent.toLowerCase();
+    const desc = card.querySelector('.subject-description').textContent.toLowerCase();
+    card.style.display = title.includes(term) || desc.includes(term) ? 'block' : 'none';
+  });
+});
+
+// Close modal when clicking outside
+window.onclick = function (e) {
+  if (e.target.classList.contains('modal')) {
+    closeSubjectModal();
+    closeAddQuizModal();
+    closeSuccessModal();
+  }
+};
+
+// Image preview functionality
+document.getElementById('quizImage').addEventListener('change', function (event) {
+  const file = event.target.files[0];
+  const preview = document.getElementById('imagePreview');
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    preview.src = '';
+    preview.style.display = 'none';
+  }
+});
+
+// Logout Modal functionality
+const modal = document.getElementById('logoutModal');
+const logoutBtn = document.getElementById('logout-btn');
+const closeModal = document.getElementById('closeModal');
+const cancelLogout = document.getElementById('cancelLogout');
+
+// Open modal when logout button is clicked
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    modal.style.display = 'block';
+  });
+}
+
+// Close modal when X is clicked
+if (closeModal) {
+  closeModal.addEventListener('click', function() {
+    modal.style.display = 'none';
+  });
+}
+
+// Close modal when Cancel is clicked
+if (cancelLogout) {
+  cancelLogout.addEventListener('click', function() {
+    modal.style.display = 'none';
+  });
+}
+
+// Close modal when clicking outside of it
+window.addEventListener('click', function(event) {
+  if (event.target == modal) {
+    modal.style.display = 'none';
+  }
+});
+
+// Add smooth animations
+const cards = document.querySelectorAll('.subject-card');
+cards.forEach((card, index) => {
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(20px)';
+  setTimeout(() => {
+    card.style.transition = 'all 0.6s ease';
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+  }, index * 100);
+});
+
+</script>
+</body>
+</html>
