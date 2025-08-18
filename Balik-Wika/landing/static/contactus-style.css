@@ -24,7 +24,7 @@ nav {
   justify-content: flex-start;
   flex-grow: 1;
   gap: 20px;
-  margin-left: 500px;   
+  margin-left: 455px;   
 }
 
 nav a {
@@ -496,3 +496,4 @@ nav a:focus {
   outline: 3px solid rgba(255, 107, 107, 0.5);
   outline-offset: 2px;
 }
+
