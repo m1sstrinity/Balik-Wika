@@ -1,0 +1,324 @@
+  @import url('style.css');
+
+  /* Optional: Specific styles for teachers page */
+  .main-title {
+    font-size: 26px;
+    margin-bottom: 25px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+  }
+  /* --- Teacher Section --- */
+  .teacher-form {
+    background-color: #ffffffd9;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin-bottom: 40px;
+  }
+
+  .teacher-form h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+
+  .teacher-form label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .teacher-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: 'Instrument Serif', serif;
+  }
+
+  .teacher-form button {
+    padding: 10px 20px;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: 'Instrument Serif', serif;
+    transition: background-color 0.2s;
+  }
+
+  .teacher-form button:hover {
+    background-color: #16a085;
+  }
+
+/* Main Content */
+.main {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  color: black;
+}
+
+.main-title {
+  font-size: 26px;
+  margin-bottom: 25px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.main-title .count {
+  background: #f1c40f;
+  border-radius: 50%;
+  padding: 6px 12px;
+  margin-left: 10px;
+  font-size: 16px;
+}
+
+/* Search Box */
+.search-box {
+  margin: 20px 0;
+}
+
+.search-box input {
+  width: 350px;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 16px;
+}
+
+th, td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+th {
+  background-color: #f9f9f9;
+  font-size: 16px;
+}
+
+tr:nth-child(even) {
+  background-color: #f7f5ff;
+}
+
+/* Status Styling with Circles */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.status::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status.active {
+  background-color: #dff5e2;
+  color: #27ae60;
+}
+
+.status.active::before {
+  background-color: #27ae60;
+}
+
+.status.inactive {
+  background-color: #fce0e0;
+  color: #e74c3c;
+}
+
+.status.inactive::before {
+  background-color: #e74c3c;
+}
+
+.status.pending {
+  background-color: #fef3e2;
+  color: #e67e22;
+}
+
+.status.pending::before {
+  background-color: #e67e22;
+}
+
+
+/* Action Icons */
+.actions i {
+  margin: 0 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.edit {
+  color: #f1c40f;
+}
+
+.delete {
+  color: #e74c3c;
+}
+
+  /* Modal Specific Form Styling */
+  .modal-content form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-content label {
+    font-weight: bold;
+    margin: 10px 0 4px;
+    color: #333;
+  }
+
+  .modal-content input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: 'Instrument Serif', serif;
+    margin-bottom: 12px;
+  }
+
+  .modal-footer .btn {
+    padding: 8px 16px;
+    font-family: 'Instrument Serif', serif;
+    font-weight: bold;
+  }
+
+/* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 0;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      padding: 20px 20px 10px;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      margin: 0;
+    }
+
+    .modal-body {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .modal-message {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      padding: 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      font-family: 'Instrument Serif', serif;
+      font-size: 14px;
+    }
+
+    .btn-cancel {
+      background-color: #95a5a6;
+      color: white;
+    }
+
+    .btn-cancel:hover {
+      background-color: #7f8c8d;
+    }
+
+    .btn-confirm {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .btn-confirm:hover {
+      background-color: #c0392b;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 10px 15px 0 0;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
