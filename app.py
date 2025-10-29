@@ -747,7 +747,7 @@ def student_dashboard():
             conn.close()
             return redirect(url_for('login'))
 
-        # ✅ Since it's already base64 text, just use it directly
+        # ✅ Since you're storing as TEXT (base64 string), just pass it directly
         profile_picture = user['user_profile'] if user['user_profile'] else None
 
         # Get first 2 subjects for suggested topics
@@ -776,7 +776,7 @@ def student_dashboard():
 
         return render_template('student_dashboard.html', 
                              user=user, 
-                             profile_picture=profile_picture,  # ✅ Pass it here
+                             profile_picture=profile_picture,  # ✅ Pass the base64 string
                              suggested_topics=suggested_topics)
     
     except Exception as e:
