@@ -612,16 +612,25 @@ def add_question():
 
     print(f"Using quiz_id: {quiz_id}")
 
-    # Subject mapping
-    subject_map = {
-        "Pangngalan": 1,
-        "Pandiwa": 2,
-        "Pang-uri": 3,
-        "Panghalip": 4
-    }
-    
-    subject_id = subject_map.get(subject, 1)
-    print(f"Using subject_id: {subject_id} for subject: {subject}")
+    # ✅ FIX: Check if subject_id is valid or make it optional
+    subject_id = None
+    if subject:
+        subject_map = {
+            "Pangngalan": 1,
+            "Pandiwa": 2,
+            "Pang-uri": 3,
+            "Panghalip": 4
+        }
+        subject_id = subject_map.get(subject)
+        
+        # Verify the subject exists
+        if subject_id:
+            cursor.execute("SELECT subject_id FROM subjects WHERE subject_id = %s", (subject_id,))
+            if not cursor.fetchone():
+                print(f"Subject ID {subject_id} doesn't exist, setting to NULL")
+                subject_id = None
+
+    print(f"Using subject_id: {subject_id}")
 
     # Validate required fields
     if not all([question, choice_a, choice_b, choice_c, choice_d, correct, quiz_id, user_id]):
@@ -643,6 +652,7 @@ def add_question():
         }), 400
 
     try:
+        # ✅ FIX: Allow NULL subject_id if not provided
         cursor.execute('''
             INSERT INTO questions (
                 quiz_id, subject_id, user_id, question_text,
@@ -663,7 +673,6 @@ def add_question():
         conn.close()
         print(f"Error adding question: {str(e)}")
         return jsonify({'success': False, 'message': f'Error adding question: {str(e)}'}), 500
-
 
 @teacher_bp.route('/add_quiz', methods=['POST'])
 def add_quiz():
