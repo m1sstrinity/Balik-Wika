@@ -747,6 +747,21 @@ def student_dashboard():
             cursor.close()
             conn.close()
             return redirect(url_for('login'))
+        
+
+        # Handle profile picture encoding
+        profile_picture = None
+        if user['user_profile']:
+            try:
+                if isinstance(user['user_profile'], bytes):
+                    profile_picture = base64.b64encode(user['user_profile']).decode('utf-8')
+                elif isinstance(user['user_profile'], memoryview):
+                    profile_picture = base64.b64encode(bytes(user['user_profile'])).decode('utf-8')
+                elif isinstance(user['user_profile'], str):
+                    profile_picture = user['user_profile']
+            except Exception as e:
+                print(f"Profile picture error: {e}")
+
 
         # Get first 2 subjects for suggested topics
         cursor.execute('''
