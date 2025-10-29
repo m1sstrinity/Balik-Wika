@@ -747,20 +747,8 @@ def student_dashboard():
             conn.close()
             return redirect(url_for('login'))
 
-        # ✅ FIX: Properly encode profile picture
-        profile_picture = None
-        if user['user_profile']:
-            try:
-                if isinstance(user['user_profile'], bytes):
-                    profile_picture = base64.b64encode(user['user_profile']).decode('utf-8')
-                elif isinstance(user['user_profile'], memoryview):
-                    profile_picture = base64.b64encode(bytes(user['user_profile'])).decode('utf-8')
-                elif isinstance(user['user_profile'], str):
-                    # Already base64 string
-                    profile_picture = user['user_profile']
-            except Exception as e:
-                print(f"Profile picture encoding error: {e}")
-                profile_picture = None
+        # ✅ Since it's already base64 text, just use it directly
+        profile_picture = user['user_profile'] if user['user_profile'] else None
 
         # Get first 2 subjects for suggested topics
         cursor.execute('''
@@ -788,7 +776,7 @@ def student_dashboard():
 
         return render_template('student_dashboard.html', 
                              user=user, 
-                             profile_picture=profile_picture,  # ✅ Now properly encoded
+                             profile_picture=profile_picture,  # ✅ Pass it here
                              suggested_topics=suggested_topics)
     
     except Exception as e:
