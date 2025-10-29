@@ -739,7 +739,6 @@ def student_dashboard():
     cursor = conn.cursor()
     try:
         # Get user data
-        # Changed ? to %s for PostgreSQL
         cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
         user = cursor.fetchone()
         
@@ -747,9 +746,8 @@ def student_dashboard():
             cursor.close()
             conn.close()
             return redirect(url_for('login'))
-        
 
-        # Handle profile picture encoding
+        # ✅ FIX: Properly encode profile picture
         profile_picture = None
         if user['user_profile']:
             try:
@@ -758,10 +756,11 @@ def student_dashboard():
                 elif isinstance(user['user_profile'], memoryview):
                     profile_picture = base64.b64encode(bytes(user['user_profile'])).decode('utf-8')
                 elif isinstance(user['user_profile'], str):
+                    # Already base64 string
                     profile_picture = user['user_profile']
             except Exception as e:
-                print(f"Profile picture error: {e}")
-
+                print(f"Profile picture encoding error: {e}")
+                profile_picture = None
 
         # Get first 2 subjects for suggested topics
         cursor.execute('''
@@ -775,7 +774,6 @@ def student_dashboard():
         ''')
         suggested_subjects = cursor.fetchall()
 
-        # Convert to list of dictionaries
         suggested_topics = [{
             'id': s['subject_id'],
             'name': s['name'],
@@ -788,11 +786,9 @@ def student_dashboard():
         cursor.close()
         conn.close()
 
-        profile_picture = user['user_profile'] if user['user_profile'] else None
-
         return render_template('student_dashboard.html', 
                              user=user, 
-                             profile_picture=profile_picture,
+                             profile_picture=profile_picture,  # ✅ Now properly encoded
                              suggested_topics=suggested_topics)
     
     except Exception as e:
