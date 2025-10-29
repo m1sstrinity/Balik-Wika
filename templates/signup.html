@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Balik Wika - Sign Up</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: url('/static/bg.gif') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Instrument Serif', serif;
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-box {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 350px;
+            max-width: 450px;
+        }
+
+        .logo {
+            margin: 0 auto 10px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: black;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 5px;
+            border: 2px solid black;
+            box-sizing: border-box;
+            font-family: 'Instrument Serif', serif;
+            font-size: 20px;
+            color: black;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1e40af;
+        }
+
+        input.valid {
+            border-color: #10b981;
+        }
+
+        input.invalid {
+            border-color: #ef4444;
+        }
+
+        .password-container {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .password-container input {
+            margin: 0;
+            padding-right: 45px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #333;
+        }
+
+        .input-group {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .input-error {
+            color: #ef4444;
+            font-size: 14px;
+            text-align: left;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .password-requirements {
+            text-align: left;
+            margin: 10px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+            display: none;
+        }
+
+        .password-requirements.show {
+            display: block;
+        }
+
+        .password-requirements h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .requirement i {
+            margin-right: 8px;
+            width: 16px;
+            font-size: 12px;
+        }
+
+        .requirement.valid {
+            color: #10b981;
+        }
+
+        .requirement.invalid {
+            color: #ef4444;
+        }
+
+        .requirement.neutral {
+            color: #6b7280;
+        }
+
+        .password-strength {
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        .strength-meter {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            width: 0%;
+            background-color: #ef4444;
+        }
+
+        .strength-fill.weak {
+            background-color: #ef4444;
+        }
+
+        .strength-fill.medium {
+            background-color: #f59e0b;
+        }
+
+        .strength-fill.strong {
+            background-color: #10b981;
+        }
+
+        .strength-text {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #ef4444;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        button {
+            display: block;
+            width: 50%;
+            margin: 20px auto;
+            padding: 12px;
+            border-radius: 5px;
+            border: none;
+            background-color: #ef4444;
+            color: white;
+            font-family: 'Instrument Serif', serif;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+            position: relative;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #dc2626;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .signup-link {
+            margin-top: 20px;
+            font-size: 20px;
+            color: black;
+            line-height: 1.5;
+        }
+
+        .signup-link a {
+            color: #00f;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        .signup-link a:hover {
+            color: #1e40af;
+        }
+
+        .flash-message {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        .flash-message.error {
+            color: #dc2626;
+            background-color: rgba(220, 38, 38, 0.1);
+            border: 1px solid #dc2626;
+        }
+
+        .flash-message.success {
+            color: #16a34a;
+            background-color: rgba(22, 163, 74, 0.1);
+            border: 1px solid #16a34a;
+        }
+
+        .flash-message.info {
+            color: #2563eb;
+            background-color: rgba(37, 99, 235, 0.1);
+            border: 1px solid #2563eb;
+        }
+
+        .form-footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+
+        .caps-lock-warning {
+            color: #f59e0b;
+            font-size: 14px;
+            text-align: left;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-box">
+        <div class="logo">
+            <img src="/static/balikwika.png" alt="Balik Wika">
+        </div>
+        <h2>Mag-Sign Up</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+        
+        <form method="POST" id="signupForm">
+            <div class="input-group">
+                <input type="email" name="email" id="email" placeholder="Ilagay ang Email" required>
+                <div class="input-error" id="emailError">Pakicheck ang format ng email</div>
+            </div>
+            
+            <div class="input-group">
+                <div class="password-container">
+                    <input type="password" name="password" id="password" placeholder="Ilagay ang Password" required>
+                    <i class="fas fa-eye-slash password-toggle" id="togglePassword"></i>
+                </div>
+                <div class="input-error" id="passwordError">Kailangan ang password na sumusunod sa requirements</div>
+                <div class="caps-lock-warning" id="capsLockWarning">
+                    <i class="fas fa-exclamation-triangle"></i> Caps Lock ay naka-on
+                </div>
+            </div>
+            
+            <div class="password-requirements" id="passwordRequirements">
+                <h4>Password Requirements:</h4>
+                <div class="requirement neutral" id="lengthReq">
+                    <i class="fas fa-circle"></i>
+                    <span>Hindi bababa sa 8 characters</span>
+                </div>
+                <div class="requirement neutral" id="uppercaseReq">
+                    <i class="fas fa-circle"></i>
+                    <span>Isang malaking letra (A-Z)</span>
+                </div>
+                <div class="requirement neutral" id="lowercaseReq">
+                    <i class="fas fa-circle"></i>
+                    <span>Isang maliit na letra (a-z)</span>
+                </div>
+                <div class="requirement neutral" id="numberReq">
+                    <i class="fas fa-circle"></i>
+                    <span>Isang numero (0-9)</span>
+                </div>
+                <div class="requirement neutral" id="specialReq">
+                    <i class="fas fa-circle"></i>
+                    <span>Isang special character (!@#$%^&*)</span>
+                </div>
+            </div>
+
+            <div class="password-strength" id="passwordStrength" style="display: none;">
+                <div class="strength-meter">
+                    <div class="strength-fill" id="strengthFill"></div>
+                </div>
+                <div class="strength-text" id="strengthText"></div>
+            </div>
+
+            <button type="submit" id="submitBtn" disabled>Mag-Sign Up</button>
+        </form>
+
+        <div class="form-footer">
+            <p class="signup-link">
+                May account ka na? 
+                <a href="{{ url_for('login') }}">Mag-Login</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const emailInput = document.getElementById('email');
+        const signupForm = document.getElementById('signupForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const capsLockWarning = document.getElementById('capsLockWarning');
+        const passwordRequirements = document.getElementById('passwordRequirements');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const strengthFill = document.getElementById('strengthFill');
+        const strengthText = document.getElementById('strengthText');
+
+        // Password requirements elements
+        const lengthReq = document.getElementById('lengthReq');
+        const uppercaseReq = document.getElementById('uppercaseReq');
+        const lowercaseReq = document.getElementById('lowercaseReq');
+        const numberReq = document.getElementById('numberReq');
+        const specialReq = document.getElementById('specialReq');
+
+        // Show/hide password toggle
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Email validation
+        emailInput.addEventListener('input', function() {
+            const email = this.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email.length === 0) {
+                this.classList.remove('valid', 'invalid');
+                emailError.style.display = 'none';
+            } else if (emailRegex.test(email)) {
+                this.classList.remove('invalid');
+                this.classList.add('valid');
+                emailError.style.display = 'none';
+            } else {
+                this.classList.remove('valid');
+                this.classList.add('invalid');
+                emailError.style.display = 'block';
+            }
+            
+            updateSubmitButton();
+        });
+
+        // Show password requirements when password field is focused
+        passwordInput.addEventListener('focus', function() {
+            passwordRequirements.classList.add('show');
+            if (passwordInput.value) {
+                passwordStrength.style.display = 'block';
+            }
+        });
+
+        // Caps lock detection
+        passwordInput.addEventListener('keyup', function(e) {
+            const capsLock = e.getModifierState && e.getModifierState('CapsLock');
+            if (capsLock) {
+                capsLockWarning.style.display = 'block';
+            } else {
+                capsLockWarning.style.display = 'none';
+            }
+        });
+
+        // Password validation
+        passwordInput.addEventListener('input', function() {
+            const password = passwordInput.value;
+            let score = 0;
+            let validRequirements = 0;
+
+            // Show strength meter if password has content
+            if (password.length > 0) {
+                passwordStrength.style.display = 'block';
+                passwordError.style.display = 'none';
+            } else {
+                passwordStrength.style.display = 'none';
+                passwordError.style.display = 'none';
+            }
+
+            // Check length requirement
+            if (password.length >= 8) {
+                updateRequirement(lengthReq, true);
+                score += 20;
+                validRequirements++;
+            } else {
+                updateRequirement(lengthReq, false);
+            }
+
+            // Check uppercase requirement
+            if (/[A-Z]/.test(password)) {
+                updateRequirement(uppercaseReq, true);
+                score += 20;
+                validRequirements++;
+            } else {
+                updateRequirement(uppercaseReq, false);
+            }
+
+            // Check lowercase requirement
+            if (/[a-z]/.test(password)) {
+                updateRequirement(lowercaseReq, true);
+                score += 20;
+                validRequirements++;
+            } else {
+                updateRequirement(lowercaseReq, false);
+            }
+
+            // Check number requirement
+            if (/[0-9]/.test(password)) {
+                updateRequirement(numberReq, true);
+                score += 20;
+                validRequirements++;
+            } else {
+                updateRequirement(numberReq, false);
+            }
+
+            // Check special character requirement
+            if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+                updateRequirement(specialReq, true);
+                score += 20;
+                validRequirements++;
+            } else {
+                updateRequirement(specialReq, false);
+            }
+
+            // Update strength meter
+            updateStrengthMeter(score, validRequirements);
+
+            // Update password input styling
+            if (validRequirements === 5) {
+                passwordInput.classList.remove('invalid');
+                passwordInput.classList.add('valid');
+            } else if (password.length > 0) {
+                passwordInput.classList.remove('valid');
+                passwordInput.classList.add('invalid');
+                passwordError.style.display = 'block';
+            } else {
+                passwordInput.classList.remove('valid', 'invalid');
+            }
+
+            // Update submit button
+            updateSubmitButton();
+        });
+
+        function updateRequirement(element, isValid) {
+            const icon = element.querySelector('i');
+            
+            if (isValid) {
+                element.classList.remove('neutral', 'invalid');
+                element.classList.add('valid');
+                icon.classList.remove('fa-circle', 'fa-times');
+                icon.classList.add('fa-check');
+            } else {
+                element.classList.remove('neutral', 'valid');
+                element.classList.add('invalid');
+                icon.classList.remove('fa-circle', 'fa-check');
+                icon.classList.add('fa-times');
+            }
+        }
+
+        function updateStrengthMeter(score, validRequirements) {
+            strengthFill.style.width = score + '%';
+            
+            let strengthLevel = '';
+            let strengthClass = '';
+            
+            if (score < 40) {
+                strengthLevel = 'Mahina';
+                strengthClass = 'weak';
+            } else if (score < 80) {
+                strengthLevel = 'Katamtaman';
+                strengthClass = 'medium';
+            } else {
+                strengthLevel = 'Malakas';
+                strengthClass = 'strong';
+            }
+            
+            strengthFill.className = 'strength-fill ' + strengthClass;
+            strengthText.textContent = 'Password Strength: ' + strengthLevel;
+            strengthText.style.color = getComputedStyle(strengthFill).backgroundColor;
+        }
+
+        function updateSubmitButton() {
+            const password = passwordInput.value;
+            const email = emailInput.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            // Check if all password requirements are met
+            const allRequirementsMet = password.length >= 8 &&
+                                     /[A-Z]/.test(password) &&
+                                     /[a-z]/.test(password) &&
+                                     /[0-9]/.test(password) &&
+                                     /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+            
+            // Check if email is valid
+            const emailValid = email && emailRegex.test(email);
+            
+            // Enable submit button only if all requirements are met
+            if (allRequirementsMet && emailValid) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Form submission
+        signupForm.addEventListener('submit', function(e) {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            // Final validation check
+            const allRequirementsMet = password.length >= 8 &&
+                                     /[A-Z]/.test(password) &&
+                                     /[a-z]/.test(password) &&
+                                     /[0-9]/.test(password) &&
+                                     /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+            
+            const emailValid = email && emailRegex.test(email);
+            
+            if (!allRequirementsMet || !emailValid) {
+                e.preventDefault();
+                alert('Pakisiguro na ang lahat ng password requirements ay natutupad at ang email ay tamang format.');
+                return;
+            }
+
+            // Add loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Nag-sign up...';
+        });
+
+        // Initialize submit button state
+        updateSubmitButton();
+
+        // Auto-focus on email input
+        emailInput.focus();
+
+        // Clear flash messages after 5 seconds
+        setTimeout(function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                message.style.opacity = '0';
+                message.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    message.style.display = 'none';
+                }, 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

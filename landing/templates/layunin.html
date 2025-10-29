@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balik-Wika</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('landing.static', filename='layunin-style.css') }}">
+</head>
+<body>
+  <header>
+    <img src="{{ url_for('landing.static', filename='bwlogo.png') }}" alt="Balik-Wika Logo">
+    <nav>
+      <a href="{{ url_for('landing.home') }}">Home</a>
+      <a href="{{ url_for('landing.layunin') }}">Layunin</a>
+      <a href="{{ url_for('landing.contactus') }}">Contact us</a>
+    </nav>
+  </header>
+
+  <section class="main-content">
+    <h1>Layunin</h1>
+    <div class="info-box">
+      Ang Balik-Wika ay isang masaya at madaling gamiting online platform na tumutulong sa mga kabataang Pilipino na mas mapahusay ang kanilang kaalaman sa wikang Filipino at muling maipagmalaki ang ating kultura. Ginawa ito lalo na para sa mga batang mas sanay magsalita ng Ingles o ibang diyalekto. May mga simpleng aralin, interactive na pagsusulit, at maiikling kaalamang pangkultura na ginawang mas kawili-wili ang pag-aaral. Layunin naming ibalik ang pagmamahal sa wikang Filipino—isang salita sa bawat hakbang.
+    </div>
+  </section>
+</body>
+</html>

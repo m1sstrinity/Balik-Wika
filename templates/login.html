@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Balik Wika - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: url('/static/bg.gif') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Instrument Serif', serif;
+            color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-box {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 350px;
+            max-width: 450px;
+        }
+
+        .logo {
+            margin: 0 auto 10px;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: black;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 5px;
+            border: 2px solid black;
+            box-sizing: border-box;
+            font-family: 'Instrument Serif', serif;
+            font-size: 20px;
+            color: black;
+            background: white;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #1e40af;
+        }
+
+        input.valid {
+            border-color: #10b981;
+        }
+
+        input.invalid {
+            border-color: #ef4444;
+        }
+
+        .password-container {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .password-container input {
+            margin: 0;
+            padding-right: 45px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #333;
+        }
+
+        .input-group {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .input-error {
+            color: #ef4444;
+            font-size: 14px;
+            text-align: left;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #ef4444;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        button {
+            display: block;
+            width: 50%;
+            margin: 20px auto;
+            padding: 12px;
+            border-radius: 5px;
+            border: none;
+            background-color: #ef4444;
+            color: white;
+            font-family: 'Instrument Serif', serif;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, opacity 0.3s ease;
+            position: relative;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #dc2626;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .signup-link {
+            margin-top: 20px;
+            font-size: 20px;
+            color: black;
+            line-height: 1.5;
+        }
+
+        .signup-link a {
+            color: #00f;
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        .signup-link a:hover {
+            color: #1e40af;
+        }
+
+        .flash-message {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        .flash-message.error {
+            color: #dc2626;
+            background-color: rgba(220, 38, 38, 0.1);
+            border: 1px solid #dc2626;
+        }
+
+        .flash-message.success {
+            color: #16a34a;
+            background-color: rgba(22, 163, 74, 0.1);
+            border: 1px solid #16a34a;
+        }
+
+        .flash-message.info {
+            color: #2563eb;
+            background-color: rgba(37, 99, 235, 0.1);
+            border: 1px solid #2563eb;
+        }
+
+        .forgot-password {
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+        .forgot-password a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .forgot-password a:hover {
+            color: #333;
+            text-decoration: underline;
+        }
+
+        .form-footer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+            margin-top: 30px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            margin-left: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .caps-lock-warning {
+            color: #f59e0b;
+            font-size: 14px;
+            text-align: left;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-box">
+        <div class="logo">
+            <img src="/static/balikwika.png" alt="Balik Wika">
+        </div>
+        <h2>Mag-Login</h2>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash-message {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+        
+        <form method="POST" id="loginForm">
+            <div class="input-group">
+                <input type="email" name="email" id="email" placeholder="Ilagay ang Email" required>
+                <div class="input-error" id="emailError">Pakicheck ang format ng email</div>
+            </div>
+            
+            <div class="input-group">
+                <div class="password-container">
+                    <input type="password" name="password" id="password" placeholder="Ilagay ang Password" required>
+                    <i class="fas fa-eye-slash password-toggle" id="togglePassword"></i>
+                </div>
+                <div class="input-error" id="passwordError">Kailangan ang password</div>
+                <div class="caps-lock-warning" id="capsLockWarning">
+                    <i class="fas fa-exclamation-triangle"></i> Caps Lock ay naka-on
+                </div>
+            </div>
+
+            <div class="remember-me">
+                <input type="checkbox" name="remember" id="remember">
+                <label for="remember">Tandaan ako</label>
+            </div>
+
+            <button type="submit" id="loginBtn">Mag-Login</button>
+        </form>
+
+        <div class="forgot-password" style="font-size: 18px; font-weight: 600;">
+            <a href="{{ url_for('forgot_password') }}">Nakalimutan ang password?</a>
+        </div>
+
+        <div class="form-footer">
+            <p class="signup-link">
+                Wala pa'ng Account? 
+                <a href="{{ url_for('signup') }}">Mag-Sign up</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const emailInput = document.getElementById('email');
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const capsLockWarning = document.getElementById('capsLockWarning');
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Email validation
+        emailInput.addEventListener('input', function() {
+            const email = this.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email.length === 0) {
+                this.classList.remove('valid', 'invalid');
+                emailError.style.display = 'none';
+            } else if (emailRegex.test(email)) {
+                this.classList.remove('invalid');
+                this.classList.add('valid');
+                emailError.style.display = 'none';
+            } else {
+                this.classList.remove('valid');
+                this.classList.add('invalid');
+                emailError.style.display = 'block';
+            }
+            
+            validateForm();
+        });
+
+        // Password validation
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            
+            if (password.length === 0) {
+                this.classList.remove('valid', 'invalid');
+                passwordError.style.display = 'none';
+            } else if (password.length >= 1) {
+                this.classList.remove('invalid');
+                this.classList.add('valid');
+                passwordError.style.display = 'none';
+            }
+            
+            validateForm();
+        });
+
+        // Caps lock detection
+        passwordInput.addEventListener('keyup', function(e) {
+            const capsLock = e.getModifierState && e.getModifierState('CapsLock');
+            if (capsLock) {
+                capsLockWarning.style.display = 'block';
+            } else {
+                capsLockWarning.style.display = 'none';
+            }
+        });
+
+        // Form validation
+        function validateForm() {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            const isEmailValid = email.length > 0 && emailRegex.test(email);
+            const isPasswordValid = password.length > 0;
+            
+            if (isEmailValid && isPasswordValid) {
+                loginBtn.disabled = false;
+            } else {
+                loginBtn.disabled = true;
+            }
+        }
+
+        // Form submission
+        loginForm.addEventListener('submit', function(e) {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            // Final validation
+            if (!email || !emailRegex.test(email)) {
+                e.preventDefault();
+                emailError.style.display = 'block';
+                emailInput.classList.add('invalid');
+                return;
+            }
+            
+            if (!password) {
+                e.preventDefault();
+                passwordError.style.display = 'block';
+                passwordInput.classList.add('invalid');
+                return;
+            }
+
+            // Add loading state
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Naglologin...';
+        });
+
+        // Initialize form validation
+        validateForm();
+
+        // Auto-focus on email input
+        emailInput.focus();
+
+        // Clear flash messages after 5 seconds
+        setTimeout(function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                message.style.opacity = '0';
+                message.style.transition = 'opacity 0.5s ease';
+                setTimeout(function() {
+                    message.style.display = 'none';
+                }, 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mga Aralin - BalikWika</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --accent-color: #e74c3c;
+    --warning-color: #f39c12;
+    --purple-color: #9b59b6;
+    --orange-color: #e67e22;
+    --dark-color: #2c3e50;
+    --light-color: #ecf0f1;
+    --text-color: #34495e;
+    --text-light: #7f8c8d;
+    --white: #ffffff;
+    --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Instrument Serif', serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    min-height: 100vh;
+    line-height: 1.6;
+    padding-left: 280px;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 280px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: var(--border-radius);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.logo img {
+    width: 180px;
+    height: 90px;
+    object-fit: contain;
+    transition: var(--transition);
+}
+
+.logo:hover img {
+    transform: scale(1.05);
+}
+
+.nav-item {
+    padding: 18px 24px;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    color: var(--white);
+    font-weight: 500;
+    text-align: center;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.nav-item:hover::before {
+    left: 100%;
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, var(--accent-color), #c0392b);
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
+}
+
+.nav-item:nth-child(2) { 
+    background: linear-gradient(135deg, var(--accent-color), #c0392b);
+}
+.nav-item:nth-child(3) { 
+    background: linear-gradient(135deg, var(--warning-color), #d68910);
+}
+.nav-item:nth-child(4) { 
+    background: linear-gradient(135deg, var(--secondary-color), #27ae60);
+}
+.nav-item:nth-child(5) { 
+    background: linear-gradient(135deg, var(--primary-color), #2980b9);
+}
+.nav-item:nth-child(6) { 
+    background: linear-gradient(135deg, var(--purple-color), #8e44ad);
+}
+.nav-item:nth-child(7) { 
+    background: linear-gradient(135deg, var(--orange-color), #d35400);
+}
+
+.nav-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Main Content */
+.main-content {
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    margin: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+/* Header Styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    font-size: 42px;
+    color: white;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* Search Container */
+.search-container {
+    position: relative;
+    min-width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 20px 12px 50px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: var(--transition);
+}
+
+.search-input:focus {
+    outline: none;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 18px;
+}
+
+/* Add Subject Button */
+.add-subject-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    white-space: nowrap;
+}
+
+.add-subject-btn:hover {
+    background: linear-gradient(135deg, #45a049, #3d8b40);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.add-subject-btn:active {
+    transform: translateY(0);
+}
+
+/* Subjects Grid */
+.subjects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.subject-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+}
+
+.subject-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.subject-card:hover::after {
+    left: 100%;
+}
+
+.subject-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.subject-card.pangngalan::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+
+.subject-card.pandiwa::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+}
+
+.subject-card.pang-uri::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+}
+
+.subject-card.panghalip::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #9b59b6, #8e44ad);
+}
+
+.subject-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subject-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.subject-description {
+    color: #666;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.lesson-count {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-block;
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.empty-state i {
+    font-size: 80px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.empty-state h3 {
+    font-size: 28px;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.empty-state p {
+    font-size: 18px;
+    opacity: 0.8;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    position: relative;
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    padding: 30px;
+    border-bottom: 2px solid #f0f0f0;
+    position: relative;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+}
+
+.modal-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.modal-subtitle {
+    color: #666;
+    font-size: 16px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    font-size: 30px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.modal-close:hover {
+    color: #333;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.modal-body {
+    padding: 30px;
+}
+
+.modal-body label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
+}
+
+.modal-body input,
+.modal-body textarea,
+.modal-body select {
+    width: 100%;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Instrument Serif', serif;
+    transition: var(--transition);
+    box-sizing: border-box;
+}
+
+.modal-body input:focus,
+.modal-body textarea:focus,
+.modal-body select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modal-body textarea {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.modal-body small {
+    display: block;
+    margin-top: -15px;
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 13px;
+}
+
+.modal-body small a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.modal-body small a:hover {
+    text-decoration: underline;
+}
+
+/* Lessons List */
+.lessons-list {
+    display: grid;
+    gap: 15px;
+}
+
+.lesson-item {
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-radius: 15px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.lesson-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.lesson-item:hover::before {
+    transform: scaleY(1);
+}
+
+.lesson-item:hover {
+    background: linear-gradient(135deg, #e9ecef, #f8f9fa);
+    border-color: #667eea;
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+}
+
+.lesson-item-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.lesson-item-preview {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.lesson-item-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #999;
+}
+
+.lesson-item-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Lesson Content Modal */
+.lesson-content-modal .modal-content {
+    max-width: 700px;
+}
+
+.lesson-content-modal .modal-body {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.lesson-content-text {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    white-space: pre-wrap;
+}
+
+.lesson-content-footer {
+    padding: 20px 30px;
+    border-top: 2px solid #f0f0f0;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-radius: 0 0 20px 20px;
+}
+
+.teacher-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.teacher-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+/* Modal Buttons */
+.modal-body-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.modal-body-buttons button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'Instrument Serif', serif;
+}
+
+.modal-body-buttons .cancel-btn {
+    background: linear-gradient(135deg, #f44336, #d32f2f);
+    color: white;
+    box-shadow: 0 4px 10px rgba(244, 67, 54, 0.3);
+}
+
+.modal-body-buttons .cancel-btn:hover {
+    background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(244, 67, 54, 0.4);
+}
+
+.modal-body-buttons .add-btn {
+    background: linear-gradient(135deg, #4CAF50, #388E3C);
+    color: white;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.modal-body-buttons .add-btn:hover {
+    background: linear-gradient(135deg, #388E3C, #2e7d32);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+}
+
+/* Lesson Modal Specific Styles */
+        .lesson-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .lesson-teacher {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .lesson-content {
+            padding: 30px;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+            white-space: pre-wrap;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        /* Close button for modals */
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Subject Modal Header */
+        #subjectModal .modal-content > h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            padding: 30px 30px 10px 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        }
+        
+        #subjectModal .modal-content > p {
+            color: #666;
+            font-size: 16px;
+            text-align: center;
+            padding: 0 30px 20px 30px;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border-bottom: 2px solid #f0f0f0;
+            margin: 0;
+        }
+        
+        /* Lessons List Container */
+        .lessons-list {
+            padding: 30px;
+        }
+        
+        /* Lesson Modal Title */
+        #lessonModal .modal-content > h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            padding: 30px 30px 15px 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            margin: 0;
+        }
+
+/* Logout Modal Styles */
+.logout-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+.logout-modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 0;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.logout-modal-header {
+    padding: 24px 28px 16px;
+    border-bottom: 2px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logout-modal-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.logout-modal-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.logout-modal-body {
+    padding: 20px 28px 24px;
+}
+
+.logout-modal-message {
+    color: #6b7280;
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.logout-modal-actions {
+    padding: 16px 28px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.logout-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Instrument Serif', serif;
+}
+
+.logout-btn-cancel {
+    background: white;
+    color: #6b7280;
+    border-color: #d1d5db;
+}
+
+.logout-btn-cancel:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+}
+
+.logout-btn-confirm {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+}
+
+.logout-btn-confirm:hover {
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(220, 38, 38, 0.4);
+}
+
+.logout-close {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    font-size: 26px;
+    font-weight: bold;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.logout-close:hover {
+    color: #6b7280;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Make Lesson Modal Bigger */
+#lessonModal .modal-content {
+    max-width: 1000px;  /* Increased from 700px */
+    width: 95%;
+}
+
+#lessonModal .modal-body {
+    max-height: 70vh;  /* Increased from 60vh */
+    overflow-y: auto;
+}
+
+/* Video container styling for better display */
+#lessonVideosContainer {
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #f0f0f0;
+}
+
+#lessonVideosContainer h3 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+#lessonVideosDisplay video {
+    width: 100%;
+    max-width: 100%;  /* Use full width of modal */
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Optional: Make the lesson content text area bigger too */
+.lesson-content-text {
+    font-size: 17px;  /* Increased from 16px */
+    line-height: 1.9;
+    color: #333;
+    white-space: pre-wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .subjects-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+        padding-left: 0;
+        padding-top: 90px;
+    }
+    
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 10px;
+        gap: 8px;
+        height: auto;
+        position: fixed;
+        bottom: auto;
+    }
+    
+    .logo {
+        margin-bottom: 0;
+        padding: 10px;
+    }
+    
+    .logo img {
+        width: 120px;
+        height: 60px;
+    }
+    
+    .nav-item {
+        min-width: 120px;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .main-content {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .subjects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .search-container {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .add-subject-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .page-title {
+        text-align: center;
+        font-size: 32px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .modal-body-buttons {
+        flex-direction: column;
+    }
+    
+    .modal-body-buttons button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 28px;
+    }
+    
+    .subject-card {
+        padding: 20px;
+    }
+    
+    .subject-title {
+        font-size: 22px;
+    }
+    
+    .subject-description {
+        font-size: 14px;
+    }
+    
+    .modal-title {
+        font-size: 24px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="/static/balikwika.png" alt="BalikWika Logo">
+        </div>
+        
+        <a href="{{ url_for('student_dashboard') }}" class="nav-item">Dashboard</a>
+        <a href="{{ url_for('mga_aralin') }}" class="nav-item active">Mga aralin</a>
+        <a href="{{ url_for('mga_pagsusulit') }}" class="nav-item">Pagsusulit</a>
+        <a href="{{ url_for('profile') }}" class="nav-item">Aking profile</a>
+        <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1 class="page-title">Mga Aralin</h1>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Maghanap ng paksa..." id="searchInput">
+            </div>
+        </div>
+
+        <div class="subjects-grid" id="subjectsGrid">
+            <!-- Subjects will be loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Subject Modal -->
+    <div id="subjectModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeSubjectModal()">&times;</span>
+            <h2 id="subjectModalTitle"></h2>
+            <p id="subjectModalSubtitle"></p>
+
+            <div id="lessonsList" class="lessons-list"></div>
+
+            <div id="emptyLessons" style="display:none; text-align:center; padding:40px;">
+                <i class="fas fa-info-circle" style="font-size: 48px; color: #888; margin-bottom: 15px;"></i>
+                <p style="color: #666; font-size: 16px;">Walang mga aralin para sa paksang ito.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lesson Modal (UPDATED STRUCTURE) -->
+<div id="lessonModal" class="modal lesson-content-modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeLessonModal()">&times;</span>
+        
+        <div class="modal-header">
+            <h2 class="modal-title" id="lessonModalTitle"></h2>
+        </div>
+        
+        <div class="lesson-content-footer">
+            <div class="teacher-info">
+                <div class="teacher-avatar" id="lessonTeacherAvatar"></div>
+                <div>
+                    <div style="font-weight: 600; color: #333;" id="lessonTeacherName"></div>
+                    <div style="font-size: 13px; color: #999;" id="lessonDate"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-body">
+            <div class="lesson-content-text" id="lessonContent"></div>
+            
+            <!-- ADD THIS VIDEO SECTION -->
+            <div id="lessonVideosContainer" style="display: none; margin-top: 30px;">
+                <h3 style="margin-bottom: 15px; color: #333;">📹 Mga Video</h3>
+                <div id="lessonVideosDisplay"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Logout Modal -->
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <span class="logout-close" id="closeModal">&times;</span>
+            <div class="logout-modal-header">
+                <div class="logout-modal-icon">⚠️</div>
+                <h2 class="logout-modal-title">Confirm Logout</h2>
+            </div>
+            <div class="logout-modal-body">
+                <p class="logout-modal-message">
+                    Are you sure you want to logout? You will be redirected to the login page.
+                </p>
+            </div>
+            <div class="logout-modal-actions">
+                <button class="logout-btn logout-btn-cancel" id="cancelLogout">Cancel</button>
+                <a href="{{ url_for('logout') }}" class="logout-btn logout-btn-confirm">Logout</a>
+            </div>
+        </div>
+    </div>
+
+
+
+ <script>
+        // Global variables to store fetched data
+        let lessonsData = {};
+        let subjectsData = [];
+
+        // Fetch subjects from backend
+        async function fetchSubjects() {
+            try {
+                const response = await fetch('/get_subjects');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch subjects');
+                }
+                subjectsData = await response.json();
+                updateSubjectsDisplay();
+            } catch (error) {
+                console.error('Error fetching subjects:', error);
+                showError('Hindi makuha ang mga paksa. Mangyaring subukan muli.');
+            }
+        }
+
+        // Fetch lessons from backend
+        async function fetchLessons() {
+            try {
+                const response = await fetch('/get_lessons');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch lessons');
+                }
+                lessonsData = await response.json();
+                updateLessonCounts();
+            } catch (error) {
+                console.error('Error fetching lessons:', error);
+                showError('Hindi makuha ang mga aralin. Mangyaring subukan muli.');
+            }
+        }
+
+        // Update subjects display dynamically
+        function updateSubjectsDisplay() {
+            const subjectsGrid = document.getElementById('subjectsGrid');
+            subjectsGrid.innerHTML = '';
+
+            subjectsData.forEach(subject => {
+                const subjectCard = document.createElement('div');
+                subjectCard.className = 'subject-card';
+                subjectCard.onclick = () => openSubjectModal(subject.name);
+                
+                subjectCard.innerHTML = `
+                    <h3 class="subject-title">${subject.name}</h3>
+                    <p class="subject-description">${subject.description}</p>
+                    <span class="lesson-count" id="count-${subject.id}">0 mga aralin</span>
+                `;
+                
+                subjectsGrid.appendChild(subjectCard);
+            });
+        }
+
+        // Update lesson counts for each subject
+        function updateLessonCounts() {
+            subjectsData.forEach(subject => {
+                const count = lessonsData[subject.name] ? lessonsData[subject.name].length : 0;
+                const countElement = document.getElementById(`count-${subject.id}`);
+                if (countElement) {
+                    countElement.textContent = `${count} mga aralin`;
+                }
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const subjectCards = document.querySelectorAll('.subject-card');
+            
+            subjectCards.forEach(card => {
+                const title = card.querySelector('.subject-title').textContent.toLowerCase();
+                const description = card.querySelector('.subject-description').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Subject modal functionality
+        function openSubjectModal(subject) {
+            document.getElementById('subjectModalTitle').textContent = `Mga Aralin sa ${subject}`;
+            document.getElementById('subjectModalSubtitle').textContent = `Piliin ang aralin na nais ninyong tingnan`;
+            
+            const lessonsList = document.getElementById('lessonsList');
+            const emptyState = document.getElementById('emptyLessons');
+            
+            lessonsList.innerHTML = '';
+            
+            if (lessonsData[subject] && lessonsData[subject].length > 0) {
+                emptyState.style.display = 'none';
+                lessonsList.style.display = 'grid';
+                
+                lessonsData[subject].forEach(lesson => {
+                    const lessonItem = document.createElement('div');
+                    lessonItem.className = 'lesson-item';
+                    lessonItem.onclick = () => openLessonModal(lesson);
+                    
+                    const formattedDate = new Date(lesson.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    lessonItem.innerHTML = `
+                        <div class="lesson-item-title">${lesson.title}</div>
+                        <div class="lesson-item-preview">${lesson.content.substring(0, 100)}...</div>
+                        <div class="lesson-item-meta">
+                            <span><i class="fas fa-user"></i> ${lesson.teacher}</span>
+                            <span><i class="fas fa-calendar"></i> ${formattedDate}</span>
+                        </div>
+                    `;
+                    
+                    lessonsList.appendChild(lessonItem);
+                });
+            } else {
+                emptyState.style.display = 'block';
+                lessonsList.style.display = 'none';
+            }
+            
+            document.getElementById('subjectModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSubjectModal() {
+            document.getElementById('subjectModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+       // Lesson modal functionality (UPDATED WITH VIDEO SUPPORT)
+async function openLessonModal(lesson) {
+    console.log('Opening lesson:', lesson); // Debug
+    
+    document.getElementById('lessonModalTitle').textContent = lesson.title;
+    document.getElementById('lessonContent').textContent = lesson.content;
+    document.getElementById('lessonTeacherAvatar').textContent = lesson.teacher[0].toUpperCase();
+    document.getElementById('lessonTeacherName').textContent = lesson.teacher;
+    
+    const formattedDate = new Date(lesson.date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    document.getElementById('lessonDate').textContent = formattedDate;
+    
+    // Load videos for this lesson - ADD THIS SECTION
+    try {
+        const response = await fetch(`/get_lesson_videos/${lesson.id}`);
+        const data = await response.json();
+        
+        console.log('Videos response:', data); // Debug
+        
+        const videosContainer = document.getElementById('lessonVideosContainer');
+        const videosDisplay = document.getElementById('lessonVideosDisplay');
+        
+        if (data.success && data.videos.length > 0) {
+            videosContainer.style.display = 'block';
+            videosDisplay.innerHTML = '';
+            
+            data.videos.forEach(video => {
+                const videoDiv = document.createElement('div');
+                videoDiv.style.marginBottom = '20px';
+                videoDiv.innerHTML = `
+                    <video controls style="width: 100%; max-width: 800px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <source src="${video.video_url}" type="video/mp4">
+                        Ang iyong browser ay hindi sumusuporta sa video tag.
+                    </video>
+                    <p style="margin-top: 10px; font-weight: 500; color: #555;">${video.original_filename}</p>
+                `;
+                videosDisplay.appendChild(videoDiv);
+            });
+        } else {
+            videosContainer.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error loading videos:', error);
+        // Hide video container if there's an error
+        document.getElementById('lessonVideosContainer').style.display = 'none';
+    }
+    
+    closeSubjectModal();
+    document.getElementById('lessonModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+
+        function closeLessonModal() {
+            document.getElementById('lessonModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Error display function
+        function showError(message) {
+            console.error(message);
+            const subjectsGrid = document.getElementById('subjectsGrid');
+            subjectsGrid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 48px; color: #e74c3c; margin-bottom: 20px;"></i>
+                    <h3 style="color: #333; margin-bottom: 10px;">May Mali</h3>
+                    <p style="color: #666;">${message}</p>
+                    <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Subukan Muli
+                    </button>
+                </div>
+            `;
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const subjectModal = document.getElementById('subjectModal');
+            const lessonModal = document.getElementById('lessonModal');
+            const logoutModal = document.getElementById('logoutModal');
+            
+            if (event.target === subjectModal) {
+                closeSubjectModal();
+            } else if (event.target === lessonModal) {
+                closeLessonModal();
+            } else if (event.target === logoutModal) {
+                logoutModal.style.display = 'none';
+            }
+        }
+
+        // Close modals with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeSubjectModal();
+                closeLessonModal();
+                document.getElementById('logoutModal').style.display = 'none';
+            }
+        });
+
+        // Logout Modal functionality
+        const modal = document.getElementById('logoutModal');
+        const logoutBtn = document.getElementById('logout-btn');
+        const closeModal = document.getElementById('closeModal');
+        const cancelLogout = document.getElementById('cancelLogout');
+
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            modal.style.display = 'block';
+        });
+
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        cancelLogout.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async function() {
+            const subjectsGrid = document.getElementById('subjectsGrid');
+            subjectsGrid.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #3498db;"></i>
+                    <p style="margin-top: 20px; color: #666;">Kumukuha ng mga paksa at aralin...</p>
+                </div>
+            `;
+            
+            await fetchSubjects();
+            await fetchLessons();
+            
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.subject-card');
+                cards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.6s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }, 100);
+        });
+    </script>
+</body>
+</html>

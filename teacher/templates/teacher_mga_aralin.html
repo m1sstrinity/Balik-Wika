@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mga Aralin - BalikWika</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('teacher.static', filename='mga_aralin.css') }}" />
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">
+      <img src="/static/balikwika.png" alt="BalikWika Logo" />
+    </div>
+    <a href="{{ url_for('teacher.teacher_dashboard') }}" class="nav-item active">Dashboard</a>
+    <a href="{{ url_for('teacher.mga_aralin') }}" class="nav-item active">Mga aralin</a>
+    <a href="{{ url_for('teacher.mga_pagsusulit') }}" class="nav-item">Pagsusulit</a>
+    <a href="{{ url_for('teacher.kasanayan_mag_aral') }}" class="nav-item kasanayan-btn">Kasanayan ng mag-aaral</a>
+    <a href="{{ url_for('teacher.profile') }}" class="nav-item">Aking profile</a>
+    <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
+  </div>
+
+  <div class="main-content">
+    <div class="header">
+      <h1 class="page-title">Mga Aralin</h1>
+      <div class="header-actions">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="Maghanap ng paksa..." id="searchInput" />
+        </div>
+        <button onclick="openAddSubjectModal()" class="add-subject-btn">
+          <i class="fas fa-plus"></i> Magdagdag ng Paksa
+        </button>
+      </div>
+    </div>
+
+    <div class="subjects-grid" id="subjectsGrid">
+      <!-- Subjects will be loaded dynamically -->
+    </div>
+
+    <div class="empty-state" id="emptySubjects" style="display: none;">
+      <i class="fas fa-book"></i>
+      <h3>Walang mga paksa pa</h3>
+      <p>Magsimula sa pamamagitan ng pagdagdag ng bagong paksa.</p>
+    </div>
+  </div>
+
+  <!-- Add Subject Modal -->
+  <div id="addSubjectModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Magdagdag ng Paksa</h2>
+        <span class="modal-close" onclick="closeAddSubjectModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <label for="subjectName">Pangalan ng Paksa:</label>
+        <input type="text" id="subjectName" placeholder="Halimbawa: Pang-abay" />
+        
+        <label for="subjectDescription">Paglalarawan:</label>
+        <textarea id="subjectDescription" rows="3" placeholder="Ilagay ang maikling paglalarawan ng paksa..."></textarea>
+      </div>
+      <div class="modal-body-buttons">
+        <button class="cancel-btn" onclick="closeAddSubjectModal()">Kanselahin</button>
+        <button class="add-btn" onclick="addNewSubject()">Idagdag</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Subject Modal -->
+  <div id="editSubjectModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">I-edit ang Paksa</h2>
+        <span class="modal-close" onclick="closeEditSubjectModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editSubjectId" />
+        <label for="editSubjectName">Pangalan ng Paksa:</label>
+        <input type="text" id="editSubjectName" placeholder="Halimbawa: Pang-abay" />
+        
+        <label for="editSubjectDescription">Paglalarawan:</label>
+        <textarea id="editSubjectDescription" rows="3" placeholder="Ilagay ang maikling paglalarawan ng paksa..."></textarea>
+      </div>
+      <div class="modal-body-buttons">
+        <button class="cancel-btn" onclick="closeEditSubjectModal()">Kanselahin</button>
+        <button class="add-btn" onclick="updateSubject()">I-save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subject Lessons Modal -->
+  <div id="subjectModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="subjectModalTitle">Mga Aralin</h2>
+        <p class="modal-subtitle" id="subjectModalSubtitle">Piliin ang aralin na nais ninyong tingnan</p>
+        <span class="modal-close" onclick="closeSubjectModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="lessons-list" id="lessonsList"></div>
+        <div class="empty-state" id="emptyLessons" style="display: none;">
+          <i class="fas fa-book-open"></i>
+          <h3>Walang mga aralin pa</h3>
+          <p>Mag-antay ng mga bagong aralin mula sa inyong mga guro sa paksang ito.</p>
+        </div>
+        <div style="text-align: right; margin-top: 20px;">
+          <button onclick="openAddLessonModal()" class="add-lesson-btn">
+            <i class="fas fa-plus"></i> Magdagdag ng Aralin
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Lesson Modal -->
+<div id="addLessonModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">Magdagdag ng Aralin</h2>
+      <span class="modal-close" onclick="closeAddLessonModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <label for="lessonTitle">Pamagat ng Aralin:</label>
+      <input type="text" id="lessonTitle" placeholder="Ilagay ang pamagat" />
+      
+      <label for="lessonContent">Nilalaman ng Aralin:</label>
+      <textarea id="lessonContentInput" rows="6" placeholder="Ilagay ang nilalaman..."></textarea>
+      
+      <label for="lessonVideo">Video ng Aralin (Optional):</label>
+      <input type="file" id="lessonVideo" accept="video/mp4,video/avi,video/mov,video/wmv,video/webm" />
+      <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+        Max file size: 100MB. Allowed: MP4, AVI, MOV, WMV, WEBM
+      </small>
+      
+      <!-- Progress bar -->
+      <div id="uploadProgress" style="display: none; margin-top: 15px;">
+        <div style="background-color: #f0f0f0; border-radius: 5px; overflow: hidden; height: 30px;">
+          <div id="uploadProgressBar" style="background-color: #4CAF50; height: 100%; width: 0%; text-align: center; line-height: 30px; color: white; transition: width 0.3s ease;">0%</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body-buttons">
+      <button class="cancel-btn" onclick="closeAddLessonModal()">Kanselahin</button>
+      <button class="add-btn" onclick="addNewLesson()">Idagdag</button>
+    </div>
+  </div>
+</div>
+
+  <!-- Edit Lesson Modal -->
+  <div id="editLessonModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">I-edit ang Aralin</h2>
+        <span class="modal-close" onclick="closeEditLessonModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editLessonId" />
+        <label for="editLessonTitle">Pamagat ng Aralin:</label>
+        <input type="text" id="editLessonTitle" placeholder="Ilagay ang pamagat" />
+        <label for="editLessonContent">Nilalaman ng Aralin:</label>
+        <textarea id="editLessonContentInput" rows="6" placeholder="Ilagay ang nilalaman..."></textarea>
+      </div>
+      <div class="modal-body-buttons">
+        <button class="cancel-btn" onclick="closeEditLessonModal()">Kanselahin</button>
+        <button class="add-btn" onclick="updateLesson()">I-save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lesson Content Modal -->
+<div id="lessonModal" class="modal lesson-content-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="lessonModalTitle">Lesson Title</h2>
+      <span class="modal-close" onclick="closeLessonModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="lesson-content-text" id="lessonContent">Lesson content will appear here...</div>
+      
+      <!-- Video Section -->
+      <div id="lessonVideosContainer" style="display: none; margin-top: 30px; padding: 20px; background-color: #f9f9f9; border-radius: 8px;">
+        <h3 style="margin-bottom: 15px;">Video ng Aralin</h3>
+        <div id="lessonVideosDisplay"></div>
+      </div>
+    </div>
+    <div class="lesson-content-footer">
+      <div class="teacher-info">
+        <div class="teacher-avatar" id="lessonTeacherAvatar">T</div>
+        <div>
+          <div style="font-weight: 600; color: #333;" id="lessonTeacherName">Teacher Name</div>
+          <div style="font-size: 12px; color: #666;" id="lessonDate">Date</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Confirm Delete Modal -->
+  <div id="confirmModal" class="confirm-modal">
+    <div class="confirm-content">
+      <h3 id="confirmTitle">Kumpirmahin ang pagbura</h3>
+      <p id="confirmMessage">Sigurado ka bang gusto mong burahin ito?</p>
+      <div class="confirm-buttons">
+        <button class="cancel-btn" onclick="closeConfirmModal()">Kanselahin</button>
+        <button class="delete-btn" onclick="confirmDelete()">Burahin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Video Confirmation Modal -->
+<div id="deleteVideoModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+  <div style="background: white; padding: 30px; border-radius: 12px; max-width: 400px; text-align: center;">
+    <h3 style="margin-bottom: 15px;">Tanggalin ang Video</h3>
+    <p style="margin-bottom: 25px;">Sigurado ka bang tatanggalin ang video na ito?</p>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button onclick="cancelDeleteVideo()" style="padding: 10px 25px; background-color: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">
+        Kanselahin
+      </button>
+      <button onclick="confirmDeleteVideo()" style="padding: 10px 25px; background-color: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer;">
+        Tanggalin
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="logout-modal">
+    <div class="logout-modal-content">
+      <span class="logout-close" id="closeModal"></span>
+      <div class="logout-modal-header">
+        <div class="logout-modal-icon">⚠️</div>
+        <h2 class="logout-modal-title">Confirm Logout</h2>
+      </div>
+      <div class="logout-modal-body">
+        <p class="logout-modal-message">
+          Are you sure you want to logout? You will be redirected to the login page.
+        </p>
+      </div>
+      <div class="logout-modal-actions">
+        <button class="logout-btn logout-btn-cancel" id="cancelLogout">Cancel</button>
+        <a href="{{ url_for('logout') }}" class="logout-btn logout-btn-confirm">Logout</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let lessonsData = {};
+    let subjectsData = [];
+    let currentSubject = '';
+    let deleteTarget = null;
+    let deleteType = null;
+    let currentLessonId = null;
+
+    // Load subjects from the server
+    function loadSubjects() {
+      fetch('/teacher/get_subjects')
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            console.error('Error loading subjects:', data.error);
+            return;
+          }
+          
+          subjectsData = data;
+          renderSubjects();
+        })
+        .catch(err => {
+          console.error("Failed to load subjects", err);
+        });
+    }
+
+    // Render subjects dynamically
+    function renderSubjects() {
+      const grid = document.getElementById('subjectsGrid');
+      const emptyState = document.getElementById('emptySubjects');
+      
+      grid.innerHTML = '';
+      
+      if (subjectsData.length === 0) {
+        emptyState.style.display = 'block';
+        grid.style.display = 'none';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      grid.style.display = 'grid';
+      
+      subjectsData.forEach((subject, index) => {
+        const card = document.createElement('div');
+        card.className = 'subject-card';
+        card.style.position = 'relative';
+        card.onclick = (e) => {
+          if (!e.target.closest('.card-actions')) {
+            openSubjectModal(subject.name);
+          }
+        };
+        card.innerHTML = `
+          <div class="card-actions">
+            <button class="action-btn edit-btn" onclick="openEditSubjectModal(${subject.id}, '${subject.name}', '${subject.description}'); event.stopPropagation();">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn delete-btn" onclick="confirmDeleteSubject(${subject.id}, '${subject.name}'); event.stopPropagation();">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          <h3 class="subject-title">${subject.name}</h3>
+          <p class="subject-description">${subject.description}</p>
+          <span class="lesson-count">${subject.lesson_count} mga aralin</span>
+        `;
+        
+        // Animate on load
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+          card.style.transition = 'all 0.6s ease';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, index * 100);
+        
+        grid.appendChild(card);
+      });
+    }
+
+    // Add Subject Modal functions
+    function openAddSubjectModal() {
+      document.getElementById('addSubjectModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAddSubjectModal() {
+      document.getElementById('addSubjectModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+      document.getElementById('subjectName').value = '';
+      document.getElementById('subjectDescription').value = '';
+    }
+
+    function addNewSubject() {
+      const name = document.getElementById('subjectName').value.trim();
+      const description = document.getElementById('subjectDescription').value.trim();
+
+      if (!name || !description) {
+        alert('Pakikompletuhin ang pangalan at paglalarawan.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('name', name);
+      formData.append('description', description);
+      formData.append('icon', 'fa-book');
+      formData.append('color', 'pangngalan');
+
+      fetch('/teacher/add_subject', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Naidagdag na ang paksa.");
+          closeAddSubjectModal();
+          loadSubjects();
+          loadLessons();
+        } else {
+          alert(data.message || "May error sa pagdagdag ng paksa.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("May error sa pagdagdag ng paksa.");
+      });
+    }
+
+    // Edit Subject functions
+    function openEditSubjectModal(id, name, description) {
+      document.getElementById('editSubjectId').value = id;
+      document.getElementById('editSubjectName').value = name;
+      document.getElementById('editSubjectDescription').value = description;
+      document.getElementById('editSubjectModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeEditSubjectModal() {
+      document.getElementById('editSubjectModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    function updateSubject() {
+      const id = document.getElementById('editSubjectId').value;
+      const name = document.getElementById('editSubjectName').value.trim();
+      const description = document.getElementById('editSubjectDescription').value.trim();
+
+      if (!name || !description) {
+        alert('Pakikompletuhin ang pangalan at paglalarawan.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('id', id);
+      formData.append('name', name);
+      formData.append('description', description);
+
+      fetch('/teacher/edit_subject', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Na-update na ang paksa.");
+          closeEditSubjectModal();
+          loadSubjects();
+        } else {
+          alert(data.message || "May error sa pag-update ng paksa.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("May error sa pag-update ng paksa.");
+      });
+    }
+
+    // Delete Subject functions
+    function confirmDeleteSubject(id, name) {
+      deleteTarget = id;
+      deleteType = 'subject';
+      document.getElementById('confirmTitle').textContent = 'Burahin ang Paksa';
+      document.getElementById('confirmMessage').textContent = `Sigurado ka bang gusto mong burahin ang "${name}"? Mabubura din ang lahat ng aralin sa paksang ito.`;
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+
+    function deleteSubject(id) {
+      fetch('/teacher/delete_subject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Nabura na ang paksa.");
+          loadSubjects();
+          loadLessons();
+        } else {
+          alert(data.message || "May error sa pagbura ng paksa.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("May error sa pagbura ng paksa.");
+      });
+    }
+
+    function openSubjectModal(subject) {
+      currentSubject = subject;
+      document.getElementById('subjectModalTitle').textContent = `Mga Aralin sa ${subject}`;
+      renderLessons();
+      document.getElementById('subjectModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSubjectModal() {
+      document.getElementById('subjectModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    function openAddLessonModal() {
+      document.getElementById('addLessonModal').style.display = 'block';
+    }
+
+    function closeAddLessonModal() {
+      document.getElementById('addLessonModal').style.display = 'none';
+      document.getElementById('lessonTitle').value = '';
+      document.getElementById('lessonContentInput').value = '';
+    }
+
+async function addNewLesson() {
+  const title = document.getElementById('lessonTitle').value.trim();
+  const content = document.getElementById('lessonContentInput').value.trim();
+  const videoFile = document.getElementById('lessonVideo').files[0];
+  
+  if (!title || !content) {
+    alert('Pamagat at nilalaman ay kinakailangan.');
+    return;
+  }
+  
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('content', content);
+  const subjectId = subjectsData.find(s => s.name === currentSubject)?.id || 1;
+  formData.append('subject_id', subjectId);
+  
+  try {
+    const response = await fetch('/teacher/add_lesson', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const data = await response.json();
+    
+    console.log('Server response:', data);
+    console.log('Lesson ID:', data.lesson_id);
+    console.log('Video file:', videoFile);
+    
+    if (data.success) {
+      // If there's a video, upload it
+      if (videoFile && data.lesson_id) {
+        try {
+          console.log('Starting video upload for lesson:', data.lesson_id);
+          await uploadVideo(data.lesson_id, videoFile);
+          console.log('Video uploaded successfully');
+        } catch (videoError) {
+          console.error('Video upload failed:', videoError);
+          alert('Aralin ay naidagdag pero may problema sa video upload: ' + videoError.message);
+          closeAddLessonModal();
+          loadLessons();
+          loadSubjects();
+          renderLessons();
+          return;
+        }
+      }
+      
+      alert('Aralin ay matagumpay na naidagdag!');
+      closeAddLessonModal();
+      document.getElementById('lessonTitle').value = '';
+      document.getElementById('lessonContentInput').value = '';
+      document.getElementById('lessonVideo').value = '';
+      loadLessons();
+      loadSubjects();
+      renderLessons();
+    } else {
+      alert(data.message || 'May error sa pagdagdag ng aralin.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('May error sa pagdagdag ng aralin: ' + error.message);
+  }
+}
+
+async function uploadVideo(lessonId, videoFile) {
+  const progressDiv = document.getElementById('uploadProgress');
+  const progressBar = document.getElementById('uploadProgressBar');
+  
+  progressDiv.style.display = 'block';
+  
+  const videoFormData = new FormData();
+  videoFormData.append('video', videoFile);
+  videoFormData.append('lesson_id', lessonId);
+  
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    
+    xhr.upload.addEventListener('progress', function(e) {
+      if (e.lengthComputable) {
+        const percentComplete = (e.loaded / e.total) * 100;
+        progressBar.style.width = percentComplete + '%';
+        progressBar.textContent = Math.round(percentComplete) + '%';
+      }
+    });
+    
+    xhr.addEventListener('load', function() {
+      progressDiv.style.display = 'none';
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        if (response.success) {
+          resolve();
+        } else {
+          reject(new Error(response.message || 'Video upload failed'));
+        }
+      } else {
+        reject(new Error('Video upload failed with status: ' + xhr.status));
+      }
+    });
+    
+    xhr.addEventListener('error', function() {
+      progressDiv.style.display = 'none';
+      reject(new Error('Video upload error'));
+    });
+    
+    xhr.open('POST', '/teacher/upload_lesson_video');
+    xhr.send(videoFormData);
+  });
+}
+
+    // Edit Lesson functions
+    function openEditLessonModal(id, title, content) {
+      document.getElementById('editLessonId').value = id;
+      document.getElementById('editLessonTitle').value = title;
+      document.getElementById('editLessonContentInput').value = content;
+      document.getElementById('editLessonModal').style.display = 'block';
+    }
+
+    function closeEditLessonModal() {
+      document.getElementById('editLessonModal').style.display = 'none';
+    }
+
+    function updateLesson() {
+      const id = document.getElementById('editLessonId').value;
+      const title = document.getElementById('editLessonTitle').value.trim();
+      const content = document.getElementById('editLessonContentInput').value.trim();
+
+      if (!title || !content) {
+        alert('Pakikompletuhin ang lahat ng field.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('id', id);
+      formData.append('title', title);
+      formData.append('content', content);
+
+      fetch('/teacher/edit_lesson', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Na-update na ang aralin.");
+          closeEditLessonModal();
+          loadLessons();
+          renderLessons();
+        } else {
+          alert(data.message || "May error sa pag-update ng aralin.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("May error sa pag-update ng aralin.");
+      });
+    }
+
+    // Delete Lesson functions
+    function confirmDeleteLesson(id, title) {
+      deleteTarget = id;
+      deleteType = 'lesson';
+      document.getElementById('confirmTitle').textContent = 'Burahin ang Aralin';
+      document.getElementById('confirmMessage').textContent = `Sigurado ka bang gusto mong burahin ang "${title}"?`;
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+
+    function deleteLesson(id) {
+      fetch('/teacher/delete_lesson', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: id })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Nabura na ang aralin.");
+          loadLessons();
+          loadSubjects();
+          renderLessons();
+        } else {
+          alert(data.message || "May error sa pagbura ng aralin.");
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert("May error sa pagbura ng aralin.");
+      });
+    }
+
+function renderLessons() {
+  const lessonsList = document.getElementById('lessonsList');
+  const emptyState = document.getElementById('emptyLessons');
+  const subject = currentSubject;
+
+  lessonsList.innerHTML = '';
+
+  if (lessonsData[subject] && lessonsData[subject].length > 0) {
+    emptyState.style.display = 'none';
+    lessonsList.style.display = 'grid';
+
+    lessonsData[subject].forEach(lesson => {
+      console.log('Rendering lesson:', lesson);  // ADD THIS
+      
+      const lessonItem = document.createElement('div');
+      lessonItem.className = 'lesson-item';
+      lessonItem.innerHTML = `
+        <div class="lesson-actions">
+          <button class="lesson-action-btn edit-btn" onclick="openEditLessonModal(${lesson.id}, '${lesson.title.replace(/'/g, "\\'")}', '${lesson.content.replace(/'/g, "\\'")}'); event.stopPropagation();">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button class="lesson-action-btn delete-btn" onclick="confirmDeleteLesson(${lesson.id}, '${lesson.title.replace(/'/g, "\\'")}'); event.stopPropagation();">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        <div class="lesson-item-title">${lesson.title}</div>
+        <div class="lesson-item-preview">${lesson.content.substring(0, 100)}...</div>
+        <div class="lesson-item-meta">
+          <span><i class="fas fa-user"></i> ${lesson.teacher}</span>
+          <span><i class="fas fa-calendar"></i> ${lesson.date}</span>
+        </div>`;
+      lessonItem.onclick = () => openLessonModal(lesson);
+      lessonsList.appendChild(lessonItem);
+    });
+  } else {
+    emptyState.style.display = 'block';
+    lessonsList.style.display = 'none';
+  }
+}
+
+async function openLessonModal(lesson) {
+  console.log('Opening lesson:', lesson);      // ADD THIS
+  console.log('Lesson ID:', lesson.id);        // ADD THIS
+  
+  currentLessonId = lesson.id;
+  
+  document.getElementById('lessonModalTitle').textContent = lesson.title;
+  document.getElementById('lessonContent').textContent = lesson.content;
+  document.getElementById('lessonTeacherAvatar').textContent = lesson.teacher[0] || 'T';
+  document.getElementById('lessonTeacherName').textContent = lesson.teacher;
+  document.getElementById('lessonDate').textContent = lesson.date;
+  
+  // Load videos for this lesson
+  console.log('Fetching videos for lesson ID:', lesson.id);  // ADD THIS
+  
+  try {
+    const response = await fetch(`/teacher/get_lesson_videos/${lesson.id}`);
+    const data = await response.json();
+    
+    console.log('Videos response:', data);  // ADD THIS
+    
+    const videosContainer = document.getElementById('lessonVideosContainer');
+    const videosDisplay = document.getElementById('lessonVideosDisplay');
+    
+    if (data.success && data.videos.length > 0) {
+      videosContainer.style.display = 'block';
+      videosDisplay.innerHTML = '';
+      
+      data.videos.forEach(video => {
+        const videoDiv = document.createElement('div');
+        videoDiv.style.marginBottom = '20px';
+        videoDiv.innerHTML = `
+          <video controls style="width: 100%; max-width: 800px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <source src="${video.video_url}" type="video/mp4">
+            Ang iyong browser ay hindi sumusuporta sa video tag.
+          </video>
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <p style="font-weight: 500; margin: 0;">${video.original_filename}</p>
+            <button onclick="deleteVideo(${video.id}); event.stopPropagation();" style="padding: 5px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
+              <i class="fas fa-trash"></i> Tanggalin
+            </button>
+          </div>
+        `;
+        videosDisplay.appendChild(videoDiv);
+      });
+    } else {
+      videosContainer.style.display = 'none';
+    }
+  } catch (error) {
+    console.error('Error loading videos:', error);
+  }
+  
+  closeSubjectModal();
+  document.getElementById('lessonModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function deleteVideo(videoId) {
+  deleteTarget = videoId;
+  deleteType = 'video';
+  document.getElementById('confirmTitle').textContent = 'Tanggalin ang Video';
+  document.getElementById('confirmMessage').textContent = 'Sigurado ka bang tatanggalin ang video na ito?';
+  document.getElementById('confirmModal').style.display = 'flex';
+}
+
+// Helper function to find lesson by ID
+function findLessonById(id) {
+  for (let subject in lessonsData) {
+    const lesson = lessonsData[subject].find(l => l.id === id);
+    if (lesson) return lesson;
+  }
+  return null;
+}
+
+    function closeLessonModal() {
+      document.getElementById('lessonModal').style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    // Confirm modal functions
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').style.display = 'none';
+      deleteTarget = null;
+      deleteType = null;
+    }
+
+    async function confirmDelete() {
+  if (deleteType === 'subject') {
+    deleteSubject(deleteTarget);
+  } else if (deleteType === 'lesson') {
+    deleteLesson(deleteTarget);
+  } else if (deleteType === 'video') {
+    await confirmDeleteVideoActual(deleteTarget);
+  }
+  closeConfirmModal();
+}
+
+async function confirmDeleteVideoActual(videoId) {
+  try {
+    const response = await fetch(`/teacher/delete_lesson_video/${videoId}`, {
+      method: 'POST'
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      alert('Video ay matagumpay na natanggal');
+      if (currentLessonId) {
+        const lesson = findLessonById(currentLessonId);
+        if (lesson) {
+          await openLessonModal(lesson);
+        }
+      }
+    } else {
+      alert('Error: ' + data.message);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('May naganap na error');
+  }
+}
+
+    function loadLessons() {
+      fetch('/teacher/get_lessons')
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            console.error('Error loading lessons:', data.error);
+            return;
+          }
+          
+          lessonsData = data;
+          
+          if (currentSubject && document.getElementById('subjectModal').style.display === 'block') {
+            renderLessons();
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load lessons", err);
+        });
+    }
+
+    // Load data when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSubjects();
+      loadLessons();
+    });
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function () {
+      const searchTerm = this.value.toLowerCase();
+      document.querySelectorAll('.subject-card').forEach(card => {
+        const title = card.querySelector('.subject-title').textContent.toLowerCase();
+        const description = card.querySelector('.subject-description').textContent.toLowerCase();
+        card.style.display = title.includes(searchTerm) || description.includes(searchTerm) ? 'block' : 'none';
+      });
+    });
+
+    // Modal close handlers
+    window.onclick = function (event) {
+      if (event.target === document.getElementById('subjectModal')) closeSubjectModal();
+      if (event.target === document.getElementById('lessonModal')) closeLessonModal();
+      if (event.target === document.getElementById('addLessonModal')) closeAddLessonModal();
+      if (event.target === document.getElementById('addSubjectModal')) closeAddSubjectModal();
+      if (event.target === document.getElementById('editSubjectModal')) closeEditSubjectModal();
+      if (event.target === document.getElementById('editLessonModal')) closeEditLessonModal();
+    };
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') {
+        closeSubjectModal();
+        closeLessonModal();
+        closeAddLessonModal();
+        closeAddSubjectModal();
+        closeEditSubjectModal();
+        closeEditLessonModal();
+        closeConfirmModal();
+      }
+    });
+
+    // Logout Modal functionality
+    const modal = document.getElementById('logoutModal');
+    const logoutBtn = document.getElementById('logout-btn');
+    const closeModal = document.getElementById('closeModal');
+    const cancelLogout = document.getElementById('cancelLogout');
+
+    logoutBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      modal.style.display = 'block';
+    });
+
+    closeModal.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+
+    cancelLogout.addEventListener('click', function() {
+      modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', function(event) {
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
