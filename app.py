@@ -1596,31 +1596,6 @@ def submit_quiz_result():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
-@app.route('/run_migration_once')
-def run_migration():
-    """TEMPORARY ROUTE - Remove after running once"""
-    if session.get('user_role') != 'teacher':
-        return "Unauthorized", 403
-    
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("""
-            ALTER TABLE users 
-            ALTER COLUMN user_profile TYPE BYTEA 
-            USING user_profile::bytea
-        """)
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-        
-        return "Migration completed! Now remove this route."
-    except Exception as e:
-        return f"Error: {str(e)}", 500
-    
-
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
