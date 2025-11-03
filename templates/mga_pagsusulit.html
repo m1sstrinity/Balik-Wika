@@ -1603,14 +1603,22 @@ function displayMasteryQuizzes(quizzesByMastery) {
 
     const quizzesContainer = document.getElementById(`${level.key}-quizzes`);
 
-    if (quizzes.length === 0) {
-      quizzesContainer.innerHTML = `
-        <div class="empty-mastery-section">
-          <i class="fas fa-book-open"></i>
-          <p>Walang available na quiz sa antas na ito</p>
-        </div>
-      `;
-    } else {
+// Show locked message if level is locked, regardless of quiz count
+if (!isUnlocked) {
+  quizzesContainer.innerHTML = `
+    <div class="empty-mastery-section locked-section">
+      <i class="fas fa-lock" style="font-size: 48px; color: #e74c3c; margin-bottom: 15px;"></i>
+      <p style="font-weight: 600; color: #7f8c8d;">Kailangan mong maabot ang ${level.label} na antas</p>
+    </div>
+  `;
+} else if (quizzes.length === 0) {
+  quizzesContainer.innerHTML = `
+    <div class="empty-mastery-section">
+      <i class="fas fa-book-open"></i>
+      <p>Walang available na quiz sa antas na ito</p>
+    </div>
+  `;
+} else {
       quizzes.forEach((quiz, index) => {
         const card = createQuizCard(quiz, level.key, isUnlocked, index);
         quizzesContainer.appendChild(card);
