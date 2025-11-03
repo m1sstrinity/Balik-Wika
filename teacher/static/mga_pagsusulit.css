@@ -1388,36 +1388,7 @@ body {
   color: #666;
 }
 
-/* Fix for video player in modal */
-video {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    display: block;
-    background: #000;
-}
 
-.modal video {
-    border-radius: 8px;
-    margin: 10px 0;
-}
-
-/* Ensure video container is visible */
-.video-container {
-    position: relative;
-    width: 100%;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
-    height: 0;
-    overflow: hidden;
-}
-
-.video-container video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
 
 /* Responsive Design */
 @media (max-width: 1024px) {
