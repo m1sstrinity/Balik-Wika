@@ -1403,7 +1403,6 @@ def get_student_quiz_details(quiz_id):
         cursor = conn.cursor()
         
         # Get quiz info
-        # Changed ? to %s for PostgreSQL
         cursor.execute('SELECT * FROM quizzes WHERE id = %s', (quiz_id,))
         quiz = cursor.fetchone()
         
@@ -1413,7 +1412,6 @@ def get_student_quiz_details(quiz_id):
             return jsonify({'success': False, 'message': 'Quiz not found'}), 404
         
         # Get questions
-        # Changed ? to %s for PostgreSQL
         cursor.execute('''
             SELECT 
                 id,
@@ -1436,13 +1434,32 @@ def get_student_quiz_details(quiz_id):
         
         print(f"[DEBUG] Quiz {quiz_id} has {len(questions)} questions")
         
+        # Convert questions to list of dicts and handle binary data
+        questions_list = []
+        for q in questions:
+            q_dict = dict(q)
+            
+            # Handle image field - convert memoryview/bytes to base64 string
+            if q_dict.get('image'):
+                if isinstance(q_dict['image'], (bytes, memoryview)):
+                    import base64
+                    if isinstance(q_dict['image'], memoryview):
+                        q_dict['image'] = base64.b64encode(q_dict['image'].tobytes()).decode('utf-8')
+                    else:
+                        q_dict['image'] = base64.b64encode(q_dict['image']).decode('utf-8')
+                    # Add data URI prefix if not present
+                    if not q_dict['image'].startswith('data:'):
+                        q_dict['image'] = 'data:image/jpeg;base64,' + q_dict['image']
+            
+            questions_list.append(q_dict)
+        
         return jsonify({
             'success': True,
             'quiz': {
                 'id': quiz['id'],
                 'title': quiz['title'],
                 'mastery_level': quiz['mastery_level'],
-                'questions': [dict(q) for q in questions]
+                'questions': questions_list
             }
         })
         
@@ -1579,38 +1596,6 @@ def submit_quiz_result():
         print(f"Error saving quiz result: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
     
-@app.route('/debug/quiz/<int:quiz_id>')
-def debug_quiz_details(quiz_id):
-    """Debug quiz details"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Get quiz
-    cursor.execute('SELECT * FROM quizzes WHERE id = %s', (quiz_id,))
-    quiz = cursor.fetchone()
-    
-    # Get questions
-    cursor.execute('SELECT * FROM questions WHERE quiz_id = %s', (quiz_id,))
-    questions = cursor.fetchall()
-    
-    result = f"<h1>Quiz #{quiz_id} Debug</h1>"
-    result += f"<h2>Quiz Info:</h2>"
-    result += f"<p>Title: {quiz['title'] if quiz else 'NOT FOUND'}</p>"
-    result += f"<p>Mastery: {quiz['mastery_level'] if quiz else 'N/A'}</p>"
-    
-    result += f"<h2>Questions ({len(questions)}):</h2>"
-    if questions:
-        result += "<table border='1'><tr><th>ID</th><th>Question</th><th>Correct Answer</th></tr>"
-        for q in questions:
-            result += f"<tr><td>{q['id']}</td><td>{q['question_text'][:50]}...</td><td>{q['correct_answer']}</td></tr>"
-        result += "</table>"
-    else:
-        result += "<p style='color: red;'>NO QUESTIONS FOUND!</p>"
-    
-    cursor.close()
-    conn.close()
-    return result
-
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
