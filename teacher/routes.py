@@ -1251,6 +1251,18 @@ def get_quizzes():
 
         question_list = []
         for q in questions:
+            # Handle the image field - convert memoryview to base64 or empty string
+            image_data = q['image']
+            if image_data:
+                if isinstance(image_data, memoryview):
+                    # Convert memoryview to base64 string
+                    image_data = base64.b64encode(image_data).decode('utf-8')
+                elif isinstance(image_data, bytes):
+                    # Convert bytes to base64 string
+                    image_data = base64.b64encode(image_data).decode('utf-8')
+            else:
+                image_data = ''
+            
             question_list.append({
                 'question_text': q['question_text'],
                 'choice_a': q['choice_a'],
@@ -1258,7 +1270,7 @@ def get_quizzes():
                 'choice_c': q['choice_c'],
                 'choice_d': q['choice_d'],
                 'correct_answer': q['correct_answer'],
-                'image': q['image'],
+                'image': image_data,  # Use the converted image data
                 'trivia': q['trivia']
             })
 
@@ -1272,7 +1284,6 @@ def get_quizzes():
     cursor.close()
     conn.close()
     return jsonify(quiz_data)
-
 
 #Edit and Delete QUIZ
 
@@ -1507,6 +1518,16 @@ def get_question(question_id):
         if not question:
             return jsonify({'success': False, 'message': 'Question not found'}), 404
 
+        # Handle the image field
+        image_data = question['image']
+        if image_data:
+            if isinstance(image_data, memoryview):
+                image_data = base64.b64encode(image_data).decode('utf-8')
+            elif isinstance(image_data, bytes):
+                image_data = base64.b64encode(image_data).decode('utf-8')
+        else:
+            image_data = ''
+
         return jsonify({
             'success': True,
             'question': {
@@ -1517,7 +1538,7 @@ def get_question(question_id):
                 'choice_c': question['choice_c'],
                 'choice_d': question['choice_d'],
                 'correct_answer': question['correct_answer'],
-                'image': question['image'],
+                'image': image_data,  # Use converted image data
                 'trivia': question['trivia'],
                 'quiz_id': question['quiz_id']
             }
