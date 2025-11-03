@@ -608,6 +608,13 @@ def add_question():
     subject = data.get('subject')
     user_id = session.get('user_id')
 
+    # FIX: Strip the data URI prefix from image if present
+    if image and image.startswith('data:image'):
+        # Remove "data:image/jpeg;base64," or similar prefix
+        image = image.split(',', 1)[1] if ',' in image else image
+    
+    print(f"Image data length: {len(image) if image else 0}")
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -629,7 +636,7 @@ def add_question():
 
     print(f"Using quiz_id: {quiz_id}")
 
-    # ✅ FIX: Check if subject_id is valid or make it optional
+    # Check if subject_id is valid or make it optional
     subject_id = None
     if subject:
         subject_map = {
@@ -669,7 +676,6 @@ def add_question():
         }), 400
 
     try:
-        # ✅ FIX: Allow NULL subject_id if not provided
         cursor.execute('''
             INSERT INTO questions (
                 quiz_id, subject_id, user_id, question_text,
@@ -1460,6 +1466,13 @@ def update_question(question_id):
     correct_answer = data.get('correct_answer')
     image = data.get('image')
     trivia = data.get('trivia')
+
+    # FIX: Strip the data URI prefix from image if present
+    if image and isinstance(image, str) and image.startswith('data:image'):
+        # Remove "data:image/jpeg;base64," or similar prefix
+        image = image.split(',', 1)[1] if ',' in image else image
+    
+    print(f"Updating question {question_id}, image data length: {len(image) if image else 0}")
 
     # Validate required fields
     if not all([question_text, choice_a, choice_b, choice_c, choice_d, correct_answer]):
