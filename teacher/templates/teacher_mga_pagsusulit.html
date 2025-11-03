@@ -487,7 +487,7 @@ function createNewQuiz() {
 // Open quiz details (questions)
 function openQuizDetails(quizId, quizTitle) {
   currentQuizId = quizId;
-  currentSubject = quizTitle; // For compatibility
+  currentSubject = quizTitle;
   
   fetch(`/teacher/api/quiz/${quizId}/details`)
     .then(res => res.json())
@@ -506,11 +506,22 @@ function openQuizDetails(quizId, quizTitle) {
           emptyQuizzes.style.display = 'block';
         } else {
           emptyQuizzes.style.display = 'none';
-          quizList.innerHTML = quiz.questions.map((q, index) => `
+          quizList.innerHTML = quiz.questions.map((q, index) => {
+            // FIX: Properly format image with data URI
+            let imageHtml = '';
+            if (q.image) {
+              let imageUrl = q.image;
+              if (!imageUrl.startsWith('data:')) {
+                imageUrl = 'data:image/jpeg;base64,' + imageUrl;
+              }
+              imageHtml = `<img src="${imageUrl}" style="max-width: 200px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />`;
+            }
+            
+            return `
             <div class="quiz-item">
               <div class="quiz-info">
                 <h4>${index + 1}. ${q.question_text}</h4>
-                ${q.image ? `<img src="${q.image}" style="max-width: 100px; margin: 10px 0;" />` : ''}
+                ${imageHtml}
                 <div class="choices" style="margin: 10px 0;">
                   <p><strong>a.</strong> ${q.choice_a}</p>
                   <p><strong>b.</strong> ${q.choice_b}</p>
@@ -525,7 +536,8 @@ function openQuizDetails(quizId, quizTitle) {
                 <button onclick="deleteQuestion(${q.id})" class="delete-btn"><i class="fas fa-trash"></i></button>
               </div>
             </div>
-          `).join('');
+          `;
+          }).join('');
         }
         
         document.getElementById('subjectModal').style.display = 'block';
@@ -678,8 +690,13 @@ function editQuestion(questionId) {
         document.getElementById('edit-correct-answer').value = q.correct_answer;
         document.getElementById('edit-question-trivia').value = q.trivia || '';
         
+        // FIX: Properly handle base64 image
         if (q.image) {
-          document.getElementById('edit-imagePreview').src = q.image;
+          let imageUrl = q.image;
+          if (!imageUrl.startsWith('data:')) {
+            imageUrl = 'data:image/jpeg;base64,' + imageUrl;
+          }
+          document.getElementById('edit-imagePreview').src = imageUrl;
           document.getElementById('edit-imagePreview').style.display = 'block';
         } else {
           document.getElementById('edit-imagePreview').style.display = 'none';
