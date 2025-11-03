@@ -356,6 +356,8 @@ def get_student_unlocked_levels(student_id):
         print(f"Error getting student unlocked levels: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
+import base64
+
 @teacher_bp.route('/api/quiz/<int:quiz_id>/details', methods=['GET'])
 def get_quiz_details_with_level(quiz_id):
     """Get quiz details including mastery level and questions"""
@@ -392,11 +394,18 @@ def get_quiz_details_with_level(quiz_id):
         
         questions_list = []
         for q in questions:
-            # Handle the image field - convert memoryview to base64
+            # Handle the image field - convert memoryview/bytes to base64 OR keep as string
             image_data = q['image']
+            
             if image_data:
+                # If it's memoryview or bytes, convert to base64
                 if isinstance(image_data, (memoryview, bytes)):
                     image_data = base64.b64encode(bytes(image_data)).decode('utf-8')
+                # If it's already a string, keep it as is
+                elif isinstance(image_data, str):
+                    # If it already has data: prefix, keep it
+                    # Otherwise it's just the base64 string
+                    pass
             else:
                 image_data = ''
             
@@ -408,7 +417,7 @@ def get_quiz_details_with_level(quiz_id):
                 'choice_c': q['choice_c'],
                 'choice_d': q['choice_d'],
                 'correct_answer': q['correct_answer'],
-                'image': image_data,  # Use converted image data
+                'image': image_data,
                 'trivia': q['trivia']
             })
         
