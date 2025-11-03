@@ -1578,6 +1578,30 @@ def submit_quiz_result():
     except Exception as e:
         print(f"Error saving quiz result: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
+    
+@app.route('/debug/quizzes')
+def debug_quizzes():
+    """Quick debug - remove after fixing"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT q.id, q.title, q.mastery_level, COUNT(qs.id) as questions
+        FROM quizzes q
+        LEFT JOIN questions qs ON q.id = qs.quiz_id
+        GROUP BY q.id, q.title, q.mastery_level
+    """)
+    quizzes = cursor.fetchall()
+    
+    result = "<h1>Quiz Debug</h1><table border='1' style='border-collapse: collapse;'>"
+    result += "<tr><th>ID</th><th>Title</th><th>Mastery Level</th><th>Questions</th></tr>"
+    for q in quizzes:
+        result += f"<tr><td>{q['id']}</td><td>{q['title']}</td><td><b>{q['mastery_level']}</b></td><td>{q['questions']}</td></tr>"
+    result += "</table>"
+    
+    cursor.close()
+    conn.close()
+    return result
 
 
 if __name__ == '__main__':
