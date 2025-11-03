@@ -1745,31 +1745,43 @@ function showError(message) {
 function openQuizModal(quizId, quizTitle) {
   console.log("Opening quiz:", quizId, quizTitle);
   
+  // Show modal immediately with loading
+  document.getElementById('subjectModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('subjectModalTitle').textContent = 'Loading...';
+  
+  const modalBody = document.querySelector('#subjectModal .modal-body');
+  modalBody.innerHTML = '<div style="text-align: center; padding: 60px;"><i class="fas fa-spinner fa-spin" style="font-size: 48px;"></i><p>Loading quiz...</p></div>';
+  
   // Fetch full quiz details with questions
   fetch(`/student/api/quiz/${quizId}/details`)
-    .then(res => res.json())
+    .then(res => {
+      console.log("Response status:", res.status);
+      return res.json();
+    })
     .then(data => {
-      console.log("Quiz details:", data);
+      console.log("Quiz details received:", data);
       
-      if (!data.success || !data.quiz || !data.quiz.questions || data.quiz.questions.length === 0) {
-        document.getElementById('subjectModalTitle').textContent = quizTitle;
-        const modalBody = document.querySelector('#subjectModal .modal-body');
-        modalBody.innerHTML = `
-          <div style="text-align: center; padding: 60px; color: #7f8c8d;">
-            <i class="fas fa-book-open" style="font-size: 64px; margin-bottom: 20px; color: #bdc3c7;"></i>
-            <h3 style="font-size: 24px; margin-bottom: 10px; color: #7f8c8d;">Walang mga tanong pa</h3>
-            <p>Walang available na tanong sa quiz na ito.</p>
-          </div>
-        `;
-        document.getElementById('subjectModal').style.display = 'block';
-        document.body.style.overflow = 'hidden';
+      if (!data.success) {
+        modalBody.innerHTML = `<div style="text-align: center; padding: 60px; color: red;"><p>Error: ${data.message}</p></div>`;
         return;
       }
       
-      // Set current quiz as the fetched quiz
+      if (!data.quiz || !data.quiz.questions || data.quiz.questions.length === 0) {
+        modalBody.innerHTML = `
+          <div style="text-align: center; padding: 60px; color: #7f8c8d;">
+            <i class="fas fa-book-open" style="font-size: 64px; margin-bottom: 20px; color: #bdc3c7;"></i>
+            <h3 style="font-size: 24px; margin-bottom: 10px;">Walang mga tanong pa</h3>
+            <p>Walang available na tanong sa quiz na ito.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Set current quiz
       const quiz = data.quiz;
-      allQuizzes = allQuizzes.filter(q => q.id !== quizId); // Remove old version if exists
-      allQuizzes.push(quiz); // Add fresh version
+      allQuizzes = allQuizzes.filter(q => q.id !== quizId);
+      allQuizzes.push(quiz);
       
       currentQuizId = quizId;
       currentQuestionIndex = 0;
@@ -1778,13 +1790,10 @@ function openQuizModal(quizId, quizTitle) {
       
       document.getElementById('subjectModalTitle').textContent = `Pagsusulit: ${quizTitle}`;
       displayQuizInterface(quiz);
-      
-      document.getElementById('subjectModal').style.display = 'block';
-      document.body.style.overflow = 'hidden';
     })
     .catch(err => {
       console.error("Error loading quiz:", err);
-      alert('Error loading quiz. Please try again.');
+      modalBody.innerHTML = `<div style="text-align: center; padding: 60px; color: red;"><p>Error loading quiz. Check console.</p></div>`;
     });
 }
 
