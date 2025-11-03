@@ -504,7 +504,11 @@ body {
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
 }
 
-.quiz-item-title {
+.quiz-info {
+    flex: 1;
+}
+
+.quiz-item h4 {
     font-size: 18px;
     font-weight: 600;
     color: #333;
@@ -537,83 +541,89 @@ body {
     margin-top: 12px;
 }
 
-/* Card Actions Container - Hidden by default, shows on hover */
-.subject-card > div:first-child {
-    position: relative;
-}
-
-.subject-card > div:first-child > div:last-child {
-    position: absolute;
-    top: -20px;
-    right: 0;
+/* Quiz Actions Container */
+.quiz-actions {
     display: flex;
-    gap: 5px;
+    gap: 8px;
+    margin-top: 15px;
     opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 10;
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
 }
 
-.subject-card:hover > div:first-child > div:last-child {
+.quiz-item:hover .quiz-actions {
     opacity: 1;
+    transform: translateY(0);
 }
 
-/* Edit/Delete Buttons */
-.card-btn-edit,
-.card-btn-delete {
-    padding: 8px 12px;
+/* Enhanced Edit/Delete Buttons */
+.edit-btn,
+.delete-btn {
+    padding: 10px 18px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 500;
     transition: all 0.3s ease;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
-    height: 36px;
+    gap: 8px;
+    min-width: 90px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-family: 'Instrument Serif', serif;
 }
 
-.card-btn-edit {
-    background-color: #3498db;
+.edit-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
     color: white;
 }
 
-.card-btn-edit:hover {
-    background-color: #2980b9;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+.edit-btn:hover {
+    background: linear-gradient(135deg, #2980b9, #21618c);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 16px rgba(52, 152, 219, 0.5);
 }
 
-.card-btn-edit:active {
-    transform: scale(0.95);
+.edit-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
 }
 
-.card-btn-delete {
-    background-color: #e74c3c;
+.delete-btn {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
 }
 
-.card-btn-delete:hover {
-    background-color: #c0392b;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+.delete-btn:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 16px rgba(231, 76, 60, 0.5);
 }
 
-.card-btn-delete:active {
-    transform: scale(0.95);
+.delete-btn:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
 }
 
-/* Question Item Actions - Also hidden by default */
-.quiz-item > div:first-child > div:last-child {
-    display: flex;
-    gap: 5px;
-    margin-left: 10px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+/* Icon styling inside buttons */
+.edit-btn i,
+.delete-btn i {
+    font-size: 14px;
+    pointer-events: none;
 }
 
-.quiz-item:hover > div:first-child > div:last-child {
-    opacity: 1;
+/* Smooth animation for button appearance */
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Add Question Button */
@@ -1109,245 +1119,221 @@ body {
 }
 
 /* Mastery Level Tabs Styling */
-    .mastery-tabs {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 30px;
-      border-bottom: 3px solid rgba(255, 255, 255, 0.2);
-      padding-bottom: 5px;
-      justify-content: center; /* Center the tabs */
-      align-items: center;
-    }
+.mastery-tabs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 5px;
+  justify-content: center;
+  align-items: center;
+}
 
-    .mastery-tab {
-      padding: 16px 32px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-bottom: 4px solid transparent;
-      cursor: pointer;
-      font-size: 20px; /* Increased from 16px */
-      font-family: 'Instrument Serif', serif;
-      color: rgba(255, 255, 255, 0.7); /* Light color for visibility */
-      transition: all 0.3s ease;
-      position: relative;
-      border-radius: 12px 12px 0 0;
-      font-weight: 500;
-    }
+.mastery-tab {
+  padding: 16px 32px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 4px solid transparent;
+  cursor: pointer;
+  font-size: 20px;
+  font-family: 'Instrument Serif', serif;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+  position: relative;
+  border-radius: 12px 12px 0 0;
+  font-weight: 500;
+}
 
-    .mastery-tab:hover {
-      color: #ffffff;
-      background: rgba(255, 255, 255, 0.15);
-      border-color: rgba(255, 255, 255, 0.4);
-      transform: translateY(-2px);
-    }
+.mastery-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
 
-    .mastery-tab.active {
-      color: #ffffff; /* White text for active tab */
-      font-weight: bold;
-      background: rgba(255, 255, 255, 0.2);
-      border-bottom: 4px solid #3498db;
-      border-color: rgba(255, 255, 255, 0.3);
-    }
+.mastery-tab.active {
+  color: #ffffff;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.2);
+  border-bottom: 4px solid #3498db;
+  border-color: rgba(255, 255, 255, 0.3);
+}
 
-    .mastery-tab.baguhan.active {
-      border-bottom-color: #27ae60;
-      background: rgba(39, 174, 96, 0.15);
-    }
+.mastery-tab.baguhan.active {
+  border-bottom-color: #27ae60;
+  background: rgba(39, 174, 96, 0.15);
+}
 
-    .mastery-tab.katamtaman.active {
-      border-bottom-color: #f39c12;
-      background: rgba(243, 156, 18, 0.15);
-    }
+.mastery-tab.katamtaman.active {
+  border-bottom-color: #f39c12;
+  background: rgba(243, 156, 18, 0.15);
+}
 
-    .mastery-tab.dalubhasa.active {
-      border-bottom-color: #e74c3c;
-      background: rgba(231, 76, 60, 0.15);
-    }
+.mastery-tab.dalubhasa.active {
+  border-bottom-color: #e74c3c;
+  background: rgba(231, 76, 60, 0.15);
+}
 
-    .mastery-tab .level-icon {
-      margin-right: 10px;
-      font-size: 24px; /* Increased icon size */
-    }
+.mastery-tab .level-icon {
+  margin-right: 10px;
+  font-size: 24px;
+}
 
-    .mastery-tab .quiz-count {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.25);
-      color: #ffffff;
-      border-radius: 14px;
-      padding: 4px 10px;
-      font-size: 14px; /* Increased from 12px */
-      margin-left: 10px;
-      font-weight: bold;
-    }
+.mastery-tab .quiz-count {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-radius: 14px;
+  padding: 4px 10px;
+  font-size: 14px;
+  margin-left: 10px;
+  font-weight: bold;
+}
 
-    .mastery-tab.active .quiz-count {
-      background: rgba(255, 255, 255, 0.35);
-      color: #ffffff;
-    }
+.mastery-tab.active .quiz-count {
+  background: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+}
 
-    /* Quiz Cards with Level Badges */
-    .quiz-card .level-badge {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+/* Quiz Cards with Level Badges */
+.quiz-card {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
 
-    .level-badge.baguhan {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
+.quiz-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
 
-    .level-badge.katamtaman {
-      background: #fff3cd;
-      color: #856404;
-      border: 1px solid #ffeeba;
-    }
+.quiz-card.baguhan:hover {
+  border-color: #27ae60;
+}
 
-    .level-badge.dalubhasa {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
+.quiz-card.katamtaman:hover {
+  border-color: #f39c12;
+}
 
-    /* Enhanced Quiz Card */
-    .quiz-card {
-      position: relative;
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
+.quiz-card.dalubhasa:hover {
+  border-color: #e74c3c;
+}
 
-    .quiz-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-    }
+.quiz-card .level-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-    .quiz-card.baguhan:hover {
-      border-color: #27ae60;
-    }
+.level-badge.baguhan {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
 
-    .quiz-card.katamtaman:hover {
-      border-color: #f39c12;
-    }
+.level-badge.katamtaman {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+}
 
-    .quiz-card.dalubhasa:hover {
-      border-color: #e74c3c;
-    }
+.level-badge.dalubhasa {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
 
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: #999;
-    }
+/* Mastery level selector in modal */
+.mastery-level-selector {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
 
-    .empty-state i {
-      font-size: 64px;
-      margin-bottom: 20px;
-      opacity: 0.3;
-    }
+.mastery-level-selector label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #2c3e50;
+  font-size: 16px;
+}
 
-    .empty-state h3 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #666;
-    }
+.mastery-level-options {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
 
-    .empty-state p {
-      font-size: 16px;
-      color: #999;
-    }
+.mastery-option {
+  flex: 1;
+  min-width: 150px;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  background: white;
+}
 
-    /* Mastery level selector in modal */
-    .mastery-level-selector {
-      margin: 20px 0;
-      padding: 20px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      border: 1px solid #e0e0e0;
-    }
+.mastery-option:hover {
+  border-color: #3498db;
+  background: #f0f8ff;
+}
 
-    .mastery-level-selector label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 12px;
-      color: #2c3e50;
-      font-size: 16px;
-    }
+.mastery-option.selected {
+  border-color: #3498db;
+  background: #e3f2fd;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
 
-    .mastery-level-options {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
+.mastery-option.baguhan.selected {
+  border-color: #27ae60;
+  background: #d4edda;
+}
 
-    .mastery-option {
-      flex: 1;
-      min-width: 150px;
-      padding: 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      background: white;
-    }
+.mastery-option.katamtaman.selected {
+  border-color: #f39c12;
+  background: #fff3cd;
+}
 
-    .mastery-option:hover {
-      border-color: #3498db;
-      background: #f0f8ff;
-    }
+.mastery-option.dalubhasa.selected {
+  border-color: #e74c3c;
+  background: #f8d7da;
+}
 
-    .mastery-option.selected {
-      border-color: #3498db;
-      background: #e3f2fd;
-      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-    }
+.mastery-option input[type="radio"] {
+  display: none;
+}
 
-    .mastery-option.baguhan.selected {
-      border-color: #27ae60;
-      background: #d4edda;
-    }
+.mastery-option .option-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
 
-    .mastery-option.katamtaman.selected {
-      border-color: #f39c12;
-      background: #fff3cd;
-    }
+.mastery-option .option-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
 
-    .mastery-option.dalubhasa.selected {
-      border-color: #e74c3c;
-      background: #f8d7da;
-    }
-
-    .mastery-option input[type="radio"] {
-      display: none;
-    }
-
-    .mastery-option .option-icon {
-      font-size: 32px;
-      margin-bottom: 8px;
-    }
-
-    .mastery-option .option-title {
-      font-weight: bold;
-      font-size: 16px;
-      margin-bottom: 4px;
-    }
-
-    .mastery-option .option-description {
-      font-size: 12px;
-      color: #666;
-    }
+.mastery-option .option-description {
+  font-size: 12px;
+  color: #666;
+}
 
 /* Responsive Design */
 @media (max-width: 1024px) {
@@ -1427,20 +1413,25 @@ body {
         width: 100%;
     }
 
-    .card-btn-edit,
-    .card-btn-delete {
-        padding: 6px 10px;
-        font-size: 14px;
-        min-width: 36px;
-        height: 36px;
+    .edit-btn,
+    .delete-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+        min-width: 80px;
     }
 
     .quiz-item {
-        padding: 12px;
+        padding: 15px;
     }
 
     .modal-title {
         font-size: 20px;
+    }
+
+    /* Always show buttons on mobile (no hover state) */
+    .quiz-actions {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -1463,5 +1454,13 @@ body {
     
     .modal-title {
         font-size: 24px;
+    }
+
+    .edit-btn,
+    .delete-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+        min-width: 70px;
+        gap: 4px;
     }
 }
