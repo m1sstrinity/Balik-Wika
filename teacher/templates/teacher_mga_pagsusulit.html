@@ -354,6 +354,55 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Add this function to your HTML file
+function compressImage(base64, maxWidth = 800) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      // Resize if too large
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Compress to JPEG with 70% quality
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = base64;
+  });
+}
+
+// Update your image handler
+document.getElementById('question-image').addEventListener('change', async function (e) {
+  const file = e.target.files[0];
+  const preview = document.getElementById('imagePreview');
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+      // Compress the image before storing
+      currentImage = await compressImage(e.target.result, 800);
+      preview.src = currentImage;
+      preview.style.display = 'block';
+      console.log('Compressed image size:', currentImage.length);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    currentImage = '';
+    preview.src = '';
+    preview.style.display = 'none';
+  }
+});
+
 // Load quizzes grouped by mastery level
 function loadQuizzesByMastery() {
   fetch('/teacher/api/quizzes/mastery')
@@ -488,63 +537,52 @@ function createNewQuiz() {
 function openQuizDetails(quizId, quizTitle) {
   currentQuizId = quizId;
   currentSubject = quizTitle;
-  
+
   fetch(`/teacher/api/quiz/${quizId}/details`)
     .then(res => res.json())
     .then(data => {
-      if (data.success) {
-        const quiz = data.quiz;
-        document.getElementById('subjectModalTitle').textContent = quiz.title;
-        document.getElementById('quiz-id').value = quiz.id;
-        document.getElementById('question-subject').value = quiz.title;
-        
-        const quizList = document.getElementById('quizList');
-        const emptyQuizzes = document.getElementById('emptyQuizzes');
-        
-        if (quiz.questions.length === 0) {
-          quizList.innerHTML = '';
-          emptyQuizzes.style.display = 'block';
-        } else {
-          emptyQuizzes.style.display = 'none';
-          quizList.innerHTML = quiz.questions.map((q, index) => {
-            // FIX: Properly format image with data URI
-            let imageHtml = '';
-            if (q.image) {
-              let imageUrl = q.image;
-              if (!imageUrl.startsWith('data:')) {
-                imageUrl = 'data:image/jpeg;base64,' + imageUrl;
-              }
-              imageHtml = `<img src="${imageUrl}" style="max-width: 200px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />`;
-            }
-            
-            return `
-            <div class="quiz-item">
-              <div class="quiz-info">
-                <h4>${index + 1}. ${q.question_text}</h4>
-                ${imageHtml}
-                <div class="choices" style="margin: 10px 0;">
-                  <p><strong>a.</strong> ${q.choice_a}</p>
-                  <p><strong>b.</strong> ${q.choice_b}</p>
-                  <p><strong>c.</strong> ${q.choice_c}</p>
-                  <p><strong>d.</strong> ${q.choice_d}</p>
-                </div>
-                <p style="color: #27ae60;"><strong>Tamang Sagot:</strong> ${q.correct_answer.toUpperCase()}</p>
-                ${q.trivia ? `<p style="color: #f39c12;"><i class="fas fa-lightbulb"></i> <strong>Trivia:</strong> ${q.trivia}</p>` : ''}
+      const quiz = data.quiz || data;
+      if (!quiz) return console.error('No quiz data found');
+
+      document.getElementById('subjectModalTitle').textContent = quiz.title || '';
+      document.getElementById('quiz-id').value = quiz.id || '';
+      document.getElementById('question-subject').value = quiz.title || '';
+
+      const quizList = document.getElementById('quizList');
+      const emptyQuizzes = document.getElementById('emptyQuizzes');
+
+      if (!quiz.questions || quiz.questions.length === 0) {
+        quizList.innerHTML = '';
+        emptyQuizzes.style.display = 'block';
+      } else {
+        emptyQuizzes.style.display = 'none';
+        quizList.innerHTML = quiz.questions.map((q, index) => `
+          <div class="quiz-item">
+            <div class="quiz-info">
+              <h4>${index + 1}. ${q.question_text}</h4>
+              ${q.image ? '<div class="image-placeholder">📷 Image attached</div>' : ''}
+              <div class="choices" style="margin: 10px 0;">
+                <p><strong>a.</strong> ${q.choice_a}</p>
+                <p><strong>b.</strong> ${q.choice_b}</p>
+                <p><strong>c.</strong> ${q.choice_c}</p>
+                <p><strong>d.</strong> ${q.choice_d}</p>
               </div>
-              <div class="quiz-actions">
-                <button onclick="editQuestion(${q.id})" class="edit-btn"><i class="fas fa-edit"></i></button>
-                <button onclick="deleteQuestion(${q.id})" class="delete-btn"><i class="fas fa-trash"></i></button>
-              </div>
+              <p style="color: #27ae60;"><strong>Tamang Sagot:</strong> ${q.correct_answer?.toUpperCase()}</p>
+              ${q.trivia ? `<p style="color: #f39c12;"><i class="fas fa-lightbulb"></i> <strong>Trivia:</strong> ${q.trivia}</p>` : ''}
             </div>
-          `;
-          }).join('');
-        }
-        
-        document.getElementById('subjectModal').style.display = 'block';
+            <div class="quiz-actions">
+              <button onclick="editQuestion(${q.id})" class="edit-btn"><i class="fas fa-edit"></i></button>
+              <button onclick="deleteQuestion(${q.id})" class="delete-btn"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+        `).join('');
       }
+
+      document.getElementById('subjectModal').style.display = 'block';
     })
-    .catch(err => console.error('Error:', err));
+    .catch(err => console.error('Error loading quiz details:', err));
 }
+
 
 function closeSubjectModal() {
   document.getElementById('subjectModal').style.display = 'none';
