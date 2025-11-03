@@ -394,18 +394,23 @@ def get_quiz_details_with_level(quiz_id):
         
         questions_list = []
         for q in questions:
-            # Handle the image field - convert memoryview/bytes to base64 OR keep as string
+            # Handle the image field - convert BYTEA to base64 with data URI prefix
             image_data = q['image']
             
             if image_data:
-                # If it's memoryview or bytes, convert to base64
-                if isinstance(image_data, (memoryview, bytes)):
-                    image_data = base64.b64encode(bytes(image_data)).decode('utf-8')
-                # If it's already a string, keep it as is
+                # For BYTEA storage, convert binary to base64 with data URI
+                if isinstance(image_data, memoryview):
+                    # Convert memoryview to bytes, then to base64
+                    base64_image = base64.b64encode(bytes(image_data)).decode('utf-8')
+                    image_data = f'data:image/jpeg;base64,{base64_image}'
+                elif isinstance(image_data, bytes):
+                    # Convert bytes to base64
+                    base64_image = base64.b64encode(image_data).decode('utf-8')
+                    image_data = f'data:image/jpeg;base64,{base64_image}'
                 elif isinstance(image_data, str):
-                    # If it already has data: prefix, keep it
-                    # Otherwise it's just the base64 string
-                    pass
+                    # Shouldn't happen with BYTEA, but handle it just in case
+                    if not image_data.startswith('data:'):
+                        image_data = f'data:image/jpeg;base64,{image_data}'
             else:
                 image_data = ''
             
@@ -608,12 +613,21 @@ def add_question():
     subject = data.get('subject')
     user_id = session.get('user_id')
 
-    # FIX: Strip the data URI prefix from image if present
+    # FIX: Strip the data URI prefix and convert to binary for BYTEA storage
     if image and image.startswith('data:image'):
         # Remove "data:image/jpeg;base64," or similar prefix
         image = image.split(',', 1)[1] if ',' in image else image
     
-    print(f"Image data length: {len(image) if image else 0}")
+    # Convert base64 string to binary for PostgreSQL BYTEA
+    if image:
+        try:
+            image_binary = base64.b64decode(image)
+            image = psycopg2.Binary(image_binary)
+        except Exception as e:
+            print(f"Error decoding image: {e}")
+            image = None
+    
+    print(f"Image data converted to binary: {image is not None}")
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1274,15 +1288,21 @@ def get_quizzes():
 
         question_list = []
         for q in questions:
-            # Handle the image field - convert memoryview to base64 or empty string
+            # Handle the image field - convert BYTEA to base64 with data URI prefix
             image_data = q['image']
+            
             if image_data:
+                # For BYTEA storage, convert binary to base64 with data URI
                 if isinstance(image_data, memoryview):
-                    # Convert memoryview to base64 string
-                    image_data = base64.b64encode(image_data).decode('utf-8')
+                    base64_image = base64.b64encode(bytes(image_data)).decode('utf-8')
+                    image_data = f'data:image/jpeg;base64,{base64_image}'
                 elif isinstance(image_data, bytes):
-                    # Convert bytes to base64 string
-                    image_data = base64.b64encode(image_data).decode('utf-8')
+                    base64_image = base64.b64encode(image_data).decode('utf-8')
+                    image_data = f'data:image/jpeg;base64,{base64_image}'
+                elif isinstance(image_data, str):
+                    # Shouldn't happen with BYTEA
+                    if not image_data.startswith('data:'):
+                        image_data = f'data:image/jpeg;base64,{image_data}'
             else:
                 image_data = ''
             
@@ -1293,7 +1313,7 @@ def get_quizzes():
                 'choice_c': q['choice_c'],
                 'choice_d': q['choice_d'],
                 'correct_answer': q['correct_answer'],
-                'image': image_data,  # Use the converted image data
+                'image': image_data,  # Use the converted image data with data URI
                 'trivia': q['trivia']
             })
 
