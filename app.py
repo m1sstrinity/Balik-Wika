@@ -738,7 +738,6 @@ def student_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # Get user data
         cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
         user = cursor.fetchone()
         
@@ -747,10 +746,11 @@ def student_dashboard():
             conn.close()
             return redirect(url_for('login'))
 
-        # ✅ Since you're storing as TEXT (base64 string), just pass it directly
-        profile_picture = user['user_profile'] if user['user_profile'] else None
+        # ✅ FIX: Add data URI prefix for profile picture
+        profile_picture = None
+        if user['user_profile']:
+            profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
 
-        # Get first 2 subjects for suggested topics
         cursor.execute('''
             SELECT s.subject_id, s.name, s.description, s.icon, s.color,
                    COUNT(l.lesson_id) AS lesson_count
@@ -776,7 +776,7 @@ def student_dashboard():
 
         return render_template('student_dashboard.html', 
                              user=user, 
-                             profile_picture=profile_picture,  # ✅ Pass the base64 string
+                             profile_picture=profile_picture,
                              suggested_topics=suggested_topics)
     
     except Exception as e:
@@ -829,7 +829,6 @@ def profile():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Changed ? to %s for PostgreSQL
     cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
     user = cursor.fetchone()
     cursor.close()
@@ -839,8 +838,10 @@ def profile():
         flash("User not found.", "error")
         return redirect(url_for('login'))
     
-    # Since you're storing as base64 string, just use it directly
-    profile_picture = user['user_profile'] if user['user_profile'] else None
+    # ✅ FIX: Add data URI prefix for profile picture
+    profile_picture = None
+    if user['user_profile']:
+        profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
     
     return render_template('profile.html', user=user, profile_picture=profile_picture)
 
@@ -1070,7 +1071,7 @@ def upload_profile_picture():
         return jsonify({
             'success': True,
             'message': 'Profile picture updated successfully',
-            'profile_picture': img_base64
+            'profile_picture': f"data:image/jpeg;base64,{img_base64}"  # ✅ Add prefix here too
         })
 
     except ImportError:
