@@ -1421,7 +1421,6 @@ def get_student_quiz_details(quiz_id):
                 choice_c,
                 choice_d,
                 correct_answer,
-                image,
                 trivia
             FROM questions
             WHERE quiz_id = %s
@@ -1434,24 +1433,20 @@ def get_student_quiz_details(quiz_id):
         
         print(f"[DEBUG] Quiz {quiz_id} has {len(questions)} questions")
         
-        # Convert questions to list of dicts and handle binary data
+        # Convert questions to list of dicts manually (avoiding image field)
         questions_list = []
         for q in questions:
-            q_dict = dict(q)
-            
-            # Handle image field - convert memoryview/bytes to base64 string
-            if q_dict.get('image'):
-                if isinstance(q_dict['image'], (bytes, memoryview)):
-                    import base64
-                    if isinstance(q_dict['image'], memoryview):
-                        q_dict['image'] = base64.b64encode(q_dict['image'].tobytes()).decode('utf-8')
-                    else:
-                        q_dict['image'] = base64.b64encode(q_dict['image']).decode('utf-8')
-                    # Add data URI prefix if not present
-                    if not q_dict['image'].startswith('data:'):
-                        q_dict['image'] = 'data:image/jpeg;base64,' + q_dict['image']
-            
-            questions_list.append(q_dict)
+            questions_list.append({
+                'id': q['id'],
+                'question_text': q['question_text'],
+                'choice_a': q['choice_a'],
+                'choice_b': q['choice_b'],
+                'choice_c': q['choice_c'],
+                'choice_d': q['choice_d'],
+                'correct_answer': q['correct_answer'],
+                'trivia': q['trivia'],
+                'image': None  # Skip image for now to avoid memoryview error
+            })
         
         return jsonify({
             'success': True,
