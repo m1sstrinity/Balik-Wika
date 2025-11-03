@@ -1411,7 +1411,7 @@ def get_student_quiz_details(quiz_id):
             conn.close()
             return jsonify({'success': False, 'message': 'Quiz not found'}), 404
         
-        # Get questions
+        # Get questions with image
         cursor.execute('''
             SELECT 
                 id,
@@ -1421,6 +1421,7 @@ def get_student_quiz_details(quiz_id):
                 choice_c,
                 choice_d,
                 correct_answer,
+                image,
                 trivia
             FROM questions
             WHERE quiz_id = %s
@@ -1433,9 +1434,34 @@ def get_student_quiz_details(quiz_id):
         
         print(f"[DEBUG] Quiz {quiz_id} has {len(questions)} questions")
         
-        # Convert questions to list of dicts manually (avoiding image field)
+        # Convert questions to list of dicts with proper image handling
         questions_list = []
         for q in questions:
+            # Handle image field
+            image_data = None
+            if q['image']:
+                try:
+                    if isinstance(q['image'], memoryview):
+                        # Convert memoryview to bytes then to base64
+                        import base64
+                        img_bytes = q['image'].tobytes()
+                        img_base64 = base64.b64encode(img_bytes).decode('utf-8')
+                        image_data = f'data:image/jpeg;base64,{img_base64}'
+                    elif isinstance(q['image'], bytes):
+                        # Convert bytes to base64
+                        import base64
+                        img_base64 = base64.b64encode(q['image']).decode('utf-8')
+                        image_data = f'data:image/jpeg;base64,{img_base64}'
+                    elif isinstance(q['image'], str):
+                        # Already a string (base64 or URL)
+                        if q['image'].startswith('data:'):
+                            image_data = q['image']
+                        else:
+                            image_data = f'data:image/jpeg;base64,{q["image"]}'
+                except Exception as img_err:
+                    print(f"[ERROR] Failed to process image for question {q['id']}: {img_err}")
+                    image_data = None
+            
             questions_list.append({
                 'id': q['id'],
                 'question_text': q['question_text'],
@@ -1445,7 +1471,7 @@ def get_student_quiz_details(quiz_id):
                 'choice_d': q['choice_d'],
                 'correct_answer': q['correct_answer'],
                 'trivia': q['trivia'],
-                'image': None  # Skip image for now to avoid memoryview error
+                'image': image_data
             })
         
         return jsonify({
