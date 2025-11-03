@@ -392,6 +392,14 @@ def get_quiz_details_with_level(quiz_id):
         
         questions_list = []
         for q in questions:
+            # Handle the image field - convert memoryview to base64
+            image_data = q['image']
+            if image_data:
+                if isinstance(image_data, (memoryview, bytes)):
+                    image_data = base64.b64encode(bytes(image_data)).decode('utf-8')
+            else:
+                image_data = ''
+            
             questions_list.append({
                 'id': q['id'],
                 'question_text': q['question_text'],
@@ -400,7 +408,7 @@ def get_quiz_details_with_level(quiz_id):
                 'choice_c': q['choice_c'],
                 'choice_d': q['choice_d'],
                 'correct_answer': q['correct_answer'],
-                'image': q['image'],
+                'image': image_data,  # Use converted image data
                 'trivia': q['trivia']
             })
         
