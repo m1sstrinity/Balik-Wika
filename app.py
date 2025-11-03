@@ -1579,25 +1579,33 @@ def submit_quiz_result():
         print(f"Error saving quiz result: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
     
-@app.route('/debug/quizzes')
-def debug_quizzes():
-    """Quick debug - remove after fixing"""
+@app.route('/debug/quiz/<int:quiz_id>')
+def debug_quiz_details(quiz_id):
+    """Debug quiz details"""
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    cursor.execute("""
-        SELECT q.id, q.title, q.mastery_level, COUNT(qs.id) as questions
-        FROM quizzes q
-        LEFT JOIN questions qs ON q.id = qs.quiz_id
-        GROUP BY q.id, q.title, q.mastery_level
-    """)
-    quizzes = cursor.fetchall()
+    # Get quiz
+    cursor.execute('SELECT * FROM quizzes WHERE id = %s', (quiz_id,))
+    quiz = cursor.fetchone()
     
-    result = "<h1>Quiz Debug</h1><table border='1' style='border-collapse: collapse;'>"
-    result += "<tr><th>ID</th><th>Title</th><th>Mastery Level</th><th>Questions</th></tr>"
-    for q in quizzes:
-        result += f"<tr><td>{q['id']}</td><td>{q['title']}</td><td><b>{q['mastery_level']}</b></td><td>{q['questions']}</td></tr>"
-    result += "</table>"
+    # Get questions
+    cursor.execute('SELECT * FROM questions WHERE quiz_id = %s', (quiz_id,))
+    questions = cursor.fetchall()
+    
+    result = f"<h1>Quiz #{quiz_id} Debug</h1>"
+    result += f"<h2>Quiz Info:</h2>"
+    result += f"<p>Title: {quiz['title'] if quiz else 'NOT FOUND'}</p>"
+    result += f"<p>Mastery: {quiz['mastery_level'] if quiz else 'N/A'}</p>"
+    
+    result += f"<h2>Questions ({len(questions)}):</h2>"
+    if questions:
+        result += "<table border='1'><tr><th>ID</th><th>Question</th><th>Correct Answer</th></tr>"
+        for q in questions:
+            result += f"<tr><td>{q['id']}</td><td>{q['question_text'][:50]}...</td><td>{q['correct_answer']}</td></tr>"
+        result += "</table>"
+    else:
+        result += "<p style='color: red;'>NO QUESTIONS FOUND!</p>"
     
     cursor.close()
     conn.close()
