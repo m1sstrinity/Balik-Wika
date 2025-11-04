@@ -749,12 +749,12 @@ def student_dashboard():
 
         # ✅ FIX: Add data URI prefix for profile picture
         profile_picture = None
-if user['user_profile']:
-    if isinstance(user['user_profile'], (bytes, memoryview)):
-        img_data = bytes(user['user_profile']) if isinstance(user['user_profile'], memoryview) else user['user_profile']
-        profile_picture = f"data:image/jpeg;base64,{base64.b64encode(img_data).decode('utf-8')}"
-    elif isinstance(user['user_profile'], str):
-        profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
+        if user['user_profile']:
+            if isinstance(user['user_profile'], (bytes, memoryview)):
+                img_data = bytes(user['user_profile']) if isinstance(user['user_profile'], memoryview) else user['user_profile']
+                profile_picture = f"data:image/jpeg;base64,{base64.b64encode(img_data).decode('utf-8')}"
+            elif isinstance(user['user_profile'], str):
+                profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
 
         cursor.execute('''
             SELECT s.subject_id, s.name, s.description, s.icon, s.color,
@@ -792,7 +792,7 @@ if user['user_profile']:
                              profile_picture=None,
                              suggested_topics=[],
                              error=f'Error loading dashboard: {str(e)}')
-
+    
 @app.route('/mga_pagsusulit')
 @require_role('student')  # Assuming you want only students to access this
 def mga_pagsusulit():
