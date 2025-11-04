@@ -10,19 +10,20 @@ from PIL import Image
 import io
 import base64
 from datetime import datetime, timedelta
+from smtplib import SMTPException, SMTPAuthenticationError
 from landing.routes import landing_bp
 from admin.routes import admin_bp
 from teacher.routes import teacher_bp
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'app_secret_123')
+app.secret_key = os.environ.get('SECRET_KEY')
 
 # Email config
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'mreqdmtupuiwoyco')
 mail = Mail(app)
 
 # Registers
