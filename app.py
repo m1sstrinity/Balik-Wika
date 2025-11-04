@@ -30,25 +30,6 @@ app.register_blueprint(landing_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(teacher_bp)
 
-# ADD THE NEW ROUTE HERE ⬇️
-@app.route('/create-tables-now')
-def create_tables_now():
-    """Manual route to create database tables"""
-    try:
-        from database_config import create_tables
-        create_tables()
-        return "✅ Tables created successfully! Check logs for confirmation."
-    except Exception as e:
-        import traceback
-        return f"❌ Error: {str(e)}<br><br><pre>{traceback.format_exc()}</pre>"
-
-# Initialize database (existing code below)
-try:
-    create_tables()
-    print("✅ Database initialized!")
-except Exception as e:
-    print(f"⚠️ Database init error: {e}")
-
 # --- Helper Functions ---
 
 def validate_password(password):
