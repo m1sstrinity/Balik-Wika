@@ -143,7 +143,7 @@ def signup():
 
         # Send OTP email via SendGrid
         message = Mail(
-            from_email='rosalestrinity0625@gmail.com',
+            from_email='rosales_trinitycamille@plpasig.edu.ph',
             to_emails=email,
             subject='Your OTP Code - BalikWika',
             html_content=f"""
@@ -473,7 +473,7 @@ def forgot_password():
         
         # Send OTP email via SendGrid
         message = Mail(
-            from_email='rosalestrinity0625@gmail.com',
+            from_email='rosales_trinitycamille@plpasig.edu.ph',
             to_emails=email,
             subject='Password Reset OTP - BalikWika',
             html_content=f"""
