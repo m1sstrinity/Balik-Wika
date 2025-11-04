@@ -427,6 +427,8 @@ def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
         
+        print(f"[DEBUG] Password reset requested for: {email}")
+        
         conn = get_db_connection()
         cursor = conn.cursor()
         
@@ -445,19 +447,25 @@ def forgot_password():
         otp = ''.join(random.choices(string.digits, k=6))
         otp_expiry = (datetime.now() + timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')
         
+        print(f"[DEBUG] Generated OTP: {otp}, Expiry: {otp_expiry}")
+        
         # Update user with OTP
         if db_config.is_production:
-            cursor.execute("UPDATE users SET otp = %s, otp_expiry = %s WHERE email = %s", (otp, otp_expiry, email))
+            cursor.execute("UPDATE users SET otp = %s, otp_expiry = %s WHERE email = %s", 
+                          (otp, otp_expiry, email))
         else:
-            conn.execute("UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?", (otp, otp_expiry, email))
+            conn.execute("UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?", 
+                        (otp, otp_expiry, email))
         
         conn.commit()
         conn.close()
         
-        print(f"[DEBUG] Password reset OTP for {email}: {otp} (expires at {otp_expiry})")
+        print(f"[DEBUG] OTP saved to database for {email}")
         
         # Send OTP email
-        msg = Message('Password Reset OTP - BalikWika', sender=app.config['MAIL_USERNAME'], recipients=[email])
+        msg = Message('Password Reset OTP - BalikWika', 
+                     sender=app.config['MAIL_USERNAME'], 
+                     recipients=[email])
         msg.body = f"""
 Kumusta!
 
@@ -474,17 +482,33 @@ BalikWika Team
         """
         
         try:
+            print(f"[DEBUG] Attempting to send email to {email}")
+            print(f"[DEBUG] Using MAIL_USERNAME: {app.config['MAIL_USERNAME']}")
+            print(f"[DEBUG] MAIL_PASSWORD is set: {bool(app.config['MAIL_PASSWORD'])}")
+            
             mail.send(msg)
+            
+            print(f"[SUCCESS] Email sent successfully to {email}")
             flash("Naipadala na ang OTP sa inyong email. Pakicheck ang inbox.", "success")
             session['reset_email'] = email
             return redirect(url_for('verify_reset_otp'))
+            
+        except SMTPAuthenticationError as e:
+            print(f"[ERROR] SMTP Authentication failed: {e}")
+            flash("Email authentication error. Please contact support.", "error")
+            return redirect(url_for('forgot_password'))
+        except SMTPException as e:
+            print(f"[ERROR] SMTP error: {e}")
+            flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
+            return redirect(url_for('forgot_password'))
         except Exception as e:
-            print(f"[ERROR] Failed to send password reset email: {e}")
+            print(f"[ERROR] Unexpected error sending email: {e}")
+            import traceback
+            traceback.print_exc()
             flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
             return redirect(url_for('forgot_password'))
     
     return render_template('forgot_password.html')
-
 
 @app.route('/verify_reset_otp', methods=['GET', 'POST'])
 def verify_reset_otp():
@@ -548,6 +572,8 @@ def reset_password():
     reset_token = session.get('reset_token')
     
     if not reset_token:
+        print("[DEBUG] No reset token in session")
+        flash("Session expired. Please start password reset again.", "error")
         return redirect(url_for('forgot_password'))
     
     if request.method == 'POST':
@@ -568,9 +594,12 @@ def reset_password():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Changed ? to %s for PostgreSQL
-        cursor.execute("SELECT * FROM users WHERE reset_token = %s", (reset_token,))
-        user = cursor.fetchone()
+        # Fixed: Add database-specific query
+        if db_config.is_production:
+            cursor.execute("SELECT * FROM users WHERE reset_token = %s", (reset_token,))
+            user = cursor.fetchone()
+        else:
+            user = conn.execute("SELECT * FROM users WHERE reset_token = ?", (reset_token,)).fetchone()
         
         if not user:
             cursor.close()
@@ -579,10 +608,8 @@ def reset_password():
             return redirect(url_for('forgot_password'))
         
         # Check if reset token has expired
-        # PostgreSQL returns datetime objects directly, no need to parse strings
         if user['reset_token_expiry']:
             reset_token_expiry = user['reset_token_expiry']
-            # If it's a string (shouldn't be with proper PostgreSQL setup), parse it
             if isinstance(reset_token_expiry, str):
                 reset_token_expiry = datetime.strptime(reset_token_expiry, '%Y-%m-%d %H:%M:%S')
             
@@ -593,14 +620,23 @@ def reset_password():
                 return redirect(url_for('forgot_password'))
         
         # Update password and clear reset token
-        # Changed ? to %s and boolean 0 to FALSE
         password_hash = generate_password_hash(new_password)
-        cursor.execute("""
-            UPDATE users 
-            SET password = %s, reset_token = NULL, reset_token_expiry = NULL, 
-                otp = NULL, otp_expiry = NULL, is_temp_password = FALSE
-            WHERE reset_token = %s
-        """, (password_hash, reset_token))
+        
+        if db_config.is_production:
+            cursor.execute("""
+                UPDATE users 
+                SET password = %s, reset_token = NULL, reset_token_expiry = NULL, 
+                    otp = NULL, otp_expiry = NULL, is_temp_password = FALSE
+                WHERE reset_token = %s
+            """, (password_hash, reset_token))
+        else:
+            conn.execute("""
+                UPDATE users 
+                SET password = ?, reset_token = NULL, reset_token_expiry = NULL, 
+                    otp = NULL, otp_expiry = NULL, is_temp_password = 0
+                WHERE reset_token = ?
+            """, (password_hash, reset_token))
+        
         conn.commit()
         cursor.close()
         conn.close()
