@@ -594,20 +594,21 @@ def reset_password():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Fixed: Add database-specific query
+        # STEP 1: Get user with reset_token
         if db_config.is_production:
             cursor.execute("SELECT * FROM users WHERE reset_token = %s", (reset_token,))
             user = cursor.fetchone()
         else:
             user = conn.execute("SELECT * FROM users WHERE reset_token = ?", (reset_token,)).fetchone()
         
+        # Check if user exists
         if not user:
             cursor.close()
             conn.close()
             flash("Invalid reset token.", "error")
             return redirect(url_for('forgot_password'))
         
-        # Check if reset token has expired
+        # STEP 2: Check if reset token has expired
         if user['reset_token_expiry']:
             reset_token_expiry = user['reset_token_expiry']
             if isinstance(reset_token_expiry, str):
@@ -619,9 +620,10 @@ def reset_password():
                 flash("Nag-expire na ang reset token. Pakisubukang muli.", "error")
                 return redirect(url_for('forgot_password'))
         
-        # Update password and clear reset token
+        # STEP 3: Hash the new password
         password_hash = generate_password_hash(new_password)
         
+        # STEP 4: Update password and clear reset token
         if db_config.is_production:
             cursor.execute("""
                 UPDATE users 
