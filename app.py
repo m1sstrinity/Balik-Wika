@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+import psycopg2
 from database_config import get_db_connection, create_tables, db_config
 import random
 import string
@@ -748,8 +749,12 @@ def student_dashboard():
 
         # ✅ FIX: Add data URI prefix for profile picture
         profile_picture = None
-        if user['user_profile']:
-            profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
+if user['user_profile']:
+    if isinstance(user['user_profile'], (bytes, memoryview)):
+        img_data = bytes(user['user_profile']) if isinstance(user['user_profile'], memoryview) else user['user_profile']
+        profile_picture = f"data:image/jpeg;base64,{base64.b64encode(img_data).decode('utf-8')}"
+    elif isinstance(user['user_profile'], str):
+        profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
 
         cursor.execute('''
             SELECT s.subject_id, s.name, s.description, s.icon, s.color,
@@ -841,7 +846,11 @@ def profile():
     # ✅ FIX: Add data URI prefix for profile picture
     profile_picture = None
     if user['user_profile']:
-        profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
+        if isinstance(user['user_profile'], (bytes, memoryview)):
+            img_data = bytes(user['user_profile']) if isinstance(user['user_profile'], memoryview) else user['user_profile']
+            profile_picture = f"data:image/jpeg;base64,{base64.b64encode(img_data).decode('utf-8')}"
+        elif isinstance(user['user_profile'], str):
+            profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
     
     return render_template('profile.html', user=user, profile_picture=profile_picture)
 
@@ -1025,61 +1034,49 @@ def upload_profile_picture():
     if file.filename == '':
         return jsonify({'success': False, 'message': 'No file selected'})
     
-    # Check file type
     allowed_extensions = {'png', 'jpg', 'jpeg', 'gif'}
     if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
-        return jsonify({'success': False, 'message': 'Invalid file type. Only PNG, JPG, JPEG, and GIF are allowed'})
+        return jsonify({'success': False, 'message': 'Invalid file type'})
     
     try:
-        # Process the image
+        import psycopg2
+        
         image = Image.open(file.stream)
-
-        # Convert to RGB if transparent
         if image.mode in ('RGBA', 'LA'):
             background = Image.new('RGB', image.size, (255, 255, 255))
             background.paste(image, mask=image.split()[-1])
             image = background
-
-        # Resize to max 400x400
+        
         max_size = (400, 400)
         image.thumbnail(max_size, Image.Resampling.LANCZOS)
-
-        # Save to BytesIO as JPEG
+        
         img_bytes = io.BytesIO()
         image.save(img_bytes, format='JPEG', quality=85)
         img_data = img_bytes.getvalue()
-
-        # Encode image as base64
         img_base64 = base64.b64encode(img_data).decode('utf-8')
-
-        # Save to database (as base64 string)
-        conn = get_db_connection()
-        if not conn:
-            return jsonify({'success': False, 'message': 'Database connection failed'})
         
+        conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Changed ? to %s for PostgreSQL
+        # Store as binary (BYTEA) in PostgreSQL
         cursor.execute(
             'UPDATE users SET user_profile = %s WHERE id = %s',
-            (img_base64, session['user_id'])
+            (psycopg2.Binary(img_data), session['user_id'])
         )
         conn.commit()
         cursor.close()
         conn.close()
-
+        
         return jsonify({
             'success': True,
             'message': 'Profile picture updated successfully',
-            'profile_picture': f"data:image/jpeg;base64,{img_base64}"  # ✅ Add prefix here too
+            'profile_picture': f"data:image/jpeg;base64,{img_base64}"
         })
-
-    except ImportError:
-        return jsonify({'success': False, 'message': 'Pillow library not installed. Please install it with: pip install Pillow'})
+    
     except Exception as e:
         import traceback
         traceback.print_exc()
-        return jsonify({'success': False, 'message': f'Failed to process image: {str(e)}'})
+        return jsonify({'success': False, 'message': f'Upload failed: {str(e)}'})
 
 # Add this new route for removing profile picture
 @app.route('/remove_profile_picture', methods=['POST'])
