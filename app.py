@@ -1,9 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, make_response
-from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import psycopg2
-import socket
 from database_config import get_db_connection, create_tables, db_config
 import random
 import string
@@ -11,21 +9,14 @@ from PIL import Image
 import io
 import base64
 from datetime import datetime, timedelta
-from smtplib import SMTPException, SMTPAuthenticationError
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from landing.routes import landing_bp
 from admin.routes import admin_bp
 from teacher.routes import teacher_bp
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
-
-# Email config
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', 'mreqdmtupuiwoyco')
-mail = Mail(app)
 
 # Registers
 app.register_blueprint(landing_bp)
@@ -141,7 +132,7 @@ def signup():
                     (email, password_hash, first_name, last_name, otp, otp_expiry, 0, 'student', registered_at)
                 )
             conn.commit()
-        except Exception as e:  # ✅ Changed from sqlite3.IntegrityError to generic Exception
+        except Exception as e:
             conn.close()
             flash("Email already registered.", "error")
             return redirect(url_for('signup'))
@@ -150,22 +141,39 @@ def signup():
 
         print(f"[DEBUG] OTP for {email}: {otp} (expires at {otp_expiry})")
 
-        msg = Message('Your OTP Code', sender=app.config['MAIL_USERNAME'], recipients=[email])
-        msg.body = (
-            f"Hello {first_name or 'User'},\n\n"
-            f"Thank you for signing up for Balik-Wika!\n\n"
-            f"Your One-Time Password (OTP) is: {otp}\n"
-            f"This code is valid for 1 minute.\n\n"
-            "Please enter it on the verification page to activate your account.\n\n"
-            "If you did not sign up for this account, you can ignore this email.\n\n"
-            "Salamat!\n"
-            "— The Balik-Wika Team"
+        # Send OTP email via SendGrid
+        message = Mail(
+            from_email='rosalestrinity0625@gmail.com',
+            to_emails=email,
+            subject='Your OTP Code - BalikWika',
+            html_content=f"""
+            <html>
+                <body style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2>Welcome to BalikWika!</h2>
+                    <p>Hello {first_name or 'User'},</p>
+                    <p>Thank you for signing up for Balik-Wika!</p>
+                    <p style="font-size: 18px; font-weight: bold; color: #ef4444;">
+                        Your One-Time Password (OTP) is: {otp}
+                    </p>
+                    <p>This code is valid for 1 minute.</p>
+                    <p>Please enter it on the verification page to activate your account.</p>
+                    <p>If you did not sign up for this account, you can ignore this email.</p>
+                    <br>
+                    <p>Salamat!<br>— The Balik-Wika Team</p>
+                </body>
+            </html>
+            """
         )
+        
         try:
-            mail.send(msg)
-            print(f"[INFO] OTP email sent to {email}")
+            print(f"[DEBUG] Attempting to send OTP email via SendGrid to {email}")
+            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            response = sg.send(message)
+            print(f"[SUCCESS] OTP email sent via SendGrid to {email}. Status: {response.status_code}")
         except Exception as e:
             print(f"[ERROR] Failed to send OTP email: {e}")
+            import traceback
+            traceback.print_exc()
             flash("Failed to send OTP email. Try again later.", "error")
             return redirect(url_for('signup'))
 
@@ -463,60 +471,46 @@ def forgot_password():
         
         print(f"[DEBUG] OTP saved to database for {email}")
         
-        # Send OTP email
-        msg = Message('Password Reset OTP - BalikWika', 
-                     sender=app.config['MAIL_USERNAME'], 
-                     recipients=[email])
-        msg.body = f"""
-Kumusta!
-
-Nakatanggap kami ng request para i-reset ang password ng inyong BalikWika account.
-
-Ang inyong OTP code ay: {otp}
-
-Ang OTP na ito ay mag-expire sa loob ng 10 minuto.
-
-Kung hindi kayo nag-request ng password reset, pakiignore lang ang email na ito.
-
-Salamat,
-BalikWika Team
-        """
+        # Send OTP email via SendGrid
+        message = Mail(
+            from_email='rosalestrinity0625@gmail.com',
+            to_emails=email,
+            subject='Password Reset OTP - BalikWika',
+            html_content=f"""
+            <html>
+                <body style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2>Password Reset Request</h2>
+                    <p>Kumusta!</p>
+                    <p>Nakatanggap kami ng request para i-reset ang password ng inyong BalikWika account.</p>
+                    <p style="font-size: 18px; font-weight: bold; color: #ef4444;">
+                        Ang inyong OTP code ay: {otp}
+                    </p>
+                    <p>Ang OTP na ito ay mag-expire sa loob ng 10 minuto.</p>
+                    <p>Kung hindi kayo nag-request ng password reset, pakiignore lang ang email na ito.</p>
+                    <br>
+                    <p>Salamat,<br>BalikWika Team</p>
+                </body>
+            </html>
+            """
+        )
         
         try:
-            print(f"[DEBUG] Attempting to send email to {email}")
-            print(f"[DEBUG] Using MAIL_USERNAME: {app.config['MAIL_USERNAME']}")
-            print(f"[DEBUG] MAIL_PASSWORD is set: {bool(app.config['MAIL_PASSWORD'])}")
+            print(f"[DEBUG] Attempting to send email via SendGrid to {email}")
             
-            # Set socket timeout to prevent hanging
-            socket.setdefaulttimeout(10)  # 10 second timeout
-
-            mail.send(msg)
+            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            response = sg.send(message)
             
-            print(f"[SUCCESS] Email sent successfully to {email}")
+            print(f"[SUCCESS] Email sent successfully via SendGrid. Status: {response.status_code}")
             flash("Naipadala na ang OTP sa inyong email. Pakicheck ang inbox.", "success")
             session['reset_email'] = email
             return redirect(url_for('verify_reset_otp'))
             
-        except SMTPAuthenticationError as e:
-            print(f"[ERROR] SMTP Authentication failed: {e}")
-            flash("Email authentication error. Please contact support.", "error")
-            return redirect(url_for('forgot_password'))
-        except socket.timeout:  # ← ADD THIS
-            print(f"[ERROR] Email send timeout after 10 seconds")
-            flash("Email server timeout. Please try again later.", "error")
-            return redirect(url_for('forgot_password'))
-        except SMTPException as e:
-            print(f"[ERROR] SMTP error: {e}")
-            flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
-            return redirect(url_for('forgot_password'))
         except Exception as e:
-            print(f"[ERROR] Unexpected error sending email: {e}")
+            print(f"[ERROR] SendGrid error: {e}")
             import traceback
             traceback.print_exc()
             flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
             return redirect(url_for('forgot_password'))
-        finally:
-            socket.setdefaulttimeout(None)  # Reset to default
     
     return render_template('forgot_password.html')
 
