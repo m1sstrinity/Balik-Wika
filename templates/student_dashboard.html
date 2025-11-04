@@ -892,20 +892,19 @@ transform: translateY(20px);
             <div class="date" id="currentDate">{{ current_date if current_date else "July 14, 2025" }}</div>
 
             <div class="user-info">
-                <a href="{{ url_for('profile') }}">
-                    <div class="user-avatar">
-                        {% if profile_picture %}
-                            <img src="data:image/jpeg;base64,{{ profile_picture }}" alt="Avatar">
-                        {% else %}
-                            {{ user.first_name[0] if user.first_name else '?' }}
-                        {% endif %}
-                    </div>
-                    <div class="user-details">
-                        <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-                    </div>
-                </a>
-            </div>
+    <a href="{{ url_for('profile') }}">
+        <div class="user-avatar">
+            {% if profile_picture %}
+                <img src="{{ profile_picture }}" alt="Avatar">
+            {% else %}
+                {{ user.first_name[0] if user.first_name else '?' }}
+            {% endif %}
         </div>
+        <div class="user-details">
+            <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+        </div>
+    </a>
+</div>
 
         <div class="welcome-section">
             <div class="welcome-content">

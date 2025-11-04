@@ -1055,33 +1055,32 @@
     </div>
 
     <div class="main-content">
-        <div class="profile-container">
-            <div class="profile-header">
-                <div class="profile-picture-container">
-                    <div class="profile-picture" id="profilePicture">
-                        {% if profile_picture %}
-    <img src="data:image/jpeg;base64,{{ profile_picture }}" alt="Profile Picture">
-{% else %}
-    <div class="profile-placeholder">
-        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="50" fill="#e2e8f0"/>
-            <circle cx="50" cy="35" r="15" fill="#94a3b8"/>
-            <path d="M20 80 C20 65, 35 55, 50 55 C65 55, 80 65, 80 80" fill="#94a3b8"/>
-        </svg>
-    </div>
-{% endif %}
-<input type="file" id="fileInput" accept="image/*" style="display: none;">
-                    </div>
-                    <button class="edit-picture-btn" onclick="openPictureModal()">
-                        <i class="fas fa-edit"></i>
-                    </button>
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-picture-container">
+                <div class="profile-picture" id="profilePicture">
+                    {% if profile_picture %}
+                        <img src="{{ profile_picture }}" alt="Profile Picture">
+                    {% else %}
+                        <div class="profile-placeholder">
+                            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="50" fill="#e2e8f0"/>
+                                <circle cx="50" cy="35" r="15" fill="#94a3b8"/>
+                                <path d="M20 80 C20 65, 35 55, 50 55 C65 55, 80 65, 80 80" fill="#94a3b8"/>
+                            </svg>
+                        </div>
+                    {% endif %}
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
                 </div>
-                <div class="profile-info">
-                    <h1>{{ user.first_name }} {{ user.last_name }}</h1>
-                    <p>{{ user.email }}</p>
-                </div>
+                <button class="edit-picture-btn" onclick="openPictureModal()">
+                    <i class="fas fa-edit"></i>
+                </button>
             </div>
-
+            <div class="profile-info">
+                <h1>{{ user.first_name }} {{ user.last_name }}</h1>
+                <p>{{ user.email }}</p>
+            </div>
+        </div>
             <div class="profile-fields">
                 <div class="field-group">
                     <span class="field-label">
