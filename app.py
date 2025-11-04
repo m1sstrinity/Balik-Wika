@@ -3,6 +3,7 @@ from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import psycopg2
+import socket
 from database_config import get_db_connection, create_tables, db_config
 import random
 import string
@@ -486,6 +487,9 @@ BalikWika Team
             print(f"[DEBUG] Using MAIL_USERNAME: {app.config['MAIL_USERNAME']}")
             print(f"[DEBUG] MAIL_PASSWORD is set: {bool(app.config['MAIL_PASSWORD'])}")
             
+            # Set socket timeout to prevent hanging
+            socket.setdefaulttimeout(10)  # 10 second timeout
+
             mail.send(msg)
             
             print(f"[SUCCESS] Email sent successfully to {email}")
@@ -497,6 +501,10 @@ BalikWika Team
             print(f"[ERROR] SMTP Authentication failed: {e}")
             flash("Email authentication error. Please contact support.", "error")
             return redirect(url_for('forgot_password'))
+        except socket.timeout:  # ← ADD THIS
+            print(f"[ERROR] Email send timeout after 10 seconds")
+            flash("Email server timeout. Please try again later.", "error")
+            return redirect(url_for('forgot_password'))
         except SMTPException as e:
             print(f"[ERROR] SMTP error: {e}")
             flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
@@ -507,6 +515,8 @@ BalikWika Team
             traceback.print_exc()
             flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
             return redirect(url_for('forgot_password'))
+        finally:
+            socket.setdefaulttimeout(None)  # Reset to default
     
     return render_template('forgot_password.html')
 
