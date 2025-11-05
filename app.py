@@ -526,48 +526,62 @@ def verify_reset_otp():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        if db_config.is_production:
-            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-            user = cursor.fetchone()
-        else:
-            user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-        
-        if not user:
+        try:
+            if db_config.is_production:
+                cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+                user = cursor.fetchone()
+            else:
+                user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+            
+            if not user:
+                cursor.close()
+                conn.close()
+                flash("Walang user na may email na iyon.", "error")
+                return redirect(url_for('forgot_password'))
+            
+            db_otp = user['otp']
+            otp_expiry = datetime.strptime(user['otp_expiry'], '%Y-%m-%d %H:%M:%S')
+            
+            if datetime.now() > otp_expiry:
+                cursor.close()
+                conn.close()
+                flash("Nag-expire na ang OTP. Pakisubukang muli.", "error")
+                return redirect(url_for('forgot_password'))
+            
+            if user_input_otp != db_otp:
+                cursor.close()
+                conn.close()
+                flash("Maling OTP. Pakisubukang muli.", "error")
+                return redirect(url_for('verify_reset_otp'))
+            
+            # Generate reset token for secure password reset
+            reset_token = generate_reset_token()
+            reset_token_expiry = (datetime.now() + timedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')
+            
+            if db_config.is_production:
+                cursor.execute("UPDATE users SET reset_token = %s, reset_token_expiry = %s WHERE email = %s", 
+                              (reset_token, reset_token_expiry, email))
+            else:
+                cursor.execute("UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?", 
+                            (reset_token, reset_token_expiry, email))
+            
+            conn.commit()
+            cursor.close()
             conn.close()
-            flash("Walang user na may email na iyon.", "error")
+            
+            session['reset_token'] = reset_token
+            
+            flash("OTP na-verify! Maaari na kayong mag-set ng bagong password.", "success")
+            return redirect(url_for('reset_password'))
+            
+        except Exception as e:
+            cursor.close()
+            conn.close()
+            print(f"[ERROR] verify_reset_otp error: {e}")
+            import traceback
+            traceback.print_exc()
+            flash("May error na nangyari. Pakisubukang muli.", "error")
             return redirect(url_for('forgot_password'))
-        
-        db_otp = user['otp']
-        otp_expiry = datetime.strptime(user['otp_expiry'], '%Y-%m-%d %H:%M:%S')
-        
-        if datetime.now() > otp_expiry:
-            conn.close()
-            flash("Nag-expire na ang OTP. Pakisubukang muli.", "error")
-            return redirect(url_for('forgot_password'))
-        
-        if user_input_otp != db_otp:
-            conn.close()
-            flash("Maling OTP. Pakisubukang muli.", "error")
-            return redirect(url_for('verify_reset_otp'))
-        
-        # Generate reset token for secure password reset
-        reset_token = generate_reset_token()
-        reset_token_expiry = (datetime.now() + timedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')
-        
-        if db_config.is_production:
-            cursor.execute("UPDATE users SET reset_token = %s, reset_token_expiry = %s WHERE email = %s", 
-                          (reset_token, reset_token_expiry, email))
-        else:
-            conn.execute("UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?", 
-                        (reset_token, reset_token_expiry, email))
-        
-        conn.commit()
-        conn.close()
-        
-        session['reset_token'] = reset_token
-        
-        flash("OTP na-verify! Maaari na kayong mag-set ng bagong password.", "success")
-        return redirect(url_for('reset_password'))
     
     return render_template('verify_reset_otp.html')
 
