@@ -385,35 +385,47 @@ def print_teachers():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    if db_config.is_production:
-        cursor.execute("""
-            SELECT id, first_name, last_name, email, registered_at, status 
-            FROM users 
-            WHERE role = 'teacher'
-        """)
-        rows = cursor.fetchall()
-    else:
-        cursor.execute("""
-            SELECT id, first_name, last_name, email, registered_at, status 
-            FROM users 
-            WHERE role = 'teacher'
-        """)
-        rows = cursor.fetchall()
+    try:
+        if db_config.is_production:
+            cursor.execute("""
+                SELECT id, first_name, last_name, email, registered_at, status 
+                FROM users 
+                WHERE role = 'teacher'
+                ORDER BY id
+            """)
+            teachers_raw = cursor.fetchall()
+        else:
+            cursor.execute("""
+                SELECT id, first_name, last_name, email, registered_at, status 
+                FROM users 
+                WHERE role = 'teacher'
+                ORDER BY id
+            """)
+            teachers_raw = cursor.fetchall()
+        
+        conn.close()
+        
+        # Convert to list of dicts for consistent template access
+        teachers = []
+        for row in teachers_raw:
+            teachers.append({
+                'id': row['id'] if isinstance(row, dict) else row[0],
+                'first_name': row['first_name'] if isinstance(row, dict) else row[1],
+                'last_name': row['last_name'] if isinstance(row, dict) else row[2],
+                'email': row['email'] if isinstance(row, dict) else row[3],
+                'registered_at': row['registered_at'] if isinstance(row, dict) else row[4],
+                'status': row['status'] if isinstance(row, dict) else row[5]
+            })
+        
+        return render_template('print_teachers.html', teachers=teachers)
     
-    conn.close()
-
-    teachers_data = [
-        {
-            'id': row[0] if isinstance(row, tuple) else row['id'],
-            'first_name': row[1] if isinstance(row, tuple) else row['first_name'],
-            'last_name': row[2] if isinstance(row, tuple) else row['last_name'],
-            'email': row[3] if isinstance(row, tuple) else row['email'],
-            'registered_at': (row[4] if isinstance(row, tuple) else row['registered_at']) or 'N/A',
-            'status': (row[5] if isinstance(row, tuple) else row['status']) or 'inactive'
-        } for row in rows
-    ]
-
-    return render_template('print_teachers.html', teachers=teachers_data)
+    except Exception as e:
+        conn.close()
+        print(f"[ERROR] print_teachers error: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("Error loading teachers for printing.", "error")
+        return redirect(url_for('admin.teachers'))
 
 
 @admin_bp.route('/print-students')
@@ -421,23 +433,47 @@ def print_students():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    if db_config.is_production:
-        cursor.execute("""
-            SELECT id, first_name, last_name, email, registered_at, status 
-            FROM users 
-            WHERE role = 'student'
-        """)
-        students = cursor.fetchall()
-    else:
-        cursor.execute("""
-            SELECT id, first_name, last_name, email, registered_at, status 
-            FROM users 
-            WHERE role = 'student'
-        """)
-        students = cursor.fetchall()
+    try:
+        if db_config.is_production:
+            cursor.execute("""
+                SELECT id, first_name, last_name, email, registered_at, status 
+                FROM users 
+                WHERE role = 'student'
+                ORDER BY id
+            """)
+            students_raw = cursor.fetchall()
+        else:
+            cursor.execute("""
+                SELECT id, first_name, last_name, email, registered_at, status 
+                FROM users 
+                WHERE role = 'student'
+                ORDER BY id
+            """)
+            students_raw = cursor.fetchall()
+        
+        conn.close()
+        
+        # Convert to list of dicts for consistent template access
+        students = []
+        for row in students_raw:
+            students.append({
+                'id': row['id'] if isinstance(row, dict) else row[0],
+                'first_name': row['first_name'] if isinstance(row, dict) else row[1],
+                'last_name': row['last_name'] if isinstance(row, dict) else row[2],
+                'email': row['email'] if isinstance(row, dict) else row[3],
+                'registered_at': row['registered_at'] if isinstance(row, dict) else row[4],
+                'status': row['status'] if isinstance(row, dict) else row[5]
+            })
+        
+        return render_template('print_students.html', students=students)
     
-    conn.close()
-    return render_template('print_students.html', students=students)
+    except Exception as e:
+        conn.close()
+        print(f"[ERROR] print_students error: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("Error loading students for printing.", "error")
+        return redirect(url_for('admin.students'))
 
 
 @admin_bp.route('/account')

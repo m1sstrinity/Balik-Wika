@@ -49,12 +49,12 @@
     <tbody>
       {% for student in students %}
       <tr>
-        <td>{{ student[0] }}</td>
-        <td>{{ student[1] }}</td>
-        <td>{{ student[2] }}</td>
-        <td>{{ student[3] }}</td>
-        <td>{{ student[4] }}</td>
-        <td>{{ student[5] }}</td>
+        <td>{{ student.id or student['id'] }}</td>
+        <td>{{ student.first_name or student['first_name'] }}</td>
+        <td>{{ student.last_name or student['last_name'] }}</td>
+        <td>{{ student.email or student['email'] }}</td>
+        <td>{{ student.registered_at or student['registered_at'] }}</td>
+        <td>{{ student.status or student['status'] }}</td>
       </tr>
       {% endfor %}
     </tbody>
