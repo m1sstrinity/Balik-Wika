@@ -696,7 +696,7 @@ def reset_password():
             if user['reset_token_expiry']:
                 reset_token_expiry_raw = user['reset_token_expiry']
                 
-                # ✅ FIXED: Handle both string (SQLite) and datetime (PostgreSQL) formats
+                # Handle both string (SQLite) and datetime (PostgreSQL) formats
                 if isinstance(reset_token_expiry_raw, str):
                     reset_token_expiry = datetime.strptime(reset_token_expiry_raw, '%Y-%m-%d %H:%M:%S')
                 else:
@@ -716,11 +716,10 @@ def reset_password():
                 cursor.execute("""
                     UPDATE users 
                     SET password = %s, reset_token = NULL, reset_token_expiry = NULL, 
-                        otp = NULL, otp_expiry = NULL, is_temp_password = FALSE
+                        otp = NULL, otp_expiry = NULL, is_temp_password = 0
                     WHERE reset_token = %s
                 """, (password_hash, reset_token))
             else:
-                # ✅ FIXED: Use cursor.execute() instead of conn.execute()
                 cursor.execute("""
                     UPDATE users 
                     SET password = ?, reset_token = NULL, reset_token_expiry = NULL, 
