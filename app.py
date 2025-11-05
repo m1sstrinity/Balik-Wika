@@ -23,7 +23,7 @@ app.register_blueprint(landing_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(teacher_bp)
 
-# --- Helper Functions ---
+# --- Functions ---
 
 def validate_password(password):
     """Validate password meets all requirements"""
