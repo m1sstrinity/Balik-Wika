@@ -31,28 +31,31 @@ def index():
 
     if db_config.is_production:
         cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'student'")
-        total_students = cursor.fetchone()[0]
+        total_students = cursor.fetchone()['count']
 
         cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'teacher'")
-        total_teachers = cursor.fetchone()[0]
+        total_teachers = cursor.fetchone()['count']
 
         cursor.execute("SELECT COUNT(*) FROM users WHERE status = 'active' AND role = 'student'")
-        active_students = cursor.fetchone()[0]
+        active_students = cursor.fetchone()['count']
 
         cursor.execute("SELECT COUNT(*) FROM users WHERE status = 'active' AND role = 'teacher'")
-        active_teachers = cursor.fetchone()[0]
+        active_teachers = cursor.fetchone()['count']
 
         cursor.execute("SELECT COUNT(*) FROM users WHERE status = 'pending' AND role = 'student'")
-        pending_students = cursor.fetchone()[0]
+        pending_students = cursor.fetchone()['count']
 
         cursor.execute("SELECT COUNT(*) FROM users WHERE status = 'pending' AND role = 'teacher'")
-        pending_teachers = cursor.fetchone()[0]
+        pending_teachers = cursor.fetchone()['count']
 
         cursor.execute("SELECT DATE(registered_at), COUNT(*) FROM users WHERE role = 'student' GROUP BY DATE(registered_at)")
-        student_dates = dict(cursor.fetchall())
+        student_dates_rows = cursor.fetchall()
+        student_dates = {row['date']: row['count'] for row in student_dates_rows}
 
         cursor.execute("SELECT DATE(registered_at), COUNT(*) FROM users WHERE role = 'teacher' GROUP BY DATE(registered_at)")
-        teacher_dates = dict(cursor.fetchall())
+        teacher_dates_rows = cursor.fetchall()
+        teacher_dates = {row['date']: row['count'] for row in teacher_dates_rows}
+
     else:
         cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'student'")
         total_students = cursor.fetchone()[0]
@@ -90,7 +93,7 @@ def index():
 
     registration_data = [
         {
-            "date": date,
+            "date": str(date),
             "users": student_dates.get(date, 0),
             "teachers": teacher_dates.get(date, 0)
         }
@@ -576,6 +579,7 @@ def prc():
 
 @admin_bp.route('/logout')
 def logout():
-    session.pop('admin_id', None)
+    session.pop('user_id', None)
+    session.pop('user_role', None)
     flash("Admin successfully logged out.", "info")
     return redirect(url_for('login'))
