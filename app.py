@@ -194,41 +194,61 @@ def verify_otp():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        if db_config.is_production:
-            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-            user = cursor.fetchone()
-        else:
-            user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+        try:
+            if db_config.is_production:
+                cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+                user = cursor.fetchone()
+            else:
+                user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
 
-        if not user:
+            if not user:
+                cursor.close()  # ✅ ADDED
+                conn.close()
+                flash("Walang user na may email na iyon.", "error")
+                return redirect(url_for('signup'))
+
+            db_otp = user['otp']
+            otp_expiry_raw = user['otp_expiry']
+            
+            # ✅ FIXED: Handle both string (SQLite) and datetime (PostgreSQL) formats
+            if isinstance(otp_expiry_raw, str):
+                otp_expiry = datetime.strptime(otp_expiry_raw, '%Y-%m-%d %H:%M:%S')
+            else:
+                otp_expiry = otp_expiry_raw  # Already a datetime object
+
+            if datetime.now() > otp_expiry:
+                cursor.close()  # ✅ ADDED
+                conn.close()
+                flash("Nag-expire na ang OTP. I-send ulit.", "error")
+                return redirect(url_for('verify_otp'))
+
+            if user_input_otp != db_otp:
+                cursor.close()  # ✅ ADDED
+                conn.close()
+                flash("Maling OTP. Pakisubukang muli.", "error")
+                return redirect(url_for('verify_otp'))
+
+            # Mark user as verified
+            if db_config.is_production:
+                cursor.execute("UPDATE users SET is_verified = 1 WHERE email = %s", (email,))
+            else:
+                cursor.execute("UPDATE users SET is_verified = 1 WHERE email = ?", (email,))  # ✅ FIXED: Use cursor instead of conn
+            
+            conn.commit()
+            cursor.close()  # ✅ ADDED
             conn.close()
-            flash("Walang user na may email na iyon.", "error")
-            return redirect(url_for('signup'))
 
-        db_otp = user['otp']
-        otp_expiry = datetime.strptime(user['otp_expiry'], '%Y-%m-%d %H:%M:%S')
-
-        if datetime.now() > otp_expiry:
-            conn.close()
-            flash("Nag-expire na ang OTP. I-send ulit.", "error")
-            return redirect(url_for('verify_otp'))
-
-        if user_input_otp != db_otp:
-            conn.close()
-            flash("Maling OTP. Pakisubukang muli.", "error")
-            return redirect(url_for('verify_otp'))
-
-        # Mark user as verified
-        if db_config.is_production:
-            cursor.execute("UPDATE users SET is_verified = 1 WHERE email = %s", (email,))
-        else:
-            conn.execute("UPDATE users SET is_verified = 1 WHERE email = ?", (email,))
+            flash("Matagumpay ang pagrerehistro! Maaari ka nang mag-login.", "success")
+            return redirect(url_for('login'))
         
-        conn.commit()
-        conn.close()
-
-        flash("Matagumpay ang pagrerehistro! Maaari ka nang mag-login.", "success")
-        return redirect(url_for('login'))
+        except Exception as e:  # ✅ ADDED
+            cursor.close()
+            conn.close()
+            print(f"[ERROR] verify_otp error: {e}")
+            import traceback
+            traceback.print_exc()
+            flash("May error na nangyari. Pakisubukang muli.", "error")
+            return redirect(url_for('signup'))
 
     return render_template('verify_otp.html')
 
@@ -246,23 +266,62 @@ def resend_otp():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    if db_config.is_production:
-        cursor.execute("UPDATE users SET otp = %s, otp_expiry = %s WHERE email = %s", (otp, otp_expiry, email))
-    else:
-        conn.execute("UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?", (otp, otp_expiry, email))
-    
-    conn.commit()
-    conn.close()
-
-    # Send email
-    msg = Message('Your New OTP Code', sender=app.config['MAIL_USERNAME'], recipients=[email])
-    msg.body = f"Your new OTP code is: {otp}. It will expire in 1 minute."
-
     try:
-        mail.send(msg)
-        flash("Naipadala muli ang OTP!", "success")
+        if db_config.is_production:
+            cursor.execute("UPDATE users SET otp = %s, otp_expiry = %s WHERE email = %s", 
+                          (otp, otp_expiry, email))
+        else:
+            cursor.execute("UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?", 
+                          (otp, otp_expiry, email))  # ✅ FIXED: Use cursor
+        
+        conn.commit()
+        cursor.close()  # ✅ ADDED
+        conn.close()
+        
+        print(f"[DEBUG] Resending OTP to {email}: {otp} (expires at {otp_expiry})")
+        
+        # ✅ FIXED: Send email via SendGrid (not Flask-Mail)
+        message = Mail(
+            from_email='rosales_trinitycamille@plpasig.edu.ph',
+            to_emails=email,
+            subject='Your New OTP Code - BalikWika',
+            html_content=f"""
+            <html>
+                <body style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2>New OTP Request</h2>
+                    <p>Hello!</p>
+                    <p>You requested a new OTP code for your BalikWika account.</p>
+                    <p style="font-size: 18px; font-weight: bold; color: #ef4444;">
+                        Your new OTP code is: {otp}
+                    </p>
+                    <p>This code is valid for 1 minute.</p>
+                    <p>If you did not request this code, you can ignore this email.</p>
+                    <br>
+                    <p>Salamat!<br>— The Balik-Wika Team</p>
+                </body>
+            </html>
+            """
+        )
+        
+        try:
+            print(f"[DEBUG] Attempting to resend OTP via SendGrid to {email}")
+            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            response = sg.send(message)
+            print(f"[SUCCESS] OTP resent via SendGrid. Status: {response.status_code}")
+            flash("Naipadala muli ang OTP sa inyong email!", "success")
+        except Exception as e:
+            print(f"[ERROR] Failed to resend OTP email: {e}")
+            import traceback
+            traceback.print_exc()
+            flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
+    
     except Exception as e:
-        flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
+        cursor.close()
+        conn.close()
+        print(f"[ERROR] Database error in resend_otp: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("May error na nangyari. Pakisubukang muli.", "error")
 
     return redirect(url_for('verify_otp'))
 
@@ -540,7 +599,13 @@ def verify_reset_otp():
                 return redirect(url_for('forgot_password'))
             
             db_otp = user['otp']
-            otp_expiry = datetime.strptime(user['otp_expiry'], '%Y-%m-%d %H:%M:%S')
+            otp_expiry_raw = user['otp_expiry']
+            
+            # Handle both string (SQLite) and datetime (PostgreSQL) formats
+            if isinstance(otp_expiry_raw, str):
+                otp_expiry = datetime.strptime(otp_expiry_raw, '%Y-%m-%d %H:%M:%S')
+            else:
+                otp_expiry = otp_expiry_raw  # Already a datetime object
             
             if datetime.now() > otp_expiry:
                 cursor.close()
@@ -676,44 +741,70 @@ def resend_reset_otp():
     if not email:
         return redirect(url_for('forgot_password'))
     
-    # Generate new OTP and update in DB
+    # Generate new OTP
     otp = ''.join(random.choices(string.digits, k=6))
-    # PostgreSQL handles datetime objects directly
-    otp_expiry = datetime.now() + timedelta(minutes=10)
+    otp_expiry = (datetime.now() + timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')
     
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Changed ? to %s and pass datetime object directly
-    cursor.execute("UPDATE users SET otp = %s, otp_expiry = %s WHERE email = %s", 
-                   (otp, otp_expiry, email))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    print(f"[DEBUG] New password reset OTP for {email}: {otp} (expires at {otp_expiry})")
-    
-    # Send email
-    msg = Message('New Password Reset OTP - BalikWika', sender=app.config['MAIL_USERNAME'], recipients=[email])
-    msg.body = f"""
-Kumusta!
-
-Narito ang bagong OTP code para sa password reset:
-
-{otp}
-
-Ang OTP na ito ay mag-expire sa loob ng 10 minuto.
-
-Salamat,
-BalikWika Team
-    """
-    
     try:
-        mail.send(msg)
-        flash("Naipadala muli ang OTP sa inyong email!", "success")
+        # ✅ FIXED: Added database conditionals for both PostgreSQL and SQLite
+        if db_config.is_production:
+            cursor.execute("UPDATE users SET otp = %s, otp_expiry = %s WHERE email = %s", 
+                          (otp, otp_expiry, email))
+        else:
+            cursor.execute("UPDATE users SET otp = ?, otp_expiry = ? WHERE email = ?", 
+                          (otp, otp_expiry, email))
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        print(f"[DEBUG] Resending password reset OTP to {email}: {otp} (expires at {otp_expiry})")
+        
+        # ✅ FIXED: Send OTP email via SendGrid (not Flask-Mail)
+        message = Mail(
+            from_email='rosales_trinitycamille@plpasig.edu.ph',
+            to_emails=email,
+            subject='New Password Reset OTP - BalikWika',
+            html_content=f"""
+            <html>
+                <body style="font-family: Arial, sans-serif; padding: 20px;">
+                    <h2>New Password Reset OTP</h2>
+                    <p>Kumusta!</p>
+                    <p>Nakatanggap kami ng request para sa bagong OTP code para sa password reset.</p>
+                    <p style="font-size: 18px; font-weight: bold; color: #ef4444;">
+                        Ang inyong bagong OTP code ay: {otp}
+                    </p>
+                    <p>Ang OTP na ito ay mag-expire sa loob ng 10 minuto.</p>
+                    <p>Kung hindi kayo nag-request ng password reset, pakiignore lang ang email na ito.</p>
+                    <br>
+                    <p>Salamat,<br>BalikWika Team</p>
+                </body>
+            </html>
+            """
+        )
+        
+        try:
+            print(f"[DEBUG] Attempting to resend password reset OTP via SendGrid to {email}")
+            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            response = sg.send(message)
+            print(f"[SUCCESS] Password reset OTP resent via SendGrid. Status: {response.status_code}")
+            flash("Naipadala muli ang OTP sa inyong email!", "success")
+        except Exception as e:
+            print(f"[ERROR] Failed to resend password reset OTP via SendGrid: {e}")
+            import traceback
+            traceback.print_exc()
+            flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
+    
     except Exception as e:
-        print(f"[ERROR] Failed to resend password reset OTP: {e}")
-        flash("Hindi naipadala ang OTP. Pakisubukang muli.", "error")
+        cursor.close()
+        conn.close()
+        print(f"[ERROR] Database error in resend_reset_otp: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("May error na nangyari. Pakisubukang muli.", "error")
     
     return redirect(url_for('verify_reset_otp'))
 
