@@ -1136,30 +1136,47 @@ def change_password_ajax():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Changed ? to %s for PostgreSQL
-    cursor.execute('SELECT password FROM users WHERE id = %s', (user_id,))
-    user = cursor.fetchone()
-    
-    if not user or not check_password_hash(user['password'], current_password):
-        cursor.close()
-        conn.close()
-        return jsonify({'success': False, 'message': 'Current password is incorrect'})
-    
-    # Update password
     try:
+        # ✅ FIXED: Added database conditionals
+        if db_config.is_production:
+            cursor.execute('SELECT password FROM users WHERE id = %s', (user_id,))
+            user = cursor.fetchone()
+        else:
+            user = conn.execute('SELECT password FROM users WHERE id = ?', (user_id,)).fetchone()
+        
+        if not user or not check_password_hash(user['password'], current_password):
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Current password is incorrect'})
+        
+        # Update password
         hashed_password = generate_password_hash(new_password)
-        # Changed ? to %s and 0 to FALSE for PostgreSQL
-        cursor.execute(
-            'UPDATE users SET password = %s, is_temp_password = FALSE WHERE id = %s',
-            (hashed_password, user_id)
-        )
+        
+        # ✅ FIXED: Added database conditionals + Changed FALSE to 0
+        if db_config.is_production:
+            cursor.execute(
+                'UPDATE users SET password = %s, is_temp_password = 0 WHERE id = %s',
+                (hashed_password, user_id)
+            )
+        else:
+            cursor.execute(
+                'UPDATE users SET password = ?, is_temp_password = 0 WHERE id = ?',
+                (hashed_password, user_id)
+            )
+        
         conn.commit()
         cursor.close()
         conn.close()
+        
+        print(f"[SUCCESS] Password changed successfully for user {user_id}")
         return jsonify({'success': True, 'message': 'Password changed successfully'})
+        
     except Exception as e:
         cursor.close()
         conn.close()
+        print(f"[ERROR] Failed to change password for user {user_id}: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'message': 'Failed to change password'})
 
 # Add this new route for profile picture upload
