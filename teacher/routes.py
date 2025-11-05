@@ -506,7 +506,7 @@ def kasanayan_mag_aral():
         
         # Pass data to template
         return render_template(
-            'kasanayan_mag_aaral.html',
+            'teacher_kasanayan.html',
             user=user,
             students=students_data,
             summary=summary,
