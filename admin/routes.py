@@ -238,7 +238,7 @@ def update_status():
     new_status = data.get('status', '').lower()
     user_type = data.get('type')  # 'student' or 'teacher'
 
-    if new_status not in ['active', 'inactive'] or not user_id or user_type not in ['student', 'teacher']:
+    if new_status not in ['active', 'inactive', 'pending'] or not user_id or user_type not in ['student', 'teacher']:
         return jsonify({'message': 'Invalid input'}), 400
 
     try:
@@ -335,10 +335,10 @@ def teachers():
 
     # GET: Display existing teachers
     if db_config.is_production:
-        cursor.execute("SELECT id, email, first_name, last_name, registered_at, status FROM users WHERE role = 'teacher'")
+        cursor.execute("SELECT id, email, first_name, last_name, registered_at, status FROM users WHERE role = 'teacher' ORDER BY id")
         rows = cursor.fetchall()
     else:
-        cursor.execute("SELECT id, email, first_name, last_name, registered_at, status FROM users WHERE role = 'teacher'")
+        cursor.execute("SELECT id, email, first_name, last_name, registered_at, status FROM users WHERE role = 'teacher' ORDER BY id")
         rows = cursor.fetchall()
     
     conn.close()
@@ -350,7 +350,7 @@ def teachers():
             'first_name': (row[2] if isinstance(row, tuple) else row['first_name']) or '',
             'last_name': (row[3] if isinstance(row, tuple) else row['last_name']) or '',
             'registered_at': (row[4] if isinstance(row, tuple) else row['registered_at']) or 'N/A',
-            'status': (row[5] if isinstance(row, tuple) else row['status']) or 'pending'
+            'status': (row[5] if isinstance(row, tuple) else row['status']) or 'pending'  
         } for row in rows
     ]
 
