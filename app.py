@@ -677,61 +677,76 @@ def reset_password():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # STEP 1: Get user with reset_token
-        if db_config.is_production:
-            cursor.execute("SELECT * FROM users WHERE reset_token = %s", (reset_token,))
-            user = cursor.fetchone()
-        else:
-            user = conn.execute("SELECT * FROM users WHERE reset_token = ?", (reset_token,)).fetchone()
-        
-        # Check if user exists
-        if not user:
-            cursor.close()
-            conn.close()
-            flash("Invalid reset token.", "error")
-            return redirect(url_for('forgot_password'))
-        
-        # STEP 2: Check if reset token has expired
-        if user['reset_token_expiry']:
-            reset_token_expiry = user['reset_token_expiry']
-            if isinstance(reset_token_expiry, str):
-                reset_token_expiry = datetime.strptime(reset_token_expiry, '%Y-%m-%d %H:%M:%S')
+        try:
+            # STEP 1: Get user with reset_token
+            if db_config.is_production:
+                cursor.execute("SELECT * FROM users WHERE reset_token = %s", (reset_token,))
+                user = cursor.fetchone()
+            else:
+                user = conn.execute("SELECT * FROM users WHERE reset_token = ?", (reset_token,)).fetchone()
             
-            if datetime.now() > reset_token_expiry:
+            # Check if user exists
+            if not user:
                 cursor.close()
                 conn.close()
-                flash("Nag-expire na ang reset token. Pakisubukang muli.", "error")
+                flash("Invalid reset token.", "error")
                 return redirect(url_for('forgot_password'))
+            
+            # STEP 2: Check if reset token has expired
+            if user['reset_token_expiry']:
+                reset_token_expiry_raw = user['reset_token_expiry']
+                
+                # ✅ FIXED: Handle both string (SQLite) and datetime (PostgreSQL) formats
+                if isinstance(reset_token_expiry_raw, str):
+                    reset_token_expiry = datetime.strptime(reset_token_expiry_raw, '%Y-%m-%d %H:%M:%S')
+                else:
+                    reset_token_expiry = reset_token_expiry_raw  # Already a datetime object
+                
+                if datetime.now() > reset_token_expiry:
+                    cursor.close()
+                    conn.close()
+                    flash("Nag-expire na ang reset token. Pakisubukang muli.", "error")
+                    return redirect(url_for('forgot_password'))
+            
+            # STEP 3: Hash the new password
+            password_hash = generate_password_hash(new_password)
+            
+            # STEP 4: Update password and clear reset token
+            if db_config.is_production:
+                cursor.execute("""
+                    UPDATE users 
+                    SET password = %s, reset_token = NULL, reset_token_expiry = NULL, 
+                        otp = NULL, otp_expiry = NULL, is_temp_password = FALSE
+                    WHERE reset_token = %s
+                """, (password_hash, reset_token))
+            else:
+                # ✅ FIXED: Use cursor.execute() instead of conn.execute()
+                cursor.execute("""
+                    UPDATE users 
+                    SET password = ?, reset_token = NULL, reset_token_expiry = NULL, 
+                        otp = NULL, otp_expiry = NULL, is_temp_password = 0
+                    WHERE reset_token = ?
+                """, (password_hash, reset_token))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            # Clear session
+            session.pop('reset_token', None)
+            session.pop('reset_email', None)
+            
+            flash("Matagumpay na na-reset ang password! Maaari na kayong mag-login.", "success")
+            return redirect(url_for('login'))
         
-        # STEP 3: Hash the new password
-        password_hash = generate_password_hash(new_password)
-        
-        # STEP 4: Update password and clear reset token
-        if db_config.is_production:
-            cursor.execute("""
-                UPDATE users 
-                SET password = %s, reset_token = NULL, reset_token_expiry = NULL, 
-                    otp = NULL, otp_expiry = NULL, is_temp_password = FALSE
-                WHERE reset_token = %s
-            """, (password_hash, reset_token))
-        else:
-            conn.execute("""
-                UPDATE users 
-                SET password = ?, reset_token = NULL, reset_token_expiry = NULL, 
-                    otp = NULL, otp_expiry = NULL, is_temp_password = 0
-                WHERE reset_token = ?
-            """, (password_hash, reset_token))
-        
-        conn.commit()
-        cursor.close()
-        conn.close()
-        
-        # Clear session
-        session.pop('reset_token', None)
-        session.pop('reset_email', None)
-        
-        flash("Matagumpay na na-reset ang password! Maaari na kayong mag-login.", "success")
-        return redirect(url_for('login'))
+        except Exception as e:
+            cursor.close()
+            conn.close()
+            print(f"[ERROR] reset_password error: {e}")
+            import traceback
+            traceback.print_exc()
+            flash("May error na nangyari. Pakisubukang muli.", "error")
+            return redirect(url_for('forgot_password'))
     
     return render_template('reset_password.html')
 
