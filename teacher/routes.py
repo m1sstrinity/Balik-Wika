@@ -494,18 +494,19 @@ def kasanayan_mag_aral():
         teacher_name = user['first_name'] if user['first_name'] else "Guro"
         
         # ML CLASSIFICATION: Get all students with their mastery levels
-        print("Running ML classification...")
+        print("[DEBUG] Running ML classification...")
         students_data = get_all_students_with_classification(conn)
         summary = get_classification_summary(conn)
-        print(f"Classified {len(students_data)} students")
-        print(f"Summary: {summary}")
+        print(f"[DEBUG] Classified {len(students_data)} students")
+        print(f"[DEBUG] Summary: {summary}")
+        print(f"[DEBUG] First student (if any): {students_data[0] if students_data else 'No students'}")
         
         cursor.close()
         conn.close()
         
         # Pass data to template
         return render_template(
-            'teacher_kasanayan',
+            'kasanayan_mag_aaral.html',
             user=user,
             students=students_data,
             summary=summary,

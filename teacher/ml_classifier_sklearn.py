@@ -24,7 +24,7 @@ def ensure_mastery_level_column(db_connection):
     """
     Check if mastery_level column exists, if not, add it.
     """
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
     try:
         # Try to query mastery_level
@@ -151,7 +151,7 @@ def train_model_with_data(db_connection):
     """
     global ml_model, scaler
     
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
     # Get all students with quiz data
     cursor.execute("""
@@ -251,7 +251,7 @@ def calculate_student_metrics(user_id, db_connection):
     Returns:
         dict: Dictionary containing all calculated metrics
     """
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
     # Get all quiz attempts for this student (using quiz_attempts table)
     query = """
@@ -392,7 +392,7 @@ def update_user_mastery_level(user_id, mastery_level, db_connection):
         mastery_level (str): New mastery level
         db_connection: PostgreSQL database connection
     """
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
     cursor.execute("""
         UPDATE users
@@ -413,7 +413,7 @@ def update_student_metrics(user_id, metrics, db_connection):
         metrics (dict): Dictionary of calculated metrics
         db_connection: PostgreSQL database connection
     """
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
     # Check if student_metrics table exists
     cursor.execute("""
@@ -508,7 +508,7 @@ def get_all_students_with_classification(db_connection):
     # ✅ FIRST: Ensure mastery_level column exists
     ensure_mastery_level_column(db_connection)
     
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
     # Get all students
     cursor.execute("""
@@ -584,7 +584,7 @@ def get_classification_summary(db_connection):
         dict: Counts for each level
     """
     ensure_mastery_level_column(db_connection)
-    cursor = db_connection.cursor()
+    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
     cursor.execute("""
         SELECT COUNT(*) as count FROM users 
