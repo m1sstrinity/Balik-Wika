@@ -584,7 +584,7 @@ nav a:hover::after {
 
   .box {
     width: 95%;
-    max-width: 500px; /* make it visibly larger on mobile */
+    max-width: 900px; /* make it visibly larger on mobile */
     padding: 30px 25px;
     border-radius: 12px;
     text-align: center;
