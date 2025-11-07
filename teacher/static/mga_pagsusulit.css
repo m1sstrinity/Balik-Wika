@@ -1400,26 +1400,27 @@ body {
 /* Quiz card action buttons container */
 .quiz-card-actions {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  bottom: 15px;  /* Changed from top to bottom */
+  right: 15px;
   display: flex;
-  gap: 5px;
+  gap: 8px;
   z-index: 10;
 }
 
-/* Small icon buttons for quiz cards */
+/* Make buttons slightly larger at the bottom */
 .btn-icon-small {
   background: #f39c12;
   color: white;
   border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
+  border-radius: 8px;
+  padding: 8px 16px;  /* Increased padding */
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;  /* Slightly larger font */
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   font-family: 'Instrument Serif', serif;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
