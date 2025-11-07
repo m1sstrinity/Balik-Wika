@@ -910,22 +910,32 @@
 
         @media (max-width: 768px) {
             body {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                flex-direction: row;
-                overflow-x: auto;
-                padding: 15px;
-                gap: 8px;
-            }
-            
-            .nav-item {
-                padding: 12px 16px;
-                font-size: 14px;
-                white-space: nowrap;
-            }
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 10px;
+        gap: 8px;
+    }
+    
+    .logo {
+        margin-bottom: 0;
+        padding: 10px;
+    }
+    
+    .logo img {
+        width: 120px;
+        height: 60px;
+    }
+    
+    .nav-item {
+        min-width: 120px;
+        padding: 12px 16px;
+        font-size: 14px;
+    }
             
             .main-content {
                 padding: 20px;
