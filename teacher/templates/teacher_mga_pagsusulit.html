@@ -842,13 +842,19 @@ function saveQuizTitleEdit(quizId) {
     return;
   }
   
-  fetch(`/teacher/api/update_quiz/${quizId}`, {
+  console.log('Sending update request:', { quizId, newTitle, newMasteryLevel }); // DEBUG
+  
+  fetch(`/teacher/update_quiz/${quizId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title: newTitle, mastery_level: newMasteryLevel })
   })
-  .then(res => res.json())
+  .then(res => {
+    console.log('Response status:', res.status); // DEBUG
+    return res.json();
+  })
   .then(data => {
+    console.log('Response data:', data); // DEBUG
     if (data.success) {
       closeEditQuizTitleModal();
       loadQuizzesByMastery();
@@ -859,8 +865,8 @@ function saveQuizTitleEdit(quizId) {
     }
   })
   .catch(err => {
-    console.error('Error:', err);
-    errorDiv.textContent = 'Error updating quiz';
+    console.error('Fetch error:', err); // DEBUG
+    errorDiv.textContent = 'Error updating quiz: ' + err.message;
     errorDiv.style.display = 'block';
   });
 }
