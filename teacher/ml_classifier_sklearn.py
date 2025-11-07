@@ -258,7 +258,7 @@ def calculate_student_metrics(user_id, db_connection):
         SELECT score, attempted_timestamp
         FROM quiz_attempts
         WHERE user_id = %s
-        ORDER BY attempted_at DESC
+        ORDER BY attempted_timestamp DESC
     """
     
     cursor.execute(query, (user_id,))
