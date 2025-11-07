@@ -29,14 +29,26 @@ def ensure_mastery_level_column(db_connection):
     try:
         # Try to query mastery_level
         cursor.execute("SELECT mastery_level FROM users LIMIT 1")
+        cursor.close()  # ✅ ADD THIS - Close the cursor after successful check
+        
     except psycopg2.errors.UndefinedColumn:
         # Column doesn't exist, add it
         print("⚠️ mastery_level column missing, adding it now...")
         db_connection.rollback()  # Clear the error state
+        
+        # ✅ Get a NEW cursor after rollback
+        cursor.close()  # Close the old cursor
+        cursor = db_connection.cursor(cursor_factory=RealDictCursor)
+        
         cursor.execute("ALTER TABLE users ADD COLUMN mastery_level TEXT DEFAULT 'Beginner'")
         db_connection.commit()
         print("✅ mastery_level column added successfully!")
-    finally:
+        cursor.close()
+        
+    except Exception as e:
+        # ✅ Handle any other errors
+        print(f"Error checking mastery_level column: {e}")
+        db_connection.rollback()
         cursor.close()
 
 
