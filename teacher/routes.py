@@ -1435,6 +1435,7 @@ def update_quiz(quiz_id):
     cursor = conn.cursor()
 
     try:
+        # Check if quiz exists
         cursor.execute('SELECT id FROM quizzes WHERE id = %s', (quiz_id,))
         quiz = cursor.fetchone()
 
@@ -1443,7 +1444,11 @@ def update_quiz(quiz_id):
             conn.close()
             return jsonify({'success': False, 'message': 'Quiz not found'}), 404
 
-        cursor.execute('SELECT id FROM quizzes WHERE title = %s AND id != %s', (new_title, quiz_id))
+        # IMPORTANT: Check if new title already exists (EXCLUDING current quiz)
+        cursor.execute(
+            'SELECT id FROM quizzes WHERE title = %s AND id != %s',  # <- This line is critical!
+            (new_title, quiz_id)
+        )
         existing = cursor.fetchone()
 
         if existing:
@@ -1451,10 +1456,17 @@ def update_quiz(quiz_id):
             conn.close()
             return jsonify({'success': False, 'message': 'Quiz title already exists'}), 409
 
+        # Update the quiz
         if new_mastery_level:
-            cursor.execute('UPDATE quizzes SET title = %s, mastery_level = %s WHERE id = %s', (new_title, new_mastery_level, quiz_id))
+            cursor.execute(
+                'UPDATE quizzes SET title = %s, mastery_level = %s WHERE id = %s', 
+                (new_title, new_mastery_level, quiz_id)
+            )
         else:
-            cursor.execute('UPDATE quizzes SET title = %s WHERE id = %s', (new_title, quiz_id))
+            cursor.execute(
+                'UPDATE quizzes SET title = %s WHERE id = %s', 
+                (new_title, quiz_id)
+            )
         
         conn.commit()
         cursor.close()
