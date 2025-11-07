@@ -1436,7 +1436,7 @@ def update_quiz(quiz_id):
 
     try:
         # Check if quiz exists
-        cursor.execute('SELECT id FROM quizzes WHERE id = %s', (quiz_id,))
+        cursor.execute('SELECT title FROM quizzes WHERE id = %s', (quiz_id,))
         quiz = cursor.fetchone()
 
         if not quiz:
@@ -1444,17 +1444,20 @@ def update_quiz(quiz_id):
             conn.close()
             return jsonify({'success': False, 'message': 'Quiz not found'}), 404
 
-        # IMPORTANT: Check if new title already exists (EXCLUDING current quiz)
-        cursor.execute(
-            'SELECT id FROM quizzes WHERE title = %s AND id != %s',  # <- This line is critical!
-            (new_title, quiz_id)
-        )
-        existing = cursor.fetchone()
+        current_title = quiz[0]
+        
+        # Only check for duplicate if title is actually changing
+        if new_title.lower() != current_title.lower():
+            cursor.execute(
+                'SELECT id FROM quizzes WHERE LOWER(title) = LOWER(%s) AND id != %s',
+                (new_title, quiz_id)
+            )
+            existing = cursor.fetchone()
 
-        if existing:
-            cursor.close()
-            conn.close()
-            return jsonify({'success': False, 'message': 'Quiz title already exists'}), 409
+            if existing:
+                cursor.close()
+                conn.close()
+                return jsonify({'success': False, 'message': 'Quiz title already exists'}), 409
 
         # Update the quiz
         if new_mastery_level:
