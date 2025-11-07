@@ -466,14 +466,32 @@ function displayQuizzesForLevel(level) {
   };
   
   grid.innerHTML = quizzes.map(quiz => `
-    <div class="quiz-card ${quiz.mastery_level}" onclick="openQuizDetails(${quiz.id}, '${quiz.title}')">
+    <div class="quiz-card ${quiz.mastery_level}">
       <span class="level-badge ${quiz.mastery_level}">
         ${levelEmojis[quiz.mastery_level]} ${levelNames[quiz.mastery_level]}
       </span>
-      <h3 style="margin-bottom: 10px; padding-right: 100px;">${quiz.title}</h3>
-      <div style="display: flex; align-items: center; gap: 15px; color: #666; font-size: 14px;">
-        <span><i class="fas fa-question-circle"></i> ${quiz.question_count} tanong</span>
-        <span><i class="fas fa-calendar"></i> ${new Date(quiz.created_at).toLocaleDateString('tl-PH')}</span>
+      
+      <div class="quiz-card-actions" style="position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; z-index: 10;">
+        <button onclick="event.stopPropagation(); editQuizTitle(${quiz.id}, '${quiz.title.replace(/'/g, "\\'")}', '${quiz.mastery_level}')" 
+                class="btn-icon-small" 
+                title="Edit Quiz"
+                style="background: #f39c12; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 12px;">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button onclick="event.stopPropagation(); deleteQuizConfirm(${quiz.id}, '${quiz.title.replace(/'/g, "\\'")}')" 
+                class="btn-icon-small" 
+                title="Delete Quiz"
+                style="background: #e74c3c; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 12px;">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+      
+      <div onclick="openQuizDetails(${quiz.id}, '${quiz.title}')" style="cursor: pointer; padding-top: 10px;">
+        <h3 style="margin-bottom: 10px; padding-right: 100px;">${quiz.title}</h3>
+        <div style="display: flex; align-items: center; gap: 15px; color: #666; font-size: 14px;">
+          <span><i class="fas fa-question-circle"></i> ${quiz.question_count} tanong</span>
+          <span><i class="fas fa-calendar"></i> ${new Date(quiz.created_at).toLocaleDateString('tl-PH')}</span>
+        </div>
       </div>
     </div>
   `).join('');
@@ -749,6 +767,128 @@ function editQuestion(questionId) {
 function closeEditQuestionModal() {
   document.getElementById('editQuestionModal').style.display = 'none';
 }
+
+function editQuizTitle(quizId, currentTitle, currentMasteryLevel) {
+  const modalHTML = `
+    <div id="editQuizTitleModal" class="modal" style="display: block;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">I-edit ang Pagsusulit</h2>
+          <span class="modal-close" onclick="closeEditQuizTitleModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <label>Titulo ng Pagsusulit:</label>
+          <input type="text" id="editQuizTitleInput" value="${currentTitle}" 
+                 style="width:100%; padding:12px; margin-bottom:20px; font-size:16px; border:2px solid #3498db; border-radius:8px;" />
+          
+          <div class="mastery-level-selector">
+            <label><i class="fas fa-layer-group"></i> Antas ng Kahusayan:</label>
+            <div class="mastery-level-options">
+              <label class="mastery-option baguhan ${currentMasteryLevel === 'baguhan' ? 'selected' : ''}">
+                <input type="radio" name="edit_mastery_level" value="baguhan" ${currentMasteryLevel === 'baguhan' ? 'checked' : ''} />
+                <div class="option-icon">🌱</div>
+                <div class="option-title">Baguhan</div>
+              </label>
+              <label class="mastery-option katamtaman ${currentMasteryLevel === 'katamtaman' ? 'selected' : ''}">
+                <input type="radio" name="edit_mastery_level" value="katamtaman" ${currentMasteryLevel === 'katamtaman' ? 'checked' : ''} />
+                <div class="option-icon">📚</div>
+                <div class="option-title">Katamtaman</div>
+              </label>
+              <label class="mastery-option dalubhasa ${currentMasteryLevel === 'dalubhasa' ? 'selected' : ''}">
+                <input type="radio" name="edit_mastery_level" value="dalubhasa" ${currentMasteryLevel === 'dalubhasa' ? 'checked' : ''} />
+                <div class="option-icon">🏆</div>
+                <div class="option-title">Dalubhasa</div>
+              </label>
+            </div>
+          </div>
+          
+          <div id="editQuizError" style="color: red; margin-top: 10px; display: none;"></div>
+        </div>
+        <div class="modal-body-buttons">
+          <button class="cancel-btn" onclick="closeEditQuizTitleModal()">Kanselahin</button>
+          <button class="add-btn" onclick="saveQuizTitleEdit(${quizId})"><i class="fas fa-save"></i> I-update</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  const existingModal = document.getElementById('editQuizTitleModal');
+  if (existingModal) existingModal.remove();
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  document.querySelectorAll('#editQuizTitleModal .mastery-option').forEach(option => {
+    option.addEventListener('click', function() {
+      document.querySelectorAll('#editQuizTitleModal .mastery-option').forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      this.querySelector('input[type="radio"]').checked = true;
+    });
+  });
+}
+
+function closeEditQuizTitleModal() {
+  const modal = document.getElementById('editQuizTitleModal');
+  if (modal) modal.remove();
+}
+
+function saveQuizTitleEdit(quizId) {
+  const newTitle = document.getElementById('editQuizTitleInput').value.trim();
+  const newMasteryLevel = document.querySelector('input[name="edit_mastery_level"]:checked').value;
+  const errorDiv = document.getElementById('editQuizError');
+  
+  if (!newTitle) {
+    errorDiv.textContent = 'Pakiusap ilagay ang titulo ng pagsusulit.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+  
+  fetch(`/teacher/update_quiz/${quizId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: newTitle, mastery_level: newMasteryLevel })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      closeEditQuizTitleModal();
+      loadQuizzesByMastery();
+      alert('Matagumpay na na-update ang pagsusulit!');
+    } else {
+      errorDiv.textContent = data.message || 'Error updating quiz';
+      errorDiv.style.display = 'block';
+    }
+  })
+  .catch(err => {
+    console.error('Error:', err);
+    errorDiv.textContent = 'Error updating quiz';
+    errorDiv.style.display = 'block';
+  });
+}
+
+function deleteQuizConfirm(quizId, quizTitle) {
+  showConfirmDelete(
+    `Sigurado ka bang gusto mong burahin ang pagsusulit na "${quizTitle}"?\n\nKasama nito ang lahat ng tanong.\n\nHindi na ito mababalik!`,
+    () => deleteQuizNow(quizId)
+  );
+}
+
+function deleteQuizNow(quizId) {
+  fetch(`/teacher/delete_quiz/${quizId}`, { method: 'DELETE' })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      loadQuizzesByMastery();
+      alert('Matagumpay na nabura ang pagsusulit!');
+    } else {
+      alert(data.message || 'Error deleting quiz');
+    }
+  })
+  .catch(err => {
+    console.error('Error:', err);
+    alert('Error deleting quiz');
+  });
+}
+
 
 function saveEditedQuestion() {
   const questionId = document.getElementById('edit-question-id').value;

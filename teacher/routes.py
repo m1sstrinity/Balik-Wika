@@ -1422,20 +1422,20 @@ def update_quiz(quiz_id):
         return jsonify({'success': False, 'message': error_msg}), 401
 
     data = request.get_json()
-    new_title = data.get('title')
+    new_title = data.get('title', '').strip()
+    new_mastery_level = data.get('mastery_level', '').strip().lower()
 
     if not new_title:
         return jsonify({'success': False, 'message': 'Missing title'}), 400
+
+    if new_mastery_level and new_mastery_level not in ['baguhan', 'katamtaman', 'dalubhasa']:
+        return jsonify({'success': False, 'message': 'Invalid mastery level'}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
-        # Check if quiz exists
-        cursor.execute(
-            'SELECT id FROM quizzes WHERE id = %s', 
-            (quiz_id,)
-        )
+        cursor.execute('SELECT id FROM quizzes WHERE id = %s', (quiz_id,))
         quiz = cursor.fetchone()
 
         if not quiz:
@@ -1443,11 +1443,7 @@ def update_quiz(quiz_id):
             conn.close()
             return jsonify({'success': False, 'message': 'Quiz not found'}), 404
 
-        # Check if new title already exists (excluding current quiz)
-        cursor.execute(
-            'SELECT id FROM quizzes WHERE title = %s AND id != %s', 
-            (new_title, quiz_id)
-        )
+        cursor.execute('SELECT id FROM quizzes WHERE title = %s AND id != %s', (new_title, quiz_id))
         existing = cursor.fetchone()
 
         if existing:
@@ -1455,8 +1451,11 @@ def update_quiz(quiz_id):
             conn.close()
             return jsonify({'success': False, 'message': 'Quiz title already exists'}), 409
 
-        # Update the quiz
-        cursor.execute('UPDATE quizzes SET title = %s WHERE id = %s', (new_title, quiz_id))
+        if new_mastery_level:
+            cursor.execute('UPDATE quizzes SET title = %s, mastery_level = %s WHERE id = %s', (new_title, new_mastery_level, quiz_id))
+        else:
+            cursor.execute('UPDATE quizzes SET title = %s WHERE id = %s', (new_title, quiz_id))
+        
         conn.commit()
         cursor.close()
         conn.close()

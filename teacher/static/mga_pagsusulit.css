@@ -1388,7 +1388,247 @@ body {
   color: #666;
 }
 
+/* =============================================================================
+   QUIZ CARD EDIT & DELETE BUTTONS STYLING
+   ============================================================================= */
 
+/* Make quiz card relative for absolute positioning of buttons */
+.quiz-card {
+  position: relative;
+}
+
+/* Quiz card action buttons container */
+.quiz-card-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+  z-index: 10;
+}
+
+/* Small icon buttons for quiz cards */
+.btn-icon-small {
+  background: #f39c12;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Instrument Serif', serif;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-icon-small:hover {
+  transform: scale(1.1);
+  opacity: 0.9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-icon-small:active {
+  transform: scale(0.95);
+}
+
+/* Specific styling for delete button */
+.quiz-card-actions .btn-icon-small:last-child {
+  background: #e74c3c;
+}
+
+.quiz-card-actions .btn-icon-small:first-child:hover {
+  background: #e67e22;
+}
+
+.quiz-card-actions .btn-icon-small:last-child:hover {
+  background: #c0392b;
+}
+
+/* =============================================================================
+   EDIT QUIZ TITLE MODAL STYLING
+   ============================================================================= */
+
+/* Edit Quiz Title Modal */
+#editQuizTitleModal .modal-content {
+  max-width: 550px;
+  padding: 0;
+}
+
+#editQuizTitleModal .modal-header {
+  padding: 30px;
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  border-bottom: 2px solid #f0f0f0;
+}
+
+#editQuizTitleModal .modal-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2c3e50;
+  text-align: center;
+}
+
+#editQuizTitleModal .modal-body {
+  padding: 30px;
+}
+
+#editQuizTitleModal input[type="text"] {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-family: 'Instrument Serif', serif;
+  border: 2px solid #3498db;
+  border-radius: 8px;
+  background-color: #f0f8ff;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+#editQuizTitleModal input[type="text"]:focus {
+  outline: none;
+  border-color: #2ecc71;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+/* Mastery level selector in edit modal */
+#editQuizTitleModal .mastery-level-selector {
+  margin: 20px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+#editQuizTitleModal .mastery-level-selector label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 12px;
+  color: #2c3e50;
+  font-size: 16px;
+}
+
+#editQuizTitleModal .mastery-level-options {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+#editQuizTitleModal .mastery-option {
+  flex: 1;
+  min-width: 140px;
+  padding: 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  background: white;
+}
+
+#editQuizTitleModal .mastery-option:hover {
+  border-color: #3498db;
+  background: #f0f8ff;
+  transform: translateY(-2px);
+}
+
+#editQuizTitleModal .mastery-option.selected {
+  border-color: #3498db;
+  background: #e3f2fd;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+  transform: translateY(-2px);
+}
+
+#editQuizTitleModal .mastery-option.baguhan.selected {
+  border-color: #27ae60;
+  background: #d4edda;
+}
+
+#editQuizTitleModal .mastery-option.katamtaman.selected {
+  border-color: #f39c12;
+  background: #fff3cd;
+}
+
+#editQuizTitleModal .mastery-option.dalubhasa.selected {
+  border-color: #e74c3c;
+  background: #f8d7da;
+}
+
+#editQuizTitleModal .mastery-option input[type="radio"] {
+  display: none;
+}
+
+#editQuizTitleModal .mastery-option .option-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+#editQuizTitleModal .mastery-option .option-title {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 4px;
+  color: #2c3e50;
+}
+
+#editQuizTitleModal .mastery-option .option-description {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Error message in edit modal */
+#editQuizError {
+  color: #e74c3c;
+  background: #fee;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-size: 14px;
+  border-left: 4px solid #e74c3c;
+}
+
+/* =============================================================================
+   RESPONSIVE ADJUSTMENTS FOR QUIZ BUTTONS
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  .quiz-card-actions {
+    top: 8px;
+    right: 8px;
+    gap: 4px;
+  }
+
+  .btn-icon-small {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  #editQuizTitleModal .mastery-level-options {
+    flex-direction: column;
+  }
+
+  #editQuizTitleModal .mastery-option {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .quiz-card-actions {
+    position: static;
+    justify-content: flex-end;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .btn-icon-small {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
 
 /* Responsive Design */
 @media (max-width: 1024px) {
