@@ -842,7 +842,7 @@ function saveQuizTitleEdit(quizId) {
     return;
   }
   
-  fetch(`/teacher/update_quiz/${quizId}`, {
+  fetch(`/teacher/api/update_quiz/${quizId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ title: newTitle, mastery_level: newMasteryLevel })
