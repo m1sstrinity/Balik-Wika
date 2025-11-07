@@ -673,49 +673,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-/* 📱 Tablets (≤992px) */
-@media (max-width: 992px) {
-    body {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        overflow-x: auto;
-        padding: 12px;
-        gap: 10px;
-        box-shadow: none;
-    }
-
-    .nav-item {
-        min-width: 110px;
-        padding: 10px 14px;
-        font-size: 14px;
-    }
-
-    .main-content {
-        padding: 25px;
-        margin: 10px;
-    }
-
-    .dashboard-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-    }
-
-    .leaderboard-section,
-    .points-section,
-    .lessonsquizsummary-section {
-        padding: 20px;
-    }
-}
-
-
-/* 📲 Mobile Devices (≤768px) */
-@media (max-width: 768px) {
+        @media (max-width: 768px) {
     body {
         flex-direction: column;
     }
@@ -751,73 +709,10 @@
 
     .main-content {
         padding: 20px;
-        margin: 10px;
-    }
-
-    .welcome-title {
-        font-size: 28px;
     }
 
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
 
-    .topics-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .topic-card {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .topic-image {
-        width: 100px;
-        height: 100px;
-    }
-
-    .points-badge {
-        font-size: 20px;
-        padding: 15px 25px;
-    }
-}
-
-
-/* 📱 Small Phones (≤480px) */
-@media (max-width: 480px) {
-    .nav-item {
-        min-width: 100px;
-        font-size: 13px;
-        padding: 10px;
-    }
-
-    .logo img {
-        width: 100px;
-        height: 50px;
-    }
-
-    .welcome-title {
-        font-size: 22px;
-    }
-
-    .welcome-subtitle {
-        font-size: 14px;
-    }
-
-    .points-badge {
-        flex-direction: column;
-        padding: 12px 18px;
-        font-size: 18px;
-    }
-
-    .topic-image {
-        width: 80px;
-        height: 80px;
-    }
-
-    .modal-content {
-        width: 95%;
-        margin: 10% auto;
-        padding: 20px;
-    }
 }
