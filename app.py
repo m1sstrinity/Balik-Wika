@@ -1697,6 +1697,9 @@ def submit_quiz_result():
     if 'user_id' not in session:
         return jsonify({'success': False, 'message': 'Not logged in'}), 401
     
+    conn = None
+    cursor = None
+    
     try:
         data = request.get_json()
         quiz_id = data.get('quiz_id')
@@ -1707,61 +1710,112 @@ def submit_quiz_result():
             return jsonify({'success': False, 'message': 'Missing required data'}), 400
         
         user_id = session['user_id']
+        
+        # Get connection (already has RealDictCursor for PostgreSQL, Row for SQLite)
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Calculate current attempt number
-        # Changed ? to %s for PostgreSQL
-        cursor.execute(
-            'SELECT COUNT(*) as count FROM quiz_attempts WHERE user_id = %s AND quiz_id = %s',
-            (user_id, quiz_id)
-        )
-        attempt_count = cursor.fetchone()
+        # Determine parameter style based on environment
+        if db_config.is_production:
+            param = '%s'
+            now = 'NOW()'
+        else:
+            param = '?'
+            now = 'CURRENT_TIMESTAMP'
         
-        attempt_number = attempt_count['count'] + 1 if attempt_count else 1
+        # Calculate current attempt number
+        if db_config.is_production:
+            cursor.execute(
+                'SELECT COUNT(*) as count FROM quiz_attempts WHERE user_id = %s AND quiz_id = %s',
+                (user_id, quiz_id)
+            )
+        else:
+            cursor.execute(
+                'SELECT COUNT(*) as count FROM quiz_attempts WHERE user_id = ? AND quiz_id = ?',
+                (user_id, quiz_id)
+            )
+        
+        result = cursor.fetchone()
+        attempt_number = (result['count'] + 1) if result else 1
+        
+        print(f"📊 Quiz submission - User: {user_id}, Quiz: {quiz_id}, Score: {score}, Attempt: {attempt_number}")
         
         # Insert into quiz_attempts table
-        # Changed ? to %s and CURRENT_TIMESTAMP to NOW() for PostgreSQL
-        cursor.execute('''
-            INSERT INTO quiz_attempts (user_id, quiz_id, score, attempt_number, attempted_at)
-            VALUES (%s, %s, %s, %s, NOW())
-        ''', (user_id, quiz_id, score, attempt_number))
+        if db_config.is_production:
+            cursor.execute('''
+                INSERT INTO quiz_attempts (user_id, quiz_id, score, attempt_number, attempted_at)
+                VALUES (%s, %s, %s, %s, NOW())
+            ''', (user_id, quiz_id, score, attempt_number))
+        else:
+            cursor.execute('''
+                INSERT INTO quiz_attempts (user_id, quiz_id, score, attempt_number, attempted_at)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ''', (user_id, quiz_id, score, attempt_number))
+        
+        print(f"✅ Quiz attempt recorded")
         
         # Check if user has previous result for this quiz
-        # Changed ? to %s for PostgreSQL
-        cursor.execute(
-            'SELECT * FROM quiz_results WHERE user_id = %s AND quiz_id = %s',
-            (user_id, quiz_id)
-        )
+        if db_config.is_production:
+            cursor.execute(
+                'SELECT * FROM quiz_results WHERE user_id = %s AND quiz_id = %s',
+                (user_id, quiz_id)
+            )
+        else:
+            cursor.execute(
+                'SELECT * FROM quiz_results WHERE user_id = ? AND quiz_id = ?',
+                (user_id, quiz_id)
+            )
+        
         existing_result = cursor.fetchone()
         
         if existing_result:
+            print(f"📝 Found existing result - Old score: {existing_result['score']}, New score: {score}")
+            
             # Update if new score is better, or just increment attempt count
             if score > existing_result['score']:
-                # Changed ? to %s and CURRENT_TIMESTAMP to NOW() for PostgreSQL
-                cursor.execute('''
-                    UPDATE quiz_results 
-                    SET score = %s, attempt_count = %s, date_taken = NOW()
-                    WHERE user_id = %s AND quiz_id = %s
-                ''', (score, attempt_number, user_id, quiz_id))
+                print(f"🎯 New score is better! Updating...")
+                if db_config.is_production:
+                    cursor.execute('''
+                        UPDATE quiz_results 
+                        SET score = %s, attempt_count = %s, date_taken = NOW()
+                        WHERE user_id = %s AND quiz_id = %s
+                    ''', (score, attempt_number, user_id, quiz_id))
+                else:
+                    cursor.execute('''
+                        UPDATE quiz_results 
+                        SET score = ?, attempt_count = ?, date_taken = CURRENT_TIMESTAMP
+                        WHERE user_id = ? AND quiz_id = ?
+                    ''', (score, attempt_number, user_id, quiz_id))
             else:
-                # Changed ? to %s for PostgreSQL
-                cursor.execute('''
-                    UPDATE quiz_results 
-                    SET attempt_count = %s
-                    WHERE user_id = %s AND quiz_id = %s
-                ''', (attempt_number, user_id, quiz_id))
+                print(f"📊 Score not better, just updating attempt count")
+                if db_config.is_production:
+                    cursor.execute('''
+                        UPDATE quiz_results 
+                        SET attempt_count = %s
+                        WHERE user_id = %s AND quiz_id = %s
+                    ''', (attempt_number, user_id, quiz_id))
+                else:
+                    cursor.execute('''
+                        UPDATE quiz_results 
+                        SET attempt_count = ?
+                        WHERE user_id = ? AND quiz_id = ?
+                    ''', (attempt_number, user_id, quiz_id))
         else:
+            print(f"🆕 No existing result, creating new record")
             # Insert new result
-            # Changed ? to %s and CURRENT_TIMESTAMP to NOW() for PostgreSQL
-            cursor.execute('''
-                INSERT INTO quiz_results (user_id, quiz_id, score, date_taken, attempt_count)
-                VALUES (%s, %s, %s, NOW(), %s)
-            ''', (user_id, quiz_id, score, attempt_number))
+            if db_config.is_production:
+                cursor.execute('''
+                    INSERT INTO quiz_results (user_id, quiz_id, score, date_taken, attempt_count)
+                    VALUES (%s, %s, %s, NOW(), %s)
+                ''', (user_id, quiz_id, score, attempt_number))
+            else:
+                cursor.execute('''
+                    INSERT INTO quiz_results (user_id, quiz_id, score, date_taken, attempt_count)
+                    VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)
+                ''', (user_id, quiz_id, score, attempt_number))
         
         conn.commit()
-        cursor.close()
-        conn.close()
+        print(f"✅ Quiz result saved successfully to database")
         
         return jsonify({
             'success': True,
@@ -1772,9 +1826,19 @@ def submit_quiz_result():
         })
         
     except Exception as e:
-        print(f"Error saving quiz result: {str(e)}")
+        if conn:
+            conn.rollback()
+        print(f"❌ Error saving quiz result: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'success': False, 'message': str(e)}), 500
     
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
