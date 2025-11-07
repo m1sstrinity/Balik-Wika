@@ -267,10 +267,10 @@ def calculate_student_metrics(user_id, db_connection):
     
     # Get all quiz attempts for this student (using quiz_attempts table)
     query = """
-        SELECT score, attempted_timestamp
+        SELECT score, attempted_at
         FROM quiz_attempts
         WHERE user_id = %s
-        ORDER BY attempted_timestamp DESC
+        ORDER BY attempted_at DESC
     """
     
     cursor.execute(query, (user_id,))
@@ -339,7 +339,7 @@ def calculate_student_metrics(user_id, db_connection):
     last_activity = 'Never'
     days_inactive = 999
     if attempts:
-        last_dt = attempts[0]['attempted_timestamp']
+        last_dt = attempts[0]['attempted_at']
         
         # PostgreSQL returns datetime objects directly
         if isinstance(last_dt, datetime):
@@ -435,7 +435,7 @@ def update_student_metrics(user_id, metrics, db_connection):
         )
     """)
     
-    table_exists = cursor.fetchone()[0]
+    table_exists = list(cursor.fetchone().values())[0]
     
     if not table_exists:
         # Create table if it doesn't exist
