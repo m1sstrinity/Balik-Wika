@@ -1,3 +1,5 @@
+# routes.py
+
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for, flash
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -1422,21 +1424,20 @@ def update_quiz(quiz_id):
         return jsonify({'success': False, 'message': error_msg}), 401
 
     data = request.get_json()
-    new_title = data.get('title', '').strip()
-    new_mastery_level = data.get('mastery_level', '').strip().lower()
+    new_title = data.get('title')
 
     if not new_title:
         return jsonify({'success': False, 'message': 'Missing title'}), 400
-
-    if new_mastery_level and new_mastery_level not in ['baguhan', 'katamtaman', 'dalubhasa']:
-        return jsonify({'success': False, 'message': 'Invalid mastery level'}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
     try:
         # Check if quiz exists
-        cursor.execute('SELECT title FROM quizzes WHERE id = %s', (quiz_id,))
+        cursor.execute(
+            'SELECT id FROM quizzes WHERE id = %s', 
+            (quiz_id,)
+        )
         quiz = cursor.fetchone()
 
         if not quiz:
@@ -1444,33 +1445,20 @@ def update_quiz(quiz_id):
             conn.close()
             return jsonify({'success': False, 'message': 'Quiz not found'}), 404
 
-        current_title = quiz[0]
-        
-        # Only check for duplicate if title is actually changing
-        if new_title.lower() != current_title.lower():
-            cursor.execute(
-                'SELECT id FROM quizzes WHERE LOWER(title) = LOWER(%s) AND id != %s',
-                (new_title, quiz_id)
-            )
-            existing = cursor.fetchone()
+        # Check if new title already exists (excluding current quiz)
+        cursor.execute(
+            'SELECT id FROM quizzes WHERE title = %s AND id != %s', 
+            (new_title, quiz_id)
+        )
+        existing = cursor.fetchone()
 
-            if existing:
-                cursor.close()
-                conn.close()
-                return jsonify({'success': False, 'message': 'Quiz title already exists'}), 409
+        if existing:
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Quiz title already exists'}), 409
 
         # Update the quiz
-        if new_mastery_level:
-            cursor.execute(
-                'UPDATE quizzes SET title = %s, mastery_level = %s WHERE id = %s', 
-                (new_title, new_mastery_level, quiz_id)
-            )
-        else:
-            cursor.execute(
-                'UPDATE quizzes SET title = %s WHERE id = %s', 
-                (new_title, quiz_id)
-            )
-        
+        cursor.execute('UPDATE quizzes SET title = %s WHERE id = %s', (new_title, quiz_id))
         conn.commit()
         cursor.close()
         conn.close()
