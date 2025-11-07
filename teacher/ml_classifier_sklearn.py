@@ -255,7 +255,7 @@ def calculate_student_metrics(user_id, db_connection):
     
     # Get all quiz attempts for this student (using quiz_attempts table)
     query = """
-        SELECT score, attempted_at
+        SELECT score, attempted_timestamp
         FROM quiz_attempts
         WHERE user_id = %s
         ORDER BY attempted_at DESC
@@ -327,7 +327,7 @@ def calculate_student_metrics(user_id, db_connection):
     last_activity = 'Never'
     days_inactive = 999
     if attempts:
-        last_dt = attempts[0]['attempted_at']
+        last_dt = attempts[0]['attempted_timestamp']
         
         # PostgreSQL returns datetime objects directly
         if isinstance(last_dt, datetime):
