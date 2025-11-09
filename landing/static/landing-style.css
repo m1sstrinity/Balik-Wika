@@ -120,12 +120,13 @@ nav a {
   background: linear-gradient(135deg, #ff6b6b, #ee5a24);
   color: white;
   text-decoration: none;
-  padding: 16px 32px;
+  padding: 8px 16px; /* Match nav buttons padding */
   border-radius: 25px;
   font-weight: 600;
-  font-size: 18px;
+  font-size: 16px; /* Match nav buttons font size */
   letter-spacing: 0.5px;
   display: inline-block;
+  text-align: center;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
   border: none;
@@ -517,16 +518,26 @@ nav a:hover::after {
   }
   
   nav a {
-    font-size: 14px;
-    padding: 6px 10px;
-    min-width: 50px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 8px 16px; /* Consistent padding for all buttons */
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #000;
+    display: inline-block; /* Block level element for proper text centering */
+    text-align: center; /* CENTER TEXT HORIZONTALLY */
+    min-width: 60px; /* Ensure minimum width */
   }
   
   /* Adjust Contact us button for mobile */
   nav a:nth-child(3) {
-    font-size: 12px;
-    padding: 6px 8px;
-    min-width: 70px;
+    font-size: 14px; /* Smaller font size for Contact us */
+    padding: 8px 12px; /* Slightly adjusted padding */
+    min-width: 80px; /* Ensure enough width */
   }
   
   .login-btn {
@@ -597,8 +608,8 @@ nav a:hover::after {
   }
   
   .main-content .login-btn {
-    font-size: 14px;
-    padding: 8px 16px;
+    padding: 12px 24px; 
+    font-size: 18px;
   }
   
   .box {
