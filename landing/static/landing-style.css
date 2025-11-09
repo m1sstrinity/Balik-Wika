@@ -522,6 +522,13 @@ nav a:hover::after {
     min-width: 50px;
   }
   
+  /* Adjust Contact us button for mobile */
+  nav a:nth-child(3) {
+    font-size: 12px;
+    padding: 6px 8px;
+    min-width: 70px;
+  }
+  
   .login-btn {
     font-size: 14px;
     padding: 6px 12px;
@@ -567,6 +574,13 @@ nav a:hover::after {
     font-size: 12px;
     padding: 5px 8px;
     min-width: 40px;
+  }
+  
+  /* Adjust Contact us button for smaller mobile */
+  nav a:nth-child(3) {
+    font-size: 11px;
+    padding: 5px 6px;
+    min-width: 60px;
   }
   
   .login-btn {
