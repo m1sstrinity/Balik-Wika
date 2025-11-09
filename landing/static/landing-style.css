@@ -498,52 +498,93 @@ nav a:hover::after {
 }
 
 /* Full mobile fix – logo + buttons beside each other, centered header */
-@media (min-width: 768px) {
-  .header-nav-container {
-    width: auto;
-    margin-top: 0;
-  }
-  
-  nav {
-    width: auto;
-    gap: 20px;
-  }
-  
-  .boxes {
-    flex-direction: row;
-  }
-  
-  .box {
-    flex: 1;
-  }
-}
-
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   header {
-    justify-content: space-between;
+    flex-wrap: nowrap; /* Prevent wrapping in header */
     padding: 10px 15px;
+    justify-content: space-between; /* Space items evenly */
   }
   
   header img {
     height: 40px;
+    margin-right: 10px;
   }
   
-  .header-button {
+  nav {
+    margin: 0 10px;
+    gap: 10px;
+    flex-wrap: nowrap; /* Keep buttons on one line */
+  }
+  
+  nav a {
     font-size: 14px;
-    padding: 8px 12px;
-    min-width: 80px;
+    padding: 6px 10px;
+    min-width: 50px;
   }
   
-  .main-content {
-    padding: 30px 15px 100px;
+  .login-btn {
+    font-size: 14px;
+    padding: 6px 12px;
+    white-space: nowrap; /* Prevent text wrapping */
   }
   
   .main-content h1 {
-    font-size: 32px;
+    font-size: 36px;
+  }
+  
+  .boxes {
+    flex-direction: column;
+  }
+  
+  .box {
+    width: 90%;
+    max-width: 400px;
+  }
+  
+  .help-button {
+    bottom: 20px;
+    right: 20px;
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 8px 10px;
+  }
+  
+  header img {
+    height: 35px;
+  }
+  
+  nav {
+    gap: 5px;
+  }
+  
+  nav a {
+    font-size: 12px;
+    padding: 5px 8px;
+    min-width: 40px;
+  }
+  
+  .login-btn {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+  
+  .main-content h1 {
+    font-size: 28px;
   }
   
   .main-content p {
+    font-size: 15px;
+  }
+  
+  .main-content .login-btn {
     font-size: 14px;
+    padding: 8px 16px;
   }
   
   .box {
@@ -551,42 +592,10 @@ nav a:hover::after {
   }
   
   .box h2 {
-    font-size: 18px;
+    font-size: 20px;
   }
   
   .box p {
-    font-size: 14px;
-  }
-  
-  .help-button {
-    width: 40px;
-    height: 40px;
-    bottom: 15px;
-    right: 15px;
     font-size: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .header-button {
-    padding: 6px 10px;
-    font-size: 12px;
-    min-width: 70px;
-  }
-  
-  .main-content h1 {
-    font-size: 28px;
-  }
-  
-  .main-content .login-btn {
-    padding: 8px 16px;
-    font-size: 14px;
-  }
-}
-
-/* Specifically ensure bottom content is visible for scrolling */
-@media (max-height: 700px) {
-  .boxes {
-    margin-bottom: 80px;
   }
 }
