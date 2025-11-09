@@ -28,6 +28,7 @@ nav {
   justify-content: flex-start;
   flex-grow: 1;
   gap: 20px;
+  margin-left: 200px;
 }
 
 nav a {
