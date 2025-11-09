@@ -25,10 +25,9 @@ header img {
 nav {
   display: flex;
   align-items: center;
-  justify-content: center; /* centers the buttons */
+  justify-content: flex-start;
   gap: 30px;
-  flex-grow: 1;
-  margin: 0; /* remove the left margin */
+  margin-left: 100px;
 }
 
 nav a {
