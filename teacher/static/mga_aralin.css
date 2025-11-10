@@ -607,19 +607,21 @@ body {
     gap: 5px;
 }
 
-/* Lesson Content Modal */
+/* Lesson Content Modal - UPDATED */
 .lesson-content-modal .modal-content {
-    max-width: 700px;
+    max-width: 1000px; /* Changed from 700px to 1000px */
+    width: 95%; /* Added for better responsiveness */
 }
 
 .lesson-content-modal .modal-body {
-    max-height: 60vh;
+    max-height: 70vh; /* Changed from 60vh to 70vh for more vertical space */
     overflow-y: auto;
+    padding: 40px; /* Increased from 30px */
 }
 
 .lesson-content-text {
-    font-size: 16px;
-    line-height: 1.8;
+    font-size: 17px; /* Increased from 16px */
+    line-height: 1.9; /* Increased from 1.8 */
     color: #333;
     white-space: pre-wrap;
 }
@@ -1081,6 +1083,12 @@ body {
 }
 
 /* Responsive Design */
+@media (max-width: 1100px) {
+    .lesson-content-modal .modal-content {
+        max-width: 90%;
+    }
+}
+
 @media (max-width: 1024px) {
     .subjects-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -1171,6 +1179,51 @@ body {
         margin-top: 10px;
         justify-content: flex-end;
     }
+
+    /* Lesson Modal Responsive */
+    .lesson-content-modal .modal-content {
+        max-width: 95%;
+        width: 95%;
+    }
+
+    .lesson-content-modal .modal-body {
+        padding: 25px;
+        max-height: 65vh;
+    }
+
+    .lesson-content-text {
+        font-size: 16px;
+        line-height: 1.8;
+    }
+
+    /* Video Management Responsive */
+    #editLessonVideosSection {
+        padding: 10px;
+    }
+
+    .edit-video-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .edit-video-item button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #lessonVideosDisplay video {
+        max-width: 100%;
+    }
+
+    #lessonVideosDisplay > div {
+        flex-direction: column;
+    }
+
+    #lessonVideosDisplay button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1206,40 +1259,18 @@ body {
     .subject-card {
         padding-top: 20px;
     }
-}
 
-/* Responsive adjustments for video management */
-@media (max-width: 768px) {
-    #editLessonVideosSection {
-        padding: 10px;
+    /* Lesson Modal Small Screen */
+    .lesson-content-modal .modal-body {
+        padding: 20px;
+        max-height: 60vh;
     }
 
-    .edit-video-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+    .lesson-content-text {
+        font-size: 15px;
     }
 
-    .edit-video-item button {
-        width: 100%;
-        justify-content: center;
-    }
-
-    #lessonVideosDisplay video {
-        max-width: 100%;
-    }
-
-    #lessonVideosDisplay > div {
-        flex-direction: column;
-    }
-
-    #lessonVideosDisplay button {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
+    /* Video Management Small Screen */
     #editLessonVideosSection label {
         font-size: 14px;
     }
