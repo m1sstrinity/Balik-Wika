@@ -148,25 +148,46 @@
 </div>
 
   <!-- Edit Lesson Modal -->
-  <div id="editLessonModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">I-edit ang Aralin</h2>
-        <span class="modal-close" onclick="closeEditLessonModal()">&times;</span>
+<div id="editLessonModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">I-edit ang Aralin</h2>
+      <span class="modal-close" onclick="closeEditLessonModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editLessonId" />
+      <label for="editLessonTitle">Pamagat ng Aralin:</label>
+      <input type="text" id="editLessonTitle" placeholder="Ilagay ang pamagat" />
+      
+      <label for="editLessonContent">Nilalaman ng Aralin:</label>
+      <textarea id="editLessonContentInput" rows="6" placeholder="Ilagay ang nilalaman..."></textarea>
+      
+      <!-- Current Videos Section -->
+      <div id="editLessonVideosSection" style="margin-top: 20px;">
+        <label>Kasalukuyang Video:</label>
+        <div id="editLessonCurrentVideos" style="margin-top: 10px;"></div>
       </div>
-      <div class="modal-body">
-        <input type="hidden" id="editLessonId" />
-        <label for="editLessonTitle">Pamagat ng Aralin:</label>
-        <input type="text" id="editLessonTitle" placeholder="Ilagay ang pamagat" />
-        <label for="editLessonContent">Nilalaman ng Aralin:</label>
-        <textarea id="editLessonContentInput" rows="6" placeholder="Ilagay ang nilalaman..."></textarea>
-      </div>
-      <div class="modal-body-buttons">
-        <button class="cancel-btn" onclick="closeEditLessonModal()">Kanselahin</button>
-        <button class="add-btn" onclick="updateLesson()">I-save</button>
+      
+      <!-- Upload New Video Section -->
+      <label for="editLessonVideo" style="margin-top: 20px;">Magdagdag ng Bagong Video (Optional):</label>
+      <input type="file" id="editLessonVideo" accept="video/mp4,video/avi,video/mov,video/wmv,video/webm" />
+      <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+        Max file size: 100MB. Allowed: MP4, AVI, MOV, WMV, WEBM
+      </small>
+      
+      <!-- Progress bar for edit modal -->
+      <div id="editUploadProgress" style="display: none; margin-top: 15px;">
+        <div style="background-color: #f0f0f0; border-radius: 5px; overflow: hidden; height: 30px;">
+          <div id="editUploadProgressBar" style="background-color: #4CAF50; height: 100%; width: 0%; text-align: center; line-height: 30px; color: white; transition: width 0.3s ease;">0%</div>
+        </div>
       </div>
     </div>
+    <div class="modal-body-buttons">
+      <button class="cancel-btn" onclick="closeEditLessonModal()">Kanselahin</button>
+      <button class="add-btn" onclick="updateLesson()">I-save</button>
+    </div>
   </div>
+</div>
 
   <!-- Lesson Content Modal -->
 <div id="lessonModal" class="modal lesson-content-modal">
@@ -472,121 +493,159 @@
       document.getElementById('addLessonModal').style.display = 'none';
       document.getElementById('lessonTitle').value = '';
       document.getElementById('lessonContentInput').value = '';
+      document.getElementById('lessonVideo').value = '';
     }
 
-async function addNewLesson() {
-  const title = document.getElementById('lessonTitle').value.trim();
-  const content = document.getElementById('lessonContentInput').value.trim();
-  const videoFile = document.getElementById('lessonVideo').files[0];
-  
-  if (!title || !content) {
-    alert('Pamagat at nilalaman ay kinakailangan.');
-    return;
-  }
-  
-  const formData = new FormData();
-  formData.append('title', title);
-  formData.append('content', content);
-  const subjectId = subjectsData.find(s => s.name === currentSubject)?.id || 1;
-  formData.append('subject_id', subjectId);
-  
-  try {
-    const response = await fetch('/teacher/add_lesson', {
-      method: 'POST',
-      body: formData
-    });
-    
-    const data = await response.json();
-    
-    console.log('Server response:', data);
-    console.log('Lesson ID:', data.lesson_id);
-    console.log('Video file:', videoFile);
-    
-    if (data.success) {
-      // If there's a video, upload it
-      if (videoFile && data.lesson_id) {
-        try {
-          console.log('Starting video upload for lesson:', data.lesson_id);
-          await uploadVideo(data.lesson_id, videoFile);
-          console.log('Video uploaded successfully');
-        } catch (videoError) {
-          console.error('Video upload failed:', videoError);
-          alert('Aralin ay naidagdag pero may problema sa video upload: ' + videoError.message);
+    async function addNewLesson() {
+      const title = document.getElementById('lessonTitle').value.trim();
+      const content = document.getElementById('lessonContentInput').value.trim();
+      const videoFile = document.getElementById('lessonVideo').files[0];
+      
+      if (!title || !content) {
+        alert('Pamagat at nilalaman ay kinakailangan.');
+        return;
+      }
+      
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('content', content);
+      const subjectId = subjectsData.find(s => s.name === currentSubject)?.id || 1;
+      formData.append('subject_id', subjectId);
+      
+      try {
+        const response = await fetch('/teacher/add_lesson', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
+        console.log('Server response:', data);
+        console.log('Lesson ID:', data.lesson_id);
+        console.log('Video file:', videoFile);
+        
+        if (data.success) {
+          // If there's a video, upload it
+          if (videoFile && data.lesson_id) {
+            try {
+              console.log('Starting video upload for lesson:', data.lesson_id);
+              await uploadVideo(data.lesson_id, videoFile);
+              console.log('Video uploaded successfully');
+            } catch (videoError) {
+              console.error('Video upload failed:', videoError);
+              alert('Aralin ay naidagdag pero may problema sa video upload: ' + videoError.message);
+              closeAddLessonModal();
+              loadLessons();
+              loadSubjects();
+              renderLessons();
+              return;
+            }
+          }
+          
+          alert('Aralin ay matagumpay na naidagdag!');
           closeAddLessonModal();
+          document.getElementById('lessonTitle').value = '';
+          document.getElementById('lessonContentInput').value = '';
+          document.getElementById('lessonVideo').value = '';
           loadLessons();
           loadSubjects();
           renderLessons();
-          return;
-        }
-      }
-      
-      alert('Aralin ay matagumpay na naidagdag!');
-      closeAddLessonModal();
-      document.getElementById('lessonTitle').value = '';
-      document.getElementById('lessonContentInput').value = '';
-      document.getElementById('lessonVideo').value = '';
-      loadLessons();
-      loadSubjects();
-      renderLessons();
-    } else {
-      alert(data.message || 'May error sa pagdagdag ng aralin.');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('May error sa pagdagdag ng aralin: ' + error.message);
-  }
-}
-
-async function uploadVideo(lessonId, videoFile) {
-  const progressDiv = document.getElementById('uploadProgress');
-  const progressBar = document.getElementById('uploadProgressBar');
-  
-  progressDiv.style.display = 'block';
-  
-  const videoFormData = new FormData();
-  videoFormData.append('video', videoFile);
-  videoFormData.append('lesson_id', lessonId);
-  
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    
-    xhr.upload.addEventListener('progress', function(e) {
-      if (e.lengthComputable) {
-        const percentComplete = (e.loaded / e.total) * 100;
-        progressBar.style.width = percentComplete + '%';
-        progressBar.textContent = Math.round(percentComplete) + '%';
-      }
-    });
-    
-    xhr.addEventListener('load', function() {
-      progressDiv.style.display = 'none';
-      if (xhr.status === 200) {
-        const response = JSON.parse(xhr.responseText);
-        if (response.success) {
-          resolve();
         } else {
-          reject(new Error(response.message || 'Video upload failed'));
+          alert(data.message || 'May error sa pagdagdag ng aralin.');
         }
-      } else {
-        reject(new Error('Video upload failed with status: ' + xhr.status));
+      } catch (error) {
+        console.error('Error:', error);
+        alert('May error sa pagdagdag ng aralin: ' + error.message);
       }
-    });
-    
-    xhr.addEventListener('error', function() {
-      progressDiv.style.display = 'none';
-      reject(new Error('Video upload error'));
-    });
-    
-    xhr.open('POST', '/teacher/upload_lesson_video');
-    xhr.send(videoFormData);
-  });
-}
+    }
 
-    // Edit Lesson functions
-    function openEditLessonModal(id, title, content) {
+    async function uploadVideo(lessonId, videoFile) {
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressBar = document.getElementById('uploadProgressBar');
+      
+      progressDiv.style.display = 'block';
+      
+      const videoFormData = new FormData();
+      videoFormData.append('video', videoFile);
+      videoFormData.append('lesson_id', lessonId);
+      
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', function(e) {
+          if (e.lengthComputable) {
+            const percentComplete = (e.loaded / e.total) * 100;
+            progressBar.style.width = percentComplete + '%';
+            progressBar.textContent = Math.round(percentComplete) + '%';
+          }
+        });
+        
+        xhr.addEventListener('load', function() {
+          progressDiv.style.display = 'none';
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            if (response.success) {
+              resolve();
+            } else {
+              reject(new Error(response.message || 'Video upload failed'));
+            }
+          } else {
+            reject(new Error('Video upload failed with status: ' + xhr.status));
+          }
+        });
+        
+        xhr.addEventListener('error', function() {
+          progressDiv.style.display = 'none';
+          reject(new Error('Video upload error'));
+        });
+        
+        xhr.open('POST', '/teacher/upload_lesson_video');
+        xhr.send(videoFormData);
+      });
+    }
+
+    // Edit Lesson functions - UPDATED
+    async function openEditLessonModal(id, title, content) {
       document.getElementById('editLessonId').value = id;
       document.getElementById('editLessonTitle').value = title;
       document.getElementById('editLessonContentInput').value = content;
+      document.getElementById('editLessonVideo').value = ''; // Clear file input
+      
+      // Load current videos for this lesson
+      try {
+        const response = await fetch(`/teacher/get_lesson_videos/${id}`);
+        const data = await response.json();
+        
+        const currentVideosDiv = document.getElementById('editLessonCurrentVideos');
+        
+        if (data.success && data.videos.length > 0) {
+          currentVideosDiv.innerHTML = '';
+          document.getElementById('editLessonVideosSection').style.display = 'block';
+          
+          data.videos.forEach(video => {
+            const videoItem = document.createElement('div');
+            videoItem.style.cssText = 'padding: 10px; background-color: #f9f9f9; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;';
+            videoItem.innerHTML = `
+              <div>
+                <i class="fas fa-video" style="margin-right: 8px; color: #4CAF50;"></i>
+                <span style="font-weight: 500;">${video.original_filename}</span>
+                <span style="color: #666; font-size: 12px; margin-left: 10px;">(${(video.file_size / 1024 / 1024).toFixed(2)} MB)</span>
+              </div>
+              <button onclick="deleteVideoFromEdit(${video.id}); event.stopPropagation();" 
+                      style="padding: 6px 12px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
+                <i class="fas fa-trash"></i> Tanggalin
+              </button>
+            `;
+            currentVideosDiv.appendChild(videoItem);
+          });
+        } else {
+          document.getElementById('editLessonVideosSection').style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error loading videos:', error);
+        document.getElementById('editLessonVideosSection').style.display = 'none';
+      }
+      
       document.getElementById('editLessonModal').style.display = 'block';
     }
 
@@ -594,10 +653,12 @@ async function uploadVideo(lessonId, videoFile) {
       document.getElementById('editLessonModal').style.display = 'none';
     }
 
-    function updateLesson() {
+    // UPDATED updateLesson function with video upload support
+    async function updateLesson() {
       const id = document.getElementById('editLessonId').value;
       const title = document.getElementById('editLessonTitle').value.trim();
       const content = document.getElementById('editLessonContentInput').value.trim();
+      const videoFile = document.getElementById('editLessonVideo').files[0];
 
       if (!title || !content) {
         alert('Pakikompletuhin ang lahat ng field.');
@@ -609,25 +670,117 @@ async function uploadVideo(lessonId, videoFile) {
       formData.append('title', title);
       formData.append('content', content);
 
-      fetch('/teacher/edit_lesson', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
+      try {
+        const response = await fetch('/teacher/edit_lesson', {
+          method: 'POST',
+          body: formData
+        });
+        
+        const data = await response.json();
+        
         if (data.success) {
+          // If there's a new video to upload
+          if (videoFile) {
+            try {
+              await uploadVideoForEdit(id, videoFile);
+            } catch (videoError) {
+              console.error('Video upload failed:', videoError);
+              alert('Aralin ay na-update pero may problema sa video upload: ' + videoError.message);
+              closeEditLessonModal();
+              loadLessons();
+              loadSubjects();
+              renderLessons();
+              return;
+            }
+          }
+          
           alert("Na-update na ang aralin.");
           closeEditLessonModal();
           loadLessons();
+          loadSubjects();
           renderLessons();
         } else {
           alert(data.message || "May error sa pag-update ng aralin.");
         }
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error:', error);
         alert("May error sa pag-update ng aralin.");
+      }
+    }
+
+    // NEW function for uploading videos in edit modal
+    async function uploadVideoForEdit(lessonId, videoFile) {
+      const progressDiv = document.getElementById('editUploadProgress');
+      const progressBar = document.getElementById('editUploadProgressBar');
+      
+      progressDiv.style.display = 'block';
+      
+      const videoFormData = new FormData();
+      videoFormData.append('video', videoFile);
+      videoFormData.append('lesson_id', lessonId);
+      
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        
+        xhr.upload.addEventListener('progress', function(e) {
+          if (e.lengthComputable) {
+            const percentComplete = (e.loaded / e.total) * 100;
+            progressBar.style.width = percentComplete + '%';
+            progressBar.textContent = Math.round(percentComplete) + '%';
+          }
+        });
+        
+        xhr.addEventListener('load', function() {
+          progressDiv.style.display = 'none';
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            if (response.success) {
+              resolve();
+            } else {
+              reject(new Error(response.message || 'Video upload failed'));
+            }
+          } else {
+            reject(new Error('Video upload failed with status: ' + xhr.status));
+          }
+        });
+        
+        xhr.addEventListener('error', function() {
+          progressDiv.style.display = 'none';
+          reject(new Error('Video upload error'));
+        });
+        
+        xhr.open('POST', '/teacher/upload_lesson_video');
+        xhr.send(videoFormData);
       });
+    }
+
+    // NEW function to delete video from edit modal
+    async function deleteVideoFromEdit(videoId) {
+      if (!confirm('Sigurado ka bang tatanggalin ang video na ito?')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/teacher/delete_lesson_video/${videoId}`, {
+          method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Video ay matagumpay na natanggal');
+          // Refresh the video list in the edit modal
+          const lessonId = document.getElementById('editLessonId').value;
+          const title = document.getElementById('editLessonTitle').value;
+          const content = document.getElementById('editLessonContentInput').value;
+          await openEditLessonModal(lessonId, title, content);
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('May naganap na error');
+      }
     }
 
     // Delete Lesson functions
@@ -662,119 +815,119 @@ async function uploadVideo(lessonId, videoFile) {
       });
     }
 
-function renderLessons() {
-  const lessonsList = document.getElementById('lessonsList');
-  const emptyState = document.getElementById('emptyLessons');
-  const subject = currentSubject;
+    function renderLessons() {
+      const lessonsList = document.getElementById('lessonsList');
+      const emptyState = document.getElementById('emptyLessons');
+      const subject = currentSubject;
 
-  lessonsList.innerHTML = '';
+      lessonsList.innerHTML = '';
 
-  if (lessonsData[subject] && lessonsData[subject].length > 0) {
-    emptyState.style.display = 'none';
-    lessonsList.style.display = 'grid';
+      if (lessonsData[subject] && lessonsData[subject].length > 0) {
+        emptyState.style.display = 'none';
+        lessonsList.style.display = 'grid';
 
-    lessonsData[subject].forEach(lesson => {
-      console.log('Rendering lesson:', lesson);  // ADD THIS
-      
-      const lessonItem = document.createElement('div');
-      lessonItem.className = 'lesson-item';
-      lessonItem.innerHTML = `
-        <div class="lesson-actions">
-          <button class="lesson-action-btn edit-btn" onclick="openEditLessonModal(${lesson.id}, '${lesson.title.replace(/'/g, "\\'")}', '${lesson.content.replace(/'/g, "\\'")}'); event.stopPropagation();">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="lesson-action-btn delete-btn" onclick="confirmDeleteLesson(${lesson.id}, '${lesson.title.replace(/'/g, "\\'")}'); event.stopPropagation();">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-        <div class="lesson-item-title">${lesson.title}</div>
-        <div class="lesson-item-preview">${lesson.content.substring(0, 100)}...</div>
-        <div class="lesson-item-meta">
-          <span><i class="fas fa-user"></i> ${lesson.teacher}</span>
-          <span><i class="fas fa-calendar"></i> ${lesson.date}</span>
-        </div>`;
-      lessonItem.onclick = () => openLessonModal(lesson);
-      lessonsList.appendChild(lessonItem);
-    });
-  } else {
-    emptyState.style.display = 'block';
-    lessonsList.style.display = 'none';
-  }
-}
-
-async function openLessonModal(lesson) {
-  console.log('Opening lesson:', lesson);      // ADD THIS
-  console.log('Lesson ID:', lesson.id);        // ADD THIS
-  
-  currentLessonId = lesson.id;
-  
-  document.getElementById('lessonModalTitle').textContent = lesson.title;
-  document.getElementById('lessonContent').textContent = lesson.content;
-  document.getElementById('lessonTeacherAvatar').textContent = lesson.teacher[0] || 'T';
-  document.getElementById('lessonTeacherName').textContent = lesson.teacher;
-  document.getElementById('lessonDate').textContent = lesson.date;
-  
-  // Load videos for this lesson
-  console.log('Fetching videos for lesson ID:', lesson.id);  // ADD THIS
-  
-  try {
-    const response = await fetch(`/teacher/get_lesson_videos/${lesson.id}`);
-    const data = await response.json();
-    
-    console.log('Videos response:', data);  // ADD THIS
-    
-    const videosContainer = document.getElementById('lessonVideosContainer');
-    const videosDisplay = document.getElementById('lessonVideosDisplay');
-    
-    if (data.success && data.videos.length > 0) {
-      videosContainer.style.display = 'block';
-      videosDisplay.innerHTML = '';
-      
-      data.videos.forEach(video => {
-        const videoDiv = document.createElement('div');
-        videoDiv.style.marginBottom = '20px';
-        videoDiv.innerHTML = `
-          <video controls style="width: 100%; max-width: 800px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-            <source src="${video.video_url}" type="video/mp4">
-            Ang iyong browser ay hindi sumusuporta sa video tag.
-          </video>
-          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <p style="font-weight: 500; margin: 0;">${video.original_filename}</p>
-            <button onclick="deleteVideo(${video.id}); event.stopPropagation();" style="padding: 5px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
-              <i class="fas fa-trash"></i> Tanggalin
-            </button>
-          </div>
-        `;
-        videosDisplay.appendChild(videoDiv);
-      });
-    } else {
-      videosContainer.style.display = 'none';
+        lessonsData[subject].forEach(lesson => {
+          console.log('Rendering lesson:', lesson);
+          
+          const lessonItem = document.createElement('div');
+          lessonItem.className = 'lesson-item';
+          lessonItem.innerHTML = `
+            <div class="lesson-actions">
+              <button class="lesson-action-btn edit-btn" onclick="openEditLessonModal(${lesson.id}, '${lesson.title.replace(/'/g, "\\'")}', '${lesson.content.replace(/'/g, "\\'")}'); event.stopPropagation();">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="lesson-action-btn delete-btn" onclick="confirmDeleteLesson(${lesson.id}, '${lesson.title.replace(/'/g, "\\'")}'); event.stopPropagation();">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+            <div class="lesson-item-title">${lesson.title}</div>
+            <div class="lesson-item-preview">${lesson.content.substring(0, 100)}...</div>
+            <div class="lesson-item-meta">
+              <span><i class="fas fa-user"></i> ${lesson.teacher}</span>
+              <span><i class="fas fa-calendar"></i> ${lesson.date}</span>
+            </div>`;
+          lessonItem.onclick = () => openLessonModal(lesson);
+          lessonsList.appendChild(lessonItem);
+        });
+      } else {
+        emptyState.style.display = 'block';
+        lessonsList.style.display = 'none';
+      }
     }
-  } catch (error) {
-    console.error('Error loading videos:', error);
-  }
-  
-  closeSubjectModal();
-  document.getElementById('lessonModal').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-}
 
-function deleteVideo(videoId) {
-  deleteTarget = videoId;
-  deleteType = 'video';
-  document.getElementById('confirmTitle').textContent = 'Tanggalin ang Video';
-  document.getElementById('confirmMessage').textContent = 'Sigurado ka bang tatanggalin ang video na ito?';
-  document.getElementById('confirmModal').style.display = 'flex';
-}
+    async function openLessonModal(lesson) {
+      console.log('Opening lesson:', lesson);
+      console.log('Lesson ID:', lesson.id);
+      
+      currentLessonId = lesson.id;
+      
+      document.getElementById('lessonModalTitle').textContent = lesson.title;
+      document.getElementById('lessonContent').textContent = lesson.content;
+      document.getElementById('lessonTeacherAvatar').textContent = lesson.teacher[0] || 'T';
+      document.getElementById('lessonTeacherName').textContent = lesson.teacher;
+      document.getElementById('lessonDate').textContent = lesson.date;
+      
+      // Load videos for this lesson
+      console.log('Fetching videos for lesson ID:', lesson.id);
+      
+      try {
+        const response = await fetch(`/teacher/get_lesson_videos/${lesson.id}`);
+        const data = await response.json();
+        
+        console.log('Videos response:', data);
+        
+        const videosContainer = document.getElementById('lessonVideosContainer');
+        const videosDisplay = document.getElementById('lessonVideosDisplay');
+        
+        if (data.success && data.videos.length > 0) {
+          videosContainer.style.display = 'block';
+          videosDisplay.innerHTML = '';
+          
+          data.videos.forEach(video => {
+            const videoDiv = document.createElement('div');
+            videoDiv.style.marginBottom = '20px';
+            videoDiv.innerHTML = `
+              <video controls style="width: 100%; max-width: 800px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <source src="${video.video_url}" type="video/mp4">
+                Ang iyong browser ay hindi sumusuporta sa video tag.
+              </video>
+              <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <p style="font-weight: 500; margin: 0;">${video.original_filename}</p>
+                <button onclick="deleteVideo(${video.id}); event.stopPropagation();" style="padding: 5px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                  <i class="fas fa-trash"></i> Tanggalin
+                </button>
+              </div>
+            `;
+            videosDisplay.appendChild(videoDiv);
+          });
+        } else {
+          videosContainer.style.display = 'none';
+        }
+      } catch (error) {
+        console.error('Error loading videos:', error);
+      }
+      
+      closeSubjectModal();
+      document.getElementById('lessonModal').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
 
-// Helper function to find lesson by ID
-function findLessonById(id) {
-  for (let subject in lessonsData) {
-    const lesson = lessonsData[subject].find(l => l.id === id);
-    if (lesson) return lesson;
-  }
-  return null;
-}
+    function deleteVideo(videoId) {
+      deleteTarget = videoId;
+      deleteType = 'video';
+      document.getElementById('confirmTitle').textContent = 'Tanggalin ang Video';
+      document.getElementById('confirmMessage').textContent = 'Sigurado ka bang tatanggalin ang video na ito?';
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+
+    // Helper function to find lesson by ID
+    function findLessonById(id) {
+      for (let subject in lessonsData) {
+        const lesson = lessonsData[subject].find(l => l.id === id);
+        if (lesson) return lesson;
+      }
+      return null;
+    }
 
     function closeLessonModal() {
       document.getElementById('lessonModal').style.display = 'none';
@@ -789,40 +942,40 @@ function findLessonById(id) {
     }
 
     async function confirmDelete() {
-  if (deleteType === 'subject') {
-    deleteSubject(deleteTarget);
-  } else if (deleteType === 'lesson') {
-    deleteLesson(deleteTarget);
-  } else if (deleteType === 'video') {
-    await confirmDeleteVideoActual(deleteTarget);
-  }
-  closeConfirmModal();
-}
-
-async function confirmDeleteVideoActual(videoId) {
-  try {
-    const response = await fetch(`/teacher/delete_lesson_video/${videoId}`, {
-      method: 'POST'
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      alert('Video ay matagumpay na natanggal');
-      if (currentLessonId) {
-        const lesson = findLessonById(currentLessonId);
-        if (lesson) {
-          await openLessonModal(lesson);
-        }
+      if (deleteType === 'subject') {
+        deleteSubject(deleteTarget);
+      } else if (deleteType === 'lesson') {
+        deleteLesson(deleteTarget);
+      } else if (deleteType === 'video') {
+        await confirmDeleteVideoActual(deleteTarget);
       }
-    } else {
-      alert('Error: ' + data.message);
+      closeConfirmModal();
     }
-  } catch (error) {
-    console.error('Error:', error);
-    alert('May naganap na error');
-  }
-}
+
+    async function confirmDeleteVideoActual(videoId) {
+      try {
+        const response = await fetch(`/teacher/delete_lesson_video/${videoId}`, {
+          method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          alert('Video ay matagumpay na natanggal');
+          if (currentLessonId) {
+            const lesson = findLessonById(currentLessonId);
+            if (lesson) {
+              await openLessonModal(lesson);
+            }
+          }
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('May naganap na error');
+      }
+    }
 
     function loadLessons() {
       fetch('/teacher/get_lessons')
@@ -906,6 +1059,6 @@ async function confirmDeleteVideoActual(videoId) {
         modal.style.display = 'none';
       }
     });
-  </script>
+</script>
 </body>
 </html>
