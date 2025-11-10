@@ -1388,7 +1388,7 @@ body {
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 8px 16px;
+  padding: 8px;
   cursor: pointer;
   font-size: 13px;
   transition: all 0.2s ease;
@@ -1399,6 +1399,9 @@ body {
   font-family: 'Instrument Serif', serif;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   font-weight: 500;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0; /* Prevents button from shrinking */
 }
 
 .btn-icon-small:hover {
