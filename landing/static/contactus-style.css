@@ -22,9 +22,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  flex-grow: 1;
-  gap: 20px;
-  margin-left: 500px;   
+  gap: 30px;
 }
 
 nav a {

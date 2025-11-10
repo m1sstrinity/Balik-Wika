@@ -36,5 +36,38 @@
     </div>
     <a href="{{ url_for('landing.static', filename='studentmanual.pdf') }}" download="userguide.pdf" class="help-button">?</a>
   </section>
+
+ <script>
+    // Ensure proper scrolling on all devices
+    document.addEventListener('DOMContentLoaded', function() {
+      // Force document to be scrollable
+      document.documentElement.style.overflowY = 'scroll';
+      document.body.style.overflowY = 'scroll';
+      
+      // Prevent iOS bouncing/rubber-banding effect that can cause scroll issues
+      document.body.addEventListener('touchmove', function(e) {
+        if (e.target === document.body) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+      
+      // Make sure content is tall enough to scroll
+      function ensureScrollable() {
+        var contentHeight = document.querySelector('.boxes').offsetTop + 
+                           document.querySelector('.boxes').offsetHeight + 100;
+        var windowHeight = window.innerHeight;
+        
+        // If content is shorter than the window, add padding to make it scrollable
+        if (contentHeight < windowHeight) {
+          document.querySelector('.main-content').style.paddingBottom = 
+            (windowHeight - contentHeight + 100) + 'px';
+        }
+      }
+      
+      // Run on load and resize
+      window.addEventListener('resize', ensureScrollable);
+      ensureScrollable();
+    });
+  </script>
 </body>
 </html>
