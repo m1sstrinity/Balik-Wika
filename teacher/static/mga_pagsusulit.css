@@ -1277,36 +1277,6 @@ body {
   border-color: #e74c3c;
 }
 
-.quiz-card .level-badge {
-  position: absolute;
-  top: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.level-badge.baguhan {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.level-badge.katamtaman {
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-}
-
-.level-badge.dalubhasa {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
 
 /* Mastery level selector in modal */
 .mastery-level-selector {
