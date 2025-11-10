@@ -265,6 +265,9 @@
     </div>
   </div>
 
+  <!-- Custom Notification System -->
+  <div id="notificationContainer"></div>
+
   <script>
     let lessonsData = {};
     let subjectsData = [];
@@ -272,6 +275,65 @@
     let deleteTarget = null;
     let deleteType = null;
     let currentLessonId = null;
+
+    // Custom Notification System
+function showNotification(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('notificationContainer');
+  
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  
+  // Icons for different types
+  const icons = {
+    success: '<i class="fas fa-check-circle"></i>',
+    error: '<i class="fas fa-exclamation-circle"></i>',
+    warning: '<i class="fas fa-exclamation-triangle"></i>',
+    info: '<i class="fas fa-info-circle"></i>'
+  };
+  
+  notification.innerHTML = `
+    <div class="notification-icon">${icons[type]}</div>
+    <div class="notification-content">${message}</div>
+    <button class="notification-close" onclick="closeNotification(this)">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  
+  container.appendChild(notification);
+  
+  // Auto remove after duration
+  if (duration > 0) {
+    setTimeout(() => {
+      closeNotification(notification.querySelector('.notification-close'));
+    }, duration);
+  }
+}
+
+function closeNotification(button) {
+  const notification = button.closest('.notification');
+  notification.classList.add('removing');
+  
+  setTimeout(() => {
+    notification.remove();
+  }, 300);
+}
+
+// Convenience functions
+function showSuccess(message, duration = 4000) {
+  showNotification(message, 'success', duration);
+}
+
+function showError(message, duration = 5000) {
+  showNotification(message, 'error', duration);
+}
+
+function showWarning(message, duration = 4500) {
+  showNotification(message, 'warning', duration);
+}
+
+function showInfo(message, duration = 4000) {
+  showNotification(message, 'info', duration);
+}
 
     // Load subjects from the server
     function loadSubjects() {
@@ -361,7 +423,7 @@
       const description = document.getElementById('subjectDescription').value.trim();
 
       if (!name || !description) {
-        alert('Pakikompletuhin ang pangalan at paglalarawan.');
+        showWarning('Pakikompletuhin ang pangalan at paglalarawan.');
         return;
       }
 
@@ -378,17 +440,17 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert("Naidagdag na ang paksa.");
+          showSuccess("Naidagdag na ang paksa.");
           closeAddSubjectModal();
           loadSubjects();
           loadLessons();
         } else {
-          alert(data.message || "May error sa pagdagdag ng paksa.");
+          showError(data.message || "May error sa pagdagdag ng paksa.");
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert("May error sa pagdagdag ng paksa.");
+        showError(data.message || "May error sa pagdagdag ng paksa.");
       });
     }
 
@@ -412,7 +474,7 @@
       const description = document.getElementById('editSubjectDescription').value.trim();
 
       if (!name || !description) {
-        alert('Pakikompletuhin ang pangalan at paglalarawan.');
+        showWarning('Pakikompletuhin ang pangalan at paglalarawan.');
         return;
       }
 
@@ -428,16 +490,16 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert("Na-update na ang paksa.");
+          showSuccess("Na-update na ang paksa.");
           closeEditSubjectModal();
           loadSubjects();
         } else {
-          alert(data.message || "May error sa pag-update ng paksa.");
+          showError(data.message || "May error sa pag-update ng paksa.");
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert("May error sa pag-update ng paksa.");
+        showError(data.message || "May error sa pag-update ng paksa.");
       });
     }
 
@@ -459,16 +521,16 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert("Nabura na ang paksa.");
+          showSuccess("Nabura na ang paksa.");
           loadSubjects();
           loadLessons();
         } else {
-          alert(data.message || "May error sa pagbura ng paksa.");
+          showError(data.message || "May error sa pagbura ng paksa.");
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert("May error sa pagbura ng paksa.");
+        showError(data.message || "May error sa pagbura ng paksa.");
       });
     }
 
@@ -502,7 +564,7 @@
       const videoFile = document.getElementById('lessonVideo').files[0];
       
       if (!title || !content) {
-        alert('Pamagat at nilalaman ay kinakailangan.');
+        showWarning('Pamagat at nilalaman ay kinakailangan.');
         return;
       }
       
@@ -533,7 +595,7 @@
               console.log('Video uploaded successfully');
             } catch (videoError) {
               console.error('Video upload failed:', videoError);
-              alert('Aralin ay naidagdag pero may problema sa video upload: ' + videoError.message);
+              showError('Aralin ay naidagdag pero may problema sa video upload: ' + videoError.message);
               closeAddLessonModal();
               loadLessons();
               loadSubjects();
@@ -542,7 +604,7 @@
             }
           }
           
-          alert('Aralin ay matagumpay na naidagdag!');
+          showSuccess('Aralin ay matagumpay na naidagdag!');
           closeAddLessonModal();
           document.getElementById('lessonTitle').value = '';
           document.getElementById('lessonContentInput').value = '';
@@ -551,11 +613,11 @@
           loadSubjects();
           renderLessons();
         } else {
-          alert(data.message || 'May error sa pagdagdag ng aralin.');
+          showError(data.message || 'May error sa pagdagdag ng aralin.');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('May error sa pagdagdag ng aralin: ' + error.message);
+        showError(data.message || 'May error sa pagdagdag ng aralin.');
       }
     }
 
@@ -661,7 +723,8 @@
       const videoFile = document.getElementById('editLessonVideo').files[0];
 
       if (!title || !content) {
-        alert('Pakikompletuhin ang lahat ng field.');
+        showWarning('Pakikompletuhin ang lahat ng field.');
+
         return;
       }
 
@@ -685,7 +748,7 @@
               await uploadVideoForEdit(id, videoFile);
             } catch (videoError) {
               console.error('Video upload failed:', videoError);
-              alert('Aralin ay na-update pero may problema sa video upload: ' + videoError.message);
+              showError('Aralin ay na-update pero may problema sa video upload: ' + videoError.message);
               closeEditLessonModal();
               loadLessons();
               loadSubjects();
@@ -694,17 +757,17 @@
             }
           }
           
-          alert("Na-update na ang aralin.");
+          showSuccess("Na-update na ang aralin.");
           closeEditLessonModal();
           loadLessons();
           loadSubjects();
           renderLessons();
         } else {
-          alert(data.message || "May error sa pag-update ng aralin.");
+          showError(data.message || "May error sa pag-update ng aralin.");
         }
       } catch (error) {
         console.error('Error:', error);
-        alert("May error sa pag-update ng aralin.");
+        showSuccess("Nabura na ang aralin.");
       }
     }
 
@@ -768,18 +831,18 @@
         const data = await response.json();
         
         if (data.success) {
-          alert('Video ay matagumpay na natanggal');
+          showSuccess('Video ay matagumpay na natanggal');
           // Refresh the video list in the edit modal
           const lessonId = document.getElementById('editLessonId').value;
           const title = document.getElementById('editLessonTitle').value;
           const content = document.getElementById('editLessonContentInput').value;
           await openEditLessonModal(lessonId, title, content);
         } else {
-          alert('Error: ' + data.message);
+          showError(data.message || 'May naganap na error');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('May naganap na error');
+        showError(data.message || 'May naganap na error');
       }
     }
 
@@ -801,17 +864,17 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          alert("Nabura na ang aralin.");
+          showSuccess("Nabura na ang aralin.");
           loadLessons();
           loadSubjects();
           renderLessons();
         } else {
-          alert(data.message || "May error sa pagbura ng aralin.");
+          showError(data.message || "May error sa pagbura ng aralin.");
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert("May error sa pagbura ng aralin.");
+        showError("May error sa pagbura ng aralin.");
       });
     }
 
@@ -961,7 +1024,7 @@
         const data = await response.json();
         
         if (data.success) {
-          alert('Video ay matagumpay na natanggal');
+          showSuccess('Video ay matagumpay na natanggal');
           if (currentLessonId) {
             const lesson = findLessonById(currentLessonId);
             if (lesson) {
@@ -969,11 +1032,11 @@
             }
           }
         } else {
-          alert('Error: ' + data.message);
+          showError(data.message || 'May naganap na error');
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('May naganap na error');
+        showError('May naganap na error');
       }
     }
 
