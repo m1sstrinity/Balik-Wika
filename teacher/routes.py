@@ -15,7 +15,7 @@ from werkzeug.utils import secure_filename
 # Video upload configuration
 UPLOAD_FOLDER = 'static/uploads/videos'
 ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'avi', 'mov', 'wmv', 'webm'}
-MAX_VIDEO_SIZE = 2 * 1024 * 1024 * 1024  # 2GB
+MAX_VIDEO_SIZE = 500 * 1024 * 1024  # 500MB
 
 # Create upload directory if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
