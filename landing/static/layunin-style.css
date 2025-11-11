@@ -23,7 +23,8 @@ nav {
   align-items: center;
   justify-content: center;
   gap: 30px;
-  margin-right: 90px;
+  margin: 0 auto
+  
 }
 
 nav a {
