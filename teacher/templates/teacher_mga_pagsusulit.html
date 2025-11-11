@@ -12,8 +12,8 @@
   <div class="sidebar">
     <div class="logo"><img src="/static/balikwika.png" alt="BalikWika Logo" /></div>
     <a href="{{ url_for('teacher.teacher_dashboard') }}" class="nav-item active">Dashboard</a>
-    <a href="{{ url_for('teacher.mga_aralin') }}" class="nav-item">Mga aralin</a>
-    <a href="{{ url_for('teacher.mga_pagsusulit') }}" class="nav-item active">Pagsusulit</a>
+    <a href="{{ url_for('teacher.mga_aralin') }}" class="nav-item">Mga Aralin</a>
+    <a href="{{ url_for('teacher.mga_pagsusulit') }}" class="nav-item active">Mga Pagsusulit</a>
     <a href="{{ url_for('teacher.kasanayan_mag_aral') }}" class="nav-item kasanayan-btn">Kasanayan ng mag-aaral</a>
     <a href="{{ url_for('teacher.profile') }}" class="nav-item">Aking profile</a>
     <a href="#" class="nav-item" id="logout-btn">Mag log-out</a>
@@ -295,6 +295,9 @@
     </div>
   </div>
 
+  <!-- Custom Notification System -->
+ <div id="notificationContainer"></div>
+
 <script>
 // Global variables
 let currentMasteryLevel = 'baguhan';
@@ -306,6 +309,65 @@ let allQuizzesByLevel = {
 let currentQuizId = null;
 let currentSubject = null; // For compatibility with old code
 let currentImage = '';
+
+// Custom Notification System
+function showNotification(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('notificationContainer');
+  
+  const notification = document.createElement('div');
+  notification.className = `notification ${type}`;
+  
+  // Icons for different types
+  const icons = {
+    success: '<i class="fas fa-check-circle"></i>',
+    error: '<i class="fas fa-exclamation-circle"></i>',
+    warning: '<i class="fas fa-exclamation-triangle"></i>',
+    info: '<i class="fas fa-info-circle"></i>'
+  };
+  
+  notification.innerHTML = `
+    <div class="notification-icon">${icons[type]}</div>
+    <div class="notification-content">${message}</div>
+    <button class="notification-close" onclick="closeNotification(this)">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  
+  container.appendChild(notification);
+  
+  // Auto remove after duration
+  if (duration > 0) {
+    setTimeout(() => {
+      closeNotification(notification.querySelector('.notification-close'));
+    }, duration);
+  }
+}
+
+function closeNotification(button) {
+  const notification = button.closest('.notification');
+  notification.classList.add('removing');
+  
+  setTimeout(() => {
+    notification.remove();
+  }, 300);
+}
+
+// Convenience functions
+function showSuccess(message, duration = 4000) {
+  showNotification(message, 'success', duration);
+}
+
+function showError(message, duration = 5000) {
+  showNotification(message, 'error', duration);
+}
+
+function showWarning(message, duration = 4500) {
+  showNotification(message, 'warning', duration);
+}
+
+function showInfo(message, duration = 4000) {
+  showNotification(message, 'info', duration);
+}
 
 // Load quizzes on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -522,7 +584,7 @@ function createNewQuiz() {
   const masteryLevel = document.querySelector('input[name="mastery_level"]:checked').value;
   
   if (!title) {
-    alert('Pakiusap ilagay ang titulo ng pagsusulit.');
+    showWarning("Pakiusap ilagay ang titulo ng Pagsusulit.");
     return;
   }
   
@@ -540,14 +602,14 @@ function createNewQuiz() {
       closeNewQuizModal();
       loadQuizzesByMastery();
       switchMasteryTab(masteryLevel);
-      alert('Matagumpay na nilikha ang pagsusulit!');
+      showSuccess('Matagumpay na nalikha ang pagsusulit!');
     } else {
-      alert(data.message || 'Error creating quiz');
+      showError(data.message || 'Hindi nagawa ang quiz.');
     }
   })
   .catch(err => {
     console.error('Error:', err);
-    alert('Error creating quiz');
+    showError('Hindi nagawa ang quiz.');
   });
 }
 
@@ -608,7 +670,7 @@ function closeSubjectModal() {
 
 function openAddQuestionModal() {
   if (!currentQuizId) {
-    alert('Pumili muna ng pagsusulit.');
+    showWarning('Pumili muna ng pagsusulit.');
     return;
   }
   
@@ -643,17 +705,17 @@ function addNewQuestion() {
 
   // Validation
   if (!questionText || !choiceA || !choiceB || !choiceC || !choiceD || !correctAnswer) {
-    alert("Pakitapos lahat ng fields.");
+    showWarning("Pakitapos lahat ng fields.");
     return;
   }
 
   if (!currentSubject) {
-    alert("No quiz selected.");
+    showWarning("Walang pagsusulit na napili.");
     return;
   }
 
   if (!currentQuizId) {
-    alert("Quiz ID is missing. Please select a quiz again.");
+    showWarning("Walang ID, pumili ulit.");
     return;
   }
 
@@ -716,12 +778,12 @@ function addNewQuestion() {
         
         document.getElementById('successModal').style.display = 'block';
       } else {
-        alert(data.message || "Hindi naidagdag ang tanong.");
+        showError(data.message || "Hindi naidagdag ang tanong.");
       }
     })
     .catch(err => {
       console.error("Error adding question:", err);
-      alert("Error: " + err.message);
+      showError("Error: " + err.message);
     });
   });
 }
@@ -858,7 +920,7 @@ function saveQuizTitleEdit(quizId) {
     if (data.success) {
       closeEditQuizTitleModal();
       loadQuizzesByMastery();
-      alert('Matagumpay na na-update ang pagsusulit!');
+      showSuccess('Matagumpay na na-update ang pagsusulit!');
     } else {
       errorDiv.textContent = data.message || 'Error updating quiz';
       errorDiv.style.display = 'block';
@@ -884,14 +946,14 @@ function deleteQuizNow(quizId) {
   .then(data => {
     if (data.success) {
       loadQuizzesByMastery();
-      alert('Matagumpay na nabura ang pagsusulit!');
+      showSuccess('Matagumpay na nabura ang pagsusulit!');
     } else {
-      alert(data.message || 'Error deleting quiz');
+      showError(data.message || 'Error hindi matanggal ang pagsusulit');
     }
   })
   .catch(err => {
     console.error('Error:', err);
-    alert('Error deleting quiz');
+    showError('Error hindi matanggal ang pagsusulit');
   });
 }
 
@@ -907,7 +969,7 @@ function saveEditedQuestion() {
   const trivia = document.getElementById('edit-question-trivia').value.trim();
 
   if (!all([questionText, choiceA, choiceB, choiceC, choiceD, correctAnswer])) {
-    alert("Pakitapos lahat ng fields.");
+    showWarning("Pakitapos lahat ng fields.");
     return;
   }
 
@@ -950,14 +1012,14 @@ function saveEditedQuestion() {
         setTimeout(() => {
           openQuizDetails(currentQuizId, currentSubject);
         }, 300);
-        alert("Nag-update ang tanong.");
+        showSuccess("Nag-update ang tanong.");
       } else {
-        alert(data.message || "Error updating question.");
+        showError(data.message || "Error hindi ma-update ang tanong.");
       }
     })
     .catch(err => {
       console.error("Error:", err);
-      alert("Error updating question.");
+      showError("Error hindi ma-update ang tanong.");
     });
   });
 }
@@ -975,14 +1037,14 @@ function deleteQuestion(questionId) {
         setTimeout(() => {
           openQuizDetails(currentQuizId, currentSubject);
         }, 300);
-        alert("Nabura ang tanong.");
+        showSuccess("Nabura ang tanong.");
       } else {
-        alert(data.message || "Error deleting question.");
+        showError(data.message || "Error hindi matanggal ang tanong.");
       }
     })
     .catch(err => {
       console.error("Error:", err);
-      alert("Error deleting question.");
+      showError("Error hindi matanggal ang tanong.");
     });
   });
 }

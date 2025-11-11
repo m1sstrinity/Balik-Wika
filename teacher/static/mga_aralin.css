@@ -607,19 +607,21 @@ body {
     gap: 5px;
 }
 
-/* Lesson Content Modal */
+/* Lesson Content Modal - UPDATED */
 .lesson-content-modal .modal-content {
-    max-width: 700px;
+    max-width: 1000px; /* Changed from 700px to 1000px */
+    width: 95%; /* Added for better responsiveness */
 }
 
 .lesson-content-modal .modal-body {
-    max-height: 60vh;
+    max-height: 70vh; /* Changed from 60vh to 70vh for more vertical space */
     overflow-y: auto;
+    padding: 40px; /* Increased from 30px */
 }
 
 .lesson-content-text {
-    font-size: 16px;
-    line-height: 1.8;
+    font-size: 17px; /* Increased from 16px */
+    line-height: 1.9; /* Increased from 1.8 */
     color: #333;
     white-space: pre-wrap;
 }
@@ -778,6 +780,307 @@ body {
     box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
 }
 
+/* Video Management Styles for Edit Modal */
+#editLessonVideosSection {
+    margin-top: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border-radius: 10px;
+    border: 2px solid #e1e5e9;
+}
+
+#editLessonVideosSection label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#editLessonCurrentVideos {
+    margin-top: 10px;
+}
+
+/* Video Item in Edit Modal */
+.edit-video-item {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    border: 1px solid #e1e5e9;
+}
+
+.edit-video-item:hover {
+    background-color: #fff;
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.edit-video-item .fa-video {
+    margin-right: 8px;
+    color: #4CAF50;
+}
+
+.edit-video-item span {
+    font-weight: 500;
+    color: #333;
+}
+
+.edit-video-item small {
+    color: #666;
+    font-size: 12px;
+    margin-left: 10px;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.edit-video-item button {
+    padding: 6px 12px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-video-item button:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+/* Progress Bar Styles for Edit Modal */
+#editUploadProgress {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+#editUploadProgressBar {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    height: 100%;
+    width: 0%;
+    text-align: center;
+    line-height: 30px;
+    color: white;
+    transition: width 0.3s ease;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+/* File Input Styling */
+.modal-body input[type="file"] {
+    padding: 10px;
+    border: 2px dashed #e1e5e9;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-body input[type="file"]:hover {
+    border-color: #667eea;
+    background: #fff;
+}
+
+.modal-body input[type="file"]:focus {
+    outline: none;
+    border-color: #667eea;
+    border-style: solid;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Video Container in Lesson Modal */
+#lessonVideosContainer {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 2px solid #e1e5e9;
+}
+
+#lessonVideosContainer h3 {
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+#lessonVideosDisplay video {
+    width: 100%;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+#lessonVideosDisplay video:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+#lessonVideosDisplay button {
+    padding: 5px 15px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#lessonVideosDisplay button:hover {
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+/* Notification System */
+#notificationContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.notification {
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.notification::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+}
+
+.notification.success {
+  background-color: #d4edda;
+  border-left: 4px solid #28a745;
+  color: #155724;
+}
+
+.notification.success::before {
+  background-color: #28a745;
+}
+
+.notification.error {
+  background-color: #f8d7da;
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+}
+
+.notification.error::before {
+  background-color: #dc3545;
+}
+
+.notification.warning {
+  background-color: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+}
+
+.notification.warning::before {
+  background-color: #ffc107;
+}
+
+.notification.info {
+  background-color: #d1ecf1;
+  border-left: 4px solid #17a2b8;
+  color: #0c5460;
+}
+
+.notification.info::before {
+  background-color: #17a2b8;
+}
+
+.notification-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.notification-content {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+.notification.removing {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
 /* Logout Modal Styles */
 .logout-modal {
     display: none;
@@ -914,10 +1217,33 @@ body {
 }
 
 /* Responsive Design */
+@media (max-width: 1100px) {
+    .lesson-content-modal .modal-content {
+        max-width: 90%;
+    }
+}
+
 @media (max-width: 1024px) {
     .subjects-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  #notificationContainer {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
+  
+  .notification {
+    padding: 14px 16px;
+  }
+  
+  .notification-content {
+    font-size: 13px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1004,6 +1330,51 @@ body {
         margin-top: 10px;
         justify-content: flex-end;
     }
+
+    /* Lesson Modal Responsive */
+    .lesson-content-modal .modal-content {
+        max-width: 95%;
+        width: 95%;
+    }
+
+    .lesson-content-modal .modal-body {
+        padding: 25px;
+        max-height: 65vh;
+    }
+
+    .lesson-content-text {
+        font-size: 16px;
+        line-height: 1.8;
+    }
+
+    /* Video Management Responsive */
+    #editLessonVideosSection {
+        padding: 10px;
+    }
+
+    .edit-video-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .edit-video-item button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    #lessonVideosDisplay video {
+        max-width: 100%;
+    }
+
+    #lessonVideosDisplay > div {
+        flex-direction: column;
+    }
+
+    #lessonVideosDisplay button {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1038,5 +1409,36 @@ body {
 
     .subject-card {
         padding-top: 20px;
+    }
+
+    /* Lesson Modal Small Screen */
+    .lesson-content-modal .modal-body {
+        padding: 20px;
+        max-height: 60vh;
+    }
+
+    .lesson-content-text {
+        font-size: 15px;
+    }
+
+    /* Video Management Small Screen */
+    #editLessonVideosSection label {
+        font-size: 14px;
+    }
+
+    .edit-video-item span {
+        font-size: 13px;
+    }
+
+    .edit-video-item small {
+        font-size: 11px;
+    }
+
+    #lessonVideosContainer {
+        padding: 15px;
+    }
+
+    #lessonVideosContainer h3 {
+        font-size: 18px;
     }
 }

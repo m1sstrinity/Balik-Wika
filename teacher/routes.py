@@ -258,6 +258,16 @@ def create_quiz_with_mastery_level():
     cursor = conn.cursor()
     
     try:
+        # Check if quiz title already exists in this mastery level
+        cursor.execute(
+            'SELECT id FROM quizzes WHERE title = %s AND mastery_level = %s',
+            (title, mastery_level)
+        )
+        if cursor.fetchone():
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'message': 'Quiz title already exists in this mastery level'}), 409
+        
         cursor.execute("""
             INSERT INTO quizzes (title, mastery_level)
             VALUES (%s, %s)
@@ -1425,6 +1435,7 @@ def update_quiz(quiz_id):
 
     data = request.get_json()
     new_title = data.get('title')
+    new_mastery_level = data.get('mastery_level')  # NEW: Get mastery level from request
 
     if not new_title:
         return jsonify({'success': False, 'message': 'Missing title'}), 400
@@ -1433,9 +1444,9 @@ def update_quiz(quiz_id):
     cursor = conn.cursor()
 
     try:
-        # Check if quiz exists
+        # Get current quiz info
         cursor.execute(
-            'SELECT id FROM quizzes WHERE id = %s', 
+            'SELECT id, mastery_level FROM quizzes WHERE id = %s', 
             (quiz_id,)
         )
         quiz = cursor.fetchone()
@@ -1445,20 +1456,26 @@ def update_quiz(quiz_id):
             conn.close()
             return jsonify({'success': False, 'message': 'Quiz not found'}), 404
 
-        # Check if new title already exists (excluding current quiz)
+        # Use new mastery level if provided, otherwise keep current
+        mastery_level = new_mastery_level if new_mastery_level else quiz['mastery_level']
+
+        # Check if new title already exists in the SAME mastery level (excluding current quiz)
         cursor.execute(
-            'SELECT id FROM quizzes WHERE title = %s AND id != %s', 
-            (new_title, quiz_id)
+            'SELECT id FROM quizzes WHERE title = %s AND mastery_level = %s AND id != %s', 
+            (new_title, mastery_level, quiz_id)
         )
         existing = cursor.fetchone()
 
         if existing:
             cursor.close()
             conn.close()
-            return jsonify({'success': False, 'message': 'Quiz title already exists'}), 409
+            return jsonify({'success': False, 'message': 'Quiz title already exists in this mastery level'}), 409
 
-        # Update the quiz
-        cursor.execute('UPDATE quizzes SET title = %s WHERE id = %s', (new_title, quiz_id))
+        # Update the quiz (both title and mastery level)
+        cursor.execute(
+            'UPDATE quizzes SET title = %s, mastery_level = %s WHERE id = %s', 
+            (new_title, mastery_level, quiz_id)
+        )
         conn.commit()
         cursor.close()
         conn.close()
