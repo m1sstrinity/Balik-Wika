@@ -1,1 +1,1 @@
-web: gunicorn app:app --timeout 900 --workers 2 --threads 4 --worker-class=gthread --log-level debug
+web: gunicorn app:app --timeout 600 --workers 2
