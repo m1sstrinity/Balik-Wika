@@ -637,31 +637,32 @@ def print_student_progress(student_id):
             'email': student_raw['email'] if isinstance(student_raw, dict) else student_raw[3]
         }
         
-        # Get quiz attempts
+        # Get quiz attempts with correct column names
         if db_config.is_production:
             cursor.execute("""
-                SELECT quiz_id, score, total_questions, completed_at 
+                SELECT id, quiz_id, score, attempt_number, attempted_at 
                 FROM quiz_attempts 
                 WHERE user_id = %s 
-                ORDER BY completed_at DESC
+                ORDER BY attempted_at DESC
             """, (student_id,))
             quiz_attempts_raw = cursor.fetchall()
         else:
             cursor.execute("""
-                SELECT quiz_id, score, total_questions, completed_at 
+                SELECT id, quiz_id, score, attempt_number, attempted_at 
                 FROM quiz_attempts 
                 WHERE user_id = ? 
-                ORDER BY completed_at DESC
+                ORDER BY attempted_at DESC
             """, (student_id,))
             quiz_attempts_raw = cursor.fetchall()
         
         quiz_attempts = []
         for row in quiz_attempts_raw:
             quiz_attempts.append({
-                'quiz_id': row['quiz_id'] if isinstance(row, dict) else row[0],
-                'score': row['score'] if isinstance(row, dict) else row[1],
-                'total_questions': row['total_questions'] if isinstance(row, dict) else row[2],
-                'completed_at': row['completed_at'] if isinstance(row, dict) else row[3]
+                'id': row['id'] if isinstance(row, dict) else row[0],
+                'quiz_id': row['quiz_id'] if isinstance(row, dict) else row[1],
+                'score': row['score'] if isinstance(row, dict) else row[2],
+                'attempt_number': row['attempt_number'] if isinstance(row, dict) else row[3],
+                'attempted_at': row['attempted_at'] if isinstance(row, dict) else row[4]
             })
         
         # Get student metrics

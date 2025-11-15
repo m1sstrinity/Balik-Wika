@@ -105,26 +105,26 @@
   {% endif %}
 
   <!-- Quiz Attempts Section -->
-  <div class="section-title">Quiz Attempts</div>
+  <div class="section-title">Kasaysayan ng Quiz Attempts</div>
   {% if quiz_attempts %}
   <table>
     <thead>
       <tr>
+        <th>Attempt ID</th>
         <th>Quiz ID</th>
         <th>Score</th>
-        <th>Total Questions</th>
-        <th>Percentage</th>
-        <th>Completed At</th>
+        <th>Attempt Number</th>
+        <th>Attempted At</th>
       </tr>
     </thead>
     <tbody>
       {% for attempt in quiz_attempts %}
       <tr>
+        <td>{{ attempt.id }}</td>
         <td>{{ attempt.quiz_id }}</td>
         <td>{{ attempt.score }}</td>
-        <td>{{ attempt.total_questions }}</td>
-        <td>{{ "%.2f"|format((attempt.score / attempt.total_questions * 100) if attempt.total_questions > 0 else 0) }}%</td>
-        <td>{{ attempt.completed_at }}</td>
+        <td>{{ attempt.attempt_number }}</td>
+        <td>{{ attempt.attempted_at }}</td>
       </tr>
       {% endfor %}
     </tbody>
