@@ -603,6 +603,115 @@ def reports():
 
     return render_template('reports.html', teachers=teachers, users=students, admins=admins)
 
+@admin_bp.route('/print-student-progress/<int:student_id>')
+def print_student_progress(student_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Get student info
+        if db_config.is_production:
+            cursor.execute("""
+                SELECT id, first_name, last_name, email 
+                FROM users 
+                WHERE id = %s AND role = 'student'
+            """, (student_id,))
+            student_raw = cursor.fetchone()
+        else:
+            cursor.execute("""
+                SELECT id, first_name, last_name, email 
+                FROM users 
+                WHERE id = ? AND role = 'student'
+            """, (student_id,))
+            student_raw = cursor.fetchone()
+        
+        if not student_raw:
+            conn.close()
+            flash("Student not found.", "error")
+            return redirect(url_for('admin.students'))
+        
+        student = {
+            'id': student_raw['id'] if isinstance(student_raw, dict) else student_raw[0],
+            'first_name': student_raw['first_name'] if isinstance(student_raw, dict) else student_raw[1],
+            'last_name': student_raw['last_name'] if isinstance(student_raw, dict) else student_raw[2],
+            'email': student_raw['email'] if isinstance(student_raw, dict) else student_raw[3]
+        }
+        
+        # Get quiz attempts
+        if db_config.is_production:
+            cursor.execute("""
+                SELECT quiz_id, score, total_questions, completed_at 
+                FROM quiz_attempts 
+                WHERE user_id = %s 
+                ORDER BY completed_at DESC
+            """, (student_id,))
+            quiz_attempts_raw = cursor.fetchall()
+        else:
+            cursor.execute("""
+                SELECT quiz_id, score, total_questions, completed_at 
+                FROM quiz_attempts 
+                WHERE user_id = ? 
+                ORDER BY completed_at DESC
+            """, (student_id,))
+            quiz_attempts_raw = cursor.fetchall()
+        
+        quiz_attempts = []
+        for row in quiz_attempts_raw:
+            quiz_attempts.append({
+                'quiz_id': row['quiz_id'] if isinstance(row, dict) else row[0],
+                'score': row['score'] if isinstance(row, dict) else row[1],
+                'total_questions': row['total_questions'] if isinstance(row, dict) else row[2],
+                'completed_at': row['completed_at'] if isinstance(row, dict) else row[3]
+            })
+        
+        # Get student metrics
+        if db_config.is_production:
+            cursor.execute("""
+                SELECT avg_score, total_quizzes, completion_rate, 
+                       score_trend, failed_count, consecutive_fails, 
+                       days_inactive, last_active, mastery_level 
+                FROM student_metrics 
+                WHERE user_id = %s
+            """, (student_id,))
+            metrics_raw = cursor.fetchone()
+        else:
+            cursor.execute("""
+                SELECT avg_score, total_quizzes, completion_rate, 
+                       score_trend, failed_count, consecutive_fails, 
+                       days_inactive, last_active, mastery_level 
+                FROM student_metrics 
+                WHERE user_id = ?
+            """, (student_id,))
+            metrics_raw = cursor.fetchone()
+        
+        metrics = None
+        if metrics_raw:
+            metrics = {
+                'avg_score': metrics_raw['avg_score'] if isinstance(metrics_raw, dict) else metrics_raw[0],
+                'total_quizzes': metrics_raw['total_quizzes'] if isinstance(metrics_raw, dict) else metrics_raw[1],
+                'completion_rate': metrics_raw['completion_rate'] if isinstance(metrics_raw, dict) else metrics_raw[2],
+                'score_trend': metrics_raw['score_trend'] if isinstance(metrics_raw, dict) else metrics_raw[3],
+                'failed_count': metrics_raw['failed_count'] if isinstance(metrics_raw, dict) else metrics_raw[4],
+                'consecutive_fails': metrics_raw['consecutive_fails'] if isinstance(metrics_raw, dict) else metrics_raw[5],
+                'days_inactive': metrics_raw['days_inactive'] if isinstance(metrics_raw, dict) else metrics_raw[6],
+                'last_active': metrics_raw['last_active'] if isinstance(metrics_raw, dict) else metrics_raw[7],
+                'mastery_level': metrics_raw['mastery_level'] if isinstance(metrics_raw, dict) else metrics_raw[8]
+            }
+        
+        conn.close()
+        
+        return render_template('print_student_progress.html', 
+                             student=student, 
+                             quiz_attempts=quiz_attempts, 
+                             metrics=metrics)
+    
+    except Exception as e:
+        conn.close()
+        print(f"[ERROR] print_student_progress error: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("Error loading student progress for printing.", "error")
+        return redirect(url_for('admin.students'))
 
 @admin_bp.route('/prc')
 def prc():

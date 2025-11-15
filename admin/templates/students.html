@@ -135,6 +135,9 @@
             <td><span class="status {{ student.status|lower }}">{{ student.status }}</span></td>
             <td class="actions">
               <i class="fas fa-pen edit" onclick="openModal(this)"></i>
+              <i class="fas fa-print" style="margin-left: 10px; color: #2c3e50; cursor: pointer;" 
+                onclick="printStudentProgress('{{ student.id }}')"
+                title="Print Progress Report"></i>
             </td>
           </tr>
           {% endfor %}
@@ -375,6 +378,9 @@ function uploadBulkStudents() {
       console.error("Error uploading file:", error);
       statusDiv.innerHTML = '<span style="color: #e74c3c;">Failed to upload file.</span>';
     });
+}
+function printStudentProgress(studentId) {
+  window.open(`/admin/print-student-progress/${studentId}`, '_blank');
 }
   </script>
 

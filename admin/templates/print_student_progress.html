@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ulat ng Pag-unlad ng Estudyante</title>
+  <style>
+    body {
+      font-family: 'Instrument Serif', serif;
+      padding: 40px;
+    }
+    img.logo {
+      width: 100px;
+      display: block;
+      margin: 0 auto 20px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    .student-info {
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+    }
+    .student-info p {
+      margin: 5px 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      margin-bottom: 30px;
+    }
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .section-title {
+      margin-top: 30px;
+      font-size: 1.3em;
+      font-weight: bold;
+      border-bottom: 2px solid #333;
+      padding-bottom: 5px;
+    }
+    .no-data {
+      text-align: center;
+      font-style: italic;
+      color: #666;
+      padding: 20px;
+    }
+    @media print {
+      .no-print {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body onload="window.print()">
+  <img src="{{ url_for('admin.static', filename='bwlogo.png') }}" alt="Logo" class="logo">
+  <h1>Ulat ng Pag-unlad ng Estudyante</h1>
+
+  <div class="student-info">
+    <p><strong>Estudyante ID:</strong> {{ student.id }}</p>
+    <p><strong>Pangalan:</strong> {{ student.first_name }} {{ student.last_name }}</p>
+    <p><strong>Email:</strong> {{ student.email }}</p>
+  </div>
+
+  <!-- Student Metrics Section -->
+  <div class="section-title">Kabuuang Metriko</div>
+  {% if metrics %}
+  <table>
+    <thead>
+      <tr>
+        <th>Average Score</th>
+        <th>Total Quizzes</th>
+        <th>Completion Rate</th>
+        <th>Score Trend</th>
+        <th>Failed Count</th>
+        <th>Consecutive Fails</th>
+        <th>Days Inactive</th>
+        <th>Last Active</th>
+        <th>Mastery Level</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ "%.2f"|format(metrics.avg_score) }}%</td>
+        <td>{{ metrics.total_quizzes }}</td>
+        <td>{{ "%.2f"|format(metrics.completion_rate) }}%</td>
+        <td>{{ metrics.score_trend }}</td>
+        <td>{{ metrics.failed_count }}</td>
+        <td>{{ metrics.consecutive_fails }}</td>
+        <td>{{ metrics.days_inactive }}</td>
+        <td>{{ metrics.last_active or 'N/A' }}</td>
+        <td>{{ metrics.mastery_level or 'N/A' }}</td>
+      </tr>
+    </tbody>
+  </table>
+  {% else %}
+  <div class="no-data">Walang available na metrics para sa estudyanteng ito.</div>
+  {% endif %}
+
+  <!-- Quiz Attempts Section -->
+  <div class="section-title">Quiz Attempts</div>
+  {% if quiz_attempts %}
+  <table>
+    <thead>
+      <tr>
+        <th>Quiz ID</th>
+        <th>Score</th>
+        <th>Total Questions</th>
+        <th>Percentage</th>
+        <th>Completed At</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for attempt in quiz_attempts %}
+      <tr>
+        <td>{{ attempt.quiz_id }}</td>
+        <td>{{ attempt.score }}</td>
+        <td>{{ attempt.total_questions }}</td>
+        <td>{{ "%.2f"|format((attempt.score / attempt.total_questions * 100) if attempt.total_questions > 0 else 0) }}%</td>
+        <td>{{ attempt.completed_at }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="no-data">Walang quiz attempts para sa estudyanteng ito.</div>
+  {% endif %}
+
+</body>
+</html>
