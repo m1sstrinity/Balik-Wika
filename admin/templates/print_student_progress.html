@@ -70,33 +70,29 @@
   </div>
 
   <!-- Student Metrics Section -->
-  <div class="section-title">Kabuuang Metriko</div>
+  <div class="section-title">Kabuuang Metriko ng Estudyante</div>
   {% if metrics %}
   <table>
     <thead>
       <tr>
         <th>Average Score</th>
-        <th>Total Quizzes</th>
-        <th>Completion Rate</th>
         <th>Score Trend</th>
-        <th>Failed Count</th>
+        <th>Total Attempts</th>
+        <th>Failed Quizzes</th>
         <th>Consecutive Fails</th>
         <th>Days Inactive</th>
-        <th>Last Active</th>
-        <th>Mastery Level</th>
+        <th>Last Updated</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>{{ "%.2f"|format(metrics.avg_score) }}%</td>
-        <td>{{ metrics.total_quizzes }}</td>
-        <td>{{ "%.2f"|format(metrics.completion_rate) }}%</td>
         <td>{{ metrics.score_trend }}</td>
-        <td>{{ metrics.failed_count }}</td>
+        <td>{{ metrics.total_attempts }}</td>
+        <td>{{ metrics.failed_quizzes_count }}</td>
         <td>{{ metrics.consecutive_fails }}</td>
         <td>{{ metrics.days_inactive }}</td>
-        <td>{{ metrics.last_active or 'N/A' }}</td>
-        <td>{{ metrics.mastery_level or 'N/A' }}</td>
+        <td>{{ metrics.last_updated or 'N/A' }}</td>
       </tr>
     </tbody>
   </table>

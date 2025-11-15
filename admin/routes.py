@@ -637,7 +637,7 @@ def print_student_progress(student_id):
             'email': student_raw['email'] if isinstance(student_raw, dict) else student_raw[3]
         }
         
-        # Get quiz attempts with correct column names
+        # Get quiz attempts
         if db_config.is_production:
             cursor.execute("""
                 SELECT id, quiz_id, score, attempt_number, attempted_at 
@@ -665,21 +665,21 @@ def print_student_progress(student_id):
                 'attempted_at': row['attempted_at'] if isinstance(row, dict) else row[4]
             })
         
-        # Get student metrics
+        # Get student metrics with correct column names
         if db_config.is_production:
             cursor.execute("""
-                SELECT avg_score, total_quizzes, completion_rate, 
-                       score_trend, failed_count, consecutive_fails, 
-                       days_inactive, last_active, mastery_level 
+                SELECT metric_id, avg_score, score_trend, total_attempts, 
+                       failed_quizzes_count, consecutive_fails, 
+                       days_inactive, last_updated 
                 FROM student_metrics 
                 WHERE user_id = %s
             """, (student_id,))
             metrics_raw = cursor.fetchone()
         else:
             cursor.execute("""
-                SELECT avg_score, total_quizzes, completion_rate, 
-                       score_trend, failed_count, consecutive_fails, 
-                       days_inactive, last_active, mastery_level 
+                SELECT metric_id, avg_score, score_trend, total_attempts, 
+                       failed_quizzes_count, consecutive_fails, 
+                       days_inactive, last_updated 
                 FROM student_metrics 
                 WHERE user_id = ?
             """, (student_id,))
@@ -688,15 +688,14 @@ def print_student_progress(student_id):
         metrics = None
         if metrics_raw:
             metrics = {
-                'avg_score': metrics_raw['avg_score'] if isinstance(metrics_raw, dict) else metrics_raw[0],
-                'total_quizzes': metrics_raw['total_quizzes'] if isinstance(metrics_raw, dict) else metrics_raw[1],
-                'completion_rate': metrics_raw['completion_rate'] if isinstance(metrics_raw, dict) else metrics_raw[2],
-                'score_trend': metrics_raw['score_trend'] if isinstance(metrics_raw, dict) else metrics_raw[3],
-                'failed_count': metrics_raw['failed_count'] if isinstance(metrics_raw, dict) else metrics_raw[4],
+                'metric_id': metrics_raw['metric_id'] if isinstance(metrics_raw, dict) else metrics_raw[0],
+                'avg_score': metrics_raw['avg_score'] if isinstance(metrics_raw, dict) else metrics_raw[1],
+                'score_trend': metrics_raw['score_trend'] if isinstance(metrics_raw, dict) else metrics_raw[2],
+                'total_attempts': metrics_raw['total_attempts'] if isinstance(metrics_raw, dict) else metrics_raw[3],
+                'failed_quizzes_count': metrics_raw['failed_quizzes_count'] if isinstance(metrics_raw, dict) else metrics_raw[4],
                 'consecutive_fails': metrics_raw['consecutive_fails'] if isinstance(metrics_raw, dict) else metrics_raw[5],
                 'days_inactive': metrics_raw['days_inactive'] if isinstance(metrics_raw, dict) else metrics_raw[6],
-                'last_active': metrics_raw['last_active'] if isinstance(metrics_raw, dict) else metrics_raw[7],
-                'mastery_level': metrics_raw['mastery_level'] if isinstance(metrics_raw, dict) else metrics_raw[8]
+                'last_updated': metrics_raw['last_updated'] if isinstance(metrics_raw, dict) else metrics_raw[7]
             }
         
         conn.close()
