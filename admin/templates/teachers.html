@@ -45,7 +45,6 @@
     .btn.save { background-color: #2ecc71; color: white; }
     .btn.delete-marked { background-color: #e74c3c; color: white; margin-left: 10px; }
     .btn.add-teacher { background-color: #3498db; color: white; margin-left: 10px; }
-    .btn.print-btn { background-color: #2c3e50; color: white; margin-left: 10px; }
     
     /* Print Dropdown Styles */
     .print-dropdown-wrapper {
@@ -72,7 +71,7 @@
       display: none;
       position: absolute;
       background-color: white;
-      min-width: 200px;
+      min-width: 220px;
       box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
       border-radius: 5px;
       z-index: 1000;
@@ -89,6 +88,7 @@
       text-decoration: none;
       display: block;
       font-family: 'Instrument Serif', serif;
+      transition: background-color 0.2s;
     }
     .print-dropdown-menu a:hover {
       background-color: #f1f1f1;
@@ -98,6 +98,10 @@
     }
     .print-dropdown-menu a:last-child {
       border-radius: 0 0 5px 5px;
+    }
+    .print-dropdown-menu a i {
+      margin-right: 8px;
+      width: 16px;
     }
   </style>
 </head>
@@ -143,18 +147,18 @@
         <input type="text" id="searchInput" placeholder="Search..." style="width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
         <button class="btn add-teacher" onclick="openAddTeacherModal()">Magdagdag ng Guro</button>
         <button class="btn delete-marked" onclick="deleteMarkedTeachers()">Delete marked teachers</button>
-        <a href="{{ url_for('admin.print_teachers') }}" target="_blank" class="btn print-btn">
-          I-print ang Mga Guro
-        </a>
         
         <!-- Print Dropdown -->
         <div class="print-dropdown-wrapper">
           <button class="print-dropdown-btn" onclick="togglePrintDropdown(event)">
             <i class="fas fa-print"></i>
-            Iba pang I-print
+            I-print
             <i class="fas fa-caret-down"></i>
           </button>
           <div class="print-dropdown-menu" id="printDropdownMenu">
+            <a href="{{ url_for('admin.print_teachers') }}" target="_blank">
+              <i class="fas fa-chalkboard-teacher"></i> I-print ang Mga Guro
+            </a>
             <a href="{{ url_for('admin.print_subjects') }}" target="_blank">
               <i class="fas fa-book"></i> I-print ang Mga Subject
             </a>
