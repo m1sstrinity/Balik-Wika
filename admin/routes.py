@@ -385,7 +385,7 @@ def print_student_engagement():
         cursor.close()
         conn.close()
     
-    return render_template('admin/print_student_engagement.html',
+    return render_template('print_student_engagement.html',
                          students=students,
                          current_date=datetime.now().strftime('%B %d, %Y at %I:%M %p'),
                          total_students=total_students,
