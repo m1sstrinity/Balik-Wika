@@ -379,9 +379,14 @@ def update_teacher_status():
         print("Error updating teacher status:", e)
         return jsonify({'message': 'Failed to update teacher status'}), 500
 
-
 @admin_bp.route('/print-teachers')
+@login_required
 def print_teachers():
+    """Print all teachers"""
+    if 'user_role' not in session or session['user_role'] != 'admin':
+        flash("Access denied. Admins only.", "error")
+        return redirect(url_for('login'))
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -425,6 +430,112 @@ def print_teachers():
         import traceback
         traceback.print_exc()
         flash("Error loading teachers for printing.", "error")
+        return redirect(url_for('admin.teachers'))
+
+@admin_bp.route('/print-subjects')
+@login_required
+def print_subjects():
+    """Print all subjects"""
+    if 'user_role' not in session or session['user_role'] != 'admin':
+        flash("Access denied. Admins only.", "error")
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        if db_config.is_production:
+            cursor.execute("""
+                SELECT subject_id, name, description, icon, color 
+                FROM subjects 
+                ORDER BY subject_id
+            """)
+            subjects_raw = cursor.fetchall()
+        else:
+            cursor.execute("""
+                SELECT subject_id, name, description, icon, color 
+                FROM subjects 
+                ORDER BY subject_id
+            """)
+            subjects_raw = cursor.fetchall()
+        
+        conn.close()
+        
+        # Convert to list of dicts for consistent template access
+        subjects = []
+        for row in subjects_raw:
+            subjects.append({
+                'subject_id': row['subject_id'] if isinstance(row, dict) else row[0],
+                'name': row['name'] if isinstance(row, dict) else row[1],
+                'description': row['description'] if isinstance(row, dict) else row[2],
+                'icon': row['icon'] if isinstance(row, dict) else row[3],
+                'color': row['color'] if isinstance(row, dict) else row[4]
+            })
+        
+        return render_template('print_subjects.html', subjects=subjects)
+    
+    except Exception as e:
+        conn.close()
+        print(f"[ERROR] print_subjects error: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("Error loading subjects for printing.", "error")
+        return redirect(url_for('admin.teachers'))
+
+
+@admin_bp.route('/print-lessons')
+@login_required
+def print_lessons():
+    """Print all lessons"""
+    if 'user_role' not in session or session['user_role'] != 'admin':
+        flash("Access denied. Admins only.", "error")
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        if db_config.is_production:
+            cursor.execute("""
+                SELECT lesson_id, title, content, teacher_id, subject_id, 
+                       created_at, updated_at, user_id 
+                FROM lessons 
+                ORDER BY lesson_id
+            """)
+            lessons_raw = cursor.fetchall()
+        else:
+            cursor.execute("""
+                SELECT lesson_id, title, content, teacher_id, subject_id, 
+                       created_at, updated_at, user_id 
+                FROM lessons 
+                ORDER BY lesson_id
+            """)
+            lessons_raw = cursor.fetchall()
+        
+        conn.close()
+        
+        # Convert to list of dicts for consistent template access
+        lessons = []
+        for row in lessons_raw:
+            lessons.append({
+                'lesson_id': row['lesson_id'] if isinstance(row, dict) else row[0],
+                'title': row['title'] if isinstance(row, dict) else row[1],
+                'content': row['content'] if isinstance(row, dict) else row[2],
+                'teacher_id': row['teacher_id'] if isinstance(row, dict) else row[3],
+                'subject_id': row['subject_id'] if isinstance(row, dict) else row[4],
+                'created_at': row['created_at'] if isinstance(row, dict) else row[5],
+                'updated_at': row['updated_at'] if isinstance(row, dict) else row[6],
+                'user_id': row['user_id'] if isinstance(row, dict) else row[7]
+            })
+        
+        return render_template('print_lessons.html', lessons=lessons)
+    
+    except Exception as e:
+        conn.close()
+        print(f"[ERROR] print_lessons error: {e}")
+        import traceback
+        traceback.print_exc()
+        flash("Error loading lessons for printing.", "error")
         return redirect(url_for('admin.teachers'))
 
 

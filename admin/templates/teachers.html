@@ -45,6 +45,7 @@
     .btn.save { background-color: #2ecc71; color: white; }
     .btn.delete-marked { background-color: #e74c3c; color: white; margin-left: 10px; }
     .btn.add-teacher { background-color: #3498db; color: white; margin-left: 10px; }
+    .btn.print-btn { background-color: #2c3e50; color: white; margin-left: 10px; }
   </style>
 </head>
 <style>
@@ -85,14 +86,19 @@
       <h1 class="main-title">Mga Guro <span class="count">{{ teachers|length }}</span></h1>
       <hr class="divider" />
 
-      <div class="search-box" style="display: flex; align-items: center;">
+      <div class="search-box" style="display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
         <input type="text" id="searchInput" placeholder="Search..." style="width: 300px; padding: 8px; border: 1px solid #ccc; border-radius: 6px;">
         <button class="btn add-teacher" onclick="openAddTeacherModal()">Magdagdag ng Guro</button>
         <button class="btn delete-marked" onclick="deleteMarkedTeachers()">Delete marked teachers</button>
-        <a href="{{ url_for('admin.print_teachers') }}" target="_blank" class="btn" style="margin-left: 10px; background-color: #2c3e50; color: white;">
-        I-print ang Mga Guro
-      </a>
-
+        <a href="{{ url_for('admin.print_teachers') }}" target="_blank" class="btn print-btn">
+          I-print ang Mga Guro
+        </a>
+        <a href="{{ url_for('admin.print_subjects') }}" target="_blank" class="btn print-btn">
+          I-print ang Mga Subject
+        </a>
+        <a href="{{ url_for('admin.print_lessons') }}" target="_blank" class="btn print-btn">
+          I-print ang Mga Aralin
+        </a>
       </div>
 
       <table>
@@ -214,33 +220,32 @@
     }
 
     function saveStatus() {
-  const newStatus = document.getElementById("statusSelect").value.toLowerCase();
-  const userId = currentRow.dataset.id;  // this is the correct selected ID
-  const userType = currentRow.dataset.type || 'teacher'; // fallback if type is not set
+      const newStatus = document.getElementById("statusSelect").value.toLowerCase();
+      const userId = currentRow.dataset.id;
+      const userType = currentRow.dataset.type || 'teacher';
 
-  fetch('/admin/update-status', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: userId,
-      status: newStatus,
-      type: userType
-    })
-  })
-    .then(response => response.json())
-    .then(data => {
-      currentRow.dataset.status = newStatus;
-      const statusSpan = currentRow.querySelector(".status");
-      statusSpan.innerText = newStatus;
-      statusSpan.className = `status ${newStatus}`;
-      closeModal();
-    })
-    .catch(error => {
-      console.error("Error updating status:", error);
-      alert("Failed to update status.");
-    });
-}
-
+      fetch('/admin/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: userId,
+          status: newStatus,
+          type: userType
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          currentRow.dataset.status = newStatus;
+          const statusSpan = currentRow.querySelector(".status");
+          statusSpan.innerText = newStatus;
+          statusSpan.className = `status ${newStatus}`;
+          closeModal();
+        })
+        .catch(error => {
+          console.error("Error updating status:", error);
+          alert("Failed to update status.");
+        });
+    }
 
     function openAddTeacherModal() {
       document.getElementById("addTeacherModal").style.display = "flex";
@@ -276,37 +281,36 @@
     });
 
     function deleteMarkedTeachers() {
-  const selectedRows = document.querySelectorAll(".row-checkbox:checked");
-  if (selectedRows.length === 0) {
-    alert("Please select at least one teacher to delete.");
-    return;
-  }
+      const selectedRows = document.querySelectorAll(".row-checkbox:checked");
+      if (selectedRows.length === 0) {
+        alert("Please select at least one teacher to delete.");
+        return;
+      }
 
-  const confirmed = confirm("Are you sure you want to delete the selected teachers?");
-  if (!confirmed) return;
+      const confirmed = confirm("Are you sure you want to delete the selected teachers?");
+      if (!confirmed) return;
 
-  const ids = Array.from(selectedRows).map(cb => parseInt(cb.closest("tr").dataset.id));
+      const ids = Array.from(selectedRows).map(cb => parseInt(cb.closest("tr").dataset.id));
 
-  fetch('/admin/delete-users', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ids: ids,
-      type: 'teacher'
-    })
-  })
-    .then(response => response.json())
-    .then(data => {
-      alert(data.message);
-      location.reload();  // Optional: refresh the table after deletion
-    })
-    .catch(error => {
-      console.error("Error deleting teachers:", error);
-      alert("Failed to delete teachers.");
-    });
-}
+      fetch('/admin/delete-users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ids: ids,
+          type: 'teacher'
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message);
+          location.reload();
+        })
+        .catch(error => {
+          console.error("Error deleting teachers:", error);
+          alert("Failed to delete teachers.");
+        });
+    }
 
- // Logout functionality
     function showLogoutModal() {
       document.getElementById("logoutModal").style.display = "block";
     }
@@ -316,11 +320,9 @@
     }
 
     function confirmLogout() {
-      // Redirect to Flask logout route
       window.location.href = "{{ url_for('admin.logout') }}";
     }
 
-    // Close modal when clicking outside of it
     window.addEventListener("click", function(e) {
       const modal = document.getElementById("logoutModal");
       if (e.target === modal) {
@@ -328,13 +330,11 @@
       }
     });
 
-    // Close modal with Escape key
     document.addEventListener("keydown", function(e) {
       if (e.key === "Escape") {
         hideLogoutModal();
       }
     });
-
   </script>
 </body>
 </html>
