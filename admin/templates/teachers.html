@@ -46,6 +46,59 @@
     .btn.delete-marked { background-color: #e74c3c; color: white; margin-left: 10px; }
     .btn.add-teacher { background-color: #3498db; color: white; margin-left: 10px; }
     .btn.print-btn { background-color: #2c3e50; color: white; margin-left: 10px; }
+    
+    /* Print Dropdown Styles */
+    .print-dropdown-wrapper {
+      position: relative;
+      display: inline-block;
+      margin-left: 10px;
+    }
+    .print-dropdown-btn {
+      background-color: #2c3e50;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Instrument Serif', serif;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .print-dropdown-btn:hover {
+      background-color: #1a252f;
+    }
+    .print-dropdown-menu {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      border-radius: 5px;
+      z-index: 1000;
+      top: 100%;
+      right: 0;
+      margin-top: 5px;
+    }
+    .print-dropdown-menu.show {
+      display: block;
+    }
+    .print-dropdown-menu a {
+      color: #2c3e50;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-family: 'Instrument Serif', serif;
+    }
+    .print-dropdown-menu a:hover {
+      background-color: #f1f1f1;
+    }
+    .print-dropdown-menu a:first-child {
+      border-radius: 5px 5px 0 0;
+    }
+    .print-dropdown-menu a:last-child {
+      border-radius: 0 0 5px 5px;
+    }
   </style>
 </head>
 <style>
@@ -93,12 +146,23 @@
         <a href="{{ url_for('admin.print_teachers') }}" target="_blank" class="btn print-btn">
           I-print ang Mga Guro
         </a>
-        <a href="{{ url_for('admin.print_subjects') }}" target="_blank" class="btn print-btn">
-          I-print ang Mga Subject
-        </a>
-        <a href="{{ url_for('admin.print_lessons') }}" target="_blank" class="btn print-btn">
-          I-print ang Mga Aralin
-        </a>
+        
+        <!-- Print Dropdown -->
+        <div class="print-dropdown-wrapper">
+          <button class="print-dropdown-btn" onclick="togglePrintDropdown(event)">
+            <i class="fas fa-print"></i>
+            Iba pang I-print
+            <i class="fas fa-caret-down"></i>
+          </button>
+          <div class="print-dropdown-menu" id="printDropdownMenu">
+            <a href="{{ url_for('admin.print_subjects') }}" target="_blank">
+              <i class="fas fa-book"></i> I-print ang Mga Subject
+            </a>
+            <a href="{{ url_for('admin.print_lessons') }}" target="_blank">
+              <i class="fas fa-graduation-cap"></i> I-print ang Mga Aralin
+            </a>
+          </div>
+        </div>
       </div>
 
       <table>
@@ -207,6 +271,20 @@
     function toggleDropdown() {
       document.getElementById("settingsDropdown").classList.toggle("show");
     }
+
+    // Print Dropdown Toggle
+    function togglePrintDropdown(event) {
+      event.stopPropagation();
+      document.getElementById("printDropdownMenu").classList.toggle("show");
+    }
+
+    // Close print dropdown when clicking outside
+    window.addEventListener("click", function(e) {
+      const printDropdown = document.getElementById("printDropdownMenu");
+      if (printDropdown && !e.target.closest('.print-dropdown-wrapper')) {
+        printDropdown.classList.remove("show");
+      }
+    });
 
     function openModal(icon) {
       currentRow = icon.closest("tr");
