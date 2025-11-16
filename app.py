@@ -1678,6 +1678,42 @@ def get_student_mastery_level():
             'success': False,
             'mastery_level': 'beginner'  # Default fallback (lowercase)
         })
+
+@app.route('/track-activity', methods=['POST'])
+@require_role('student')
+def track_activity():
+    """Track student activity (lesson view or quiz attempt)"""
+    data = request.get_json()
+    user_id = session['user_id']
+    activity_type = data.get('activity_type')  # 'lesson_view' or 'quiz_attempt'
+    content_id = data.get('content_id')
+    content_type = data.get('content_type')  # 'lesson' or 'quiz'
+    
+    if not all([activity_type, content_id, content_type]):
+        return jsonify({'success': False, 'message': 'Missing required fields'}), 400
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        INSERT INTO student_activity_log 
+        (user_id, activity_type, content_id, content_type, visited_at)
+        VALUES (%s, %s, %s, %s, NOW())
+    """
+    
+    try:
+        cursor.execute(query, (user_id, activity_type, content_id, content_type))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Activity logged'}), 200
+        
+    except Exception as e:
+        conn.rollback()
+        cursor.close()
+        conn.close()
+        print(f"Error logging activity: {e}")
+        return jsonify({'success': False, 'message': 'Failed to log activity'}), 500
     
 @app.route('/generate_hash/<password>')
 def generate_hash(password):

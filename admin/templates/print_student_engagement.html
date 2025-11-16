@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>I-print ang Student Engagement Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Instrument Serif', serif;
+      padding: 40px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    img.logo {
+      width: 100px;
+      display: block;
+      margin: 0 auto 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    .report-info {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    /* Summary Section */
+    .summary-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .summary-section h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 10px;
+    }
+    .stat-box {
+      padding: 15px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px 8px;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      background-color: #2c3e50;
+      color: white;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    /* Engagement Level Colors */
+    .high-engagement {
+      background-color: #d4edda !important;
+    }
+    .medium-engagement {
+      background-color: #fff3cd !important;
+    }
+    .low-engagement {
+      background-color: #f8d7da !important;
+    }
+    
+    /* Legend */
+    .legend {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+    .legend-title {
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #2c3e50;
+    }
+    .legend-item {
+      display: inline-block;
+      padding: 5px 12px;
+      margin-right: 10px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    /* Print Styles */
+    @media print {
+      body {
+        padding: 20px;
+      }
+      .summary-stats {
+        page-break-inside: avoid;
+      }
+      table {
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+      thead {
+        display: table-header-group;
+      }
+    }
+  </style>
+</head>
+<body onload="window.print()">
+  <img src="{{ url_for('admin.static', filename='bwlogo.png') }}" alt="Logo" class="logo">
+  <h1>Student Engagement Report</h1>
+  <div class="report-info">
+    Generated on: {{ current_date }}
+  </div>
+
+  <!-- Summary Section -->
+  <div class="summary-section">
+    <h2>Overall Statistics</h2>
+    <div class="summary-stats">
+      <div class="stat-box">
+        <div class="stat-value">{{ total_students }}</div>
+        <div class="stat-label">Total Students</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">{{ total_lessons }}</div>
+        <div class="stat-label">Total Lessons</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">{{ total_quizzes }}</div>
+        <div class="stat-label">Total Quizzes</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">{{ total_activities }}</div>
+        <div class="stat-label">Total Activities</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engagement Table -->
+  <table>
+    <thead>
+      <tr>
+        <th>Student ID</th>
+        <th>Student Name</th>
+        <th>Email</th>
+        <th>Lesson Views</th>
+        <th>Quiz Attempts</th>
+        <th>Total Activities</th>
+        <th>First Activity</th>
+        <th>Last Activity</th>
+        <th>Engagement</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for student in students %}
+      <tr class="{% if student.total_activities >= 20 %}high-engagement{% elif student.total_activities >= 10 %}medium-engagement{% else %}low-engagement{% endif %}">
+        <td>{{ student.id }}</td>
+        <td>{{ student.name }}</td>
+        <td style="font-size: 11px;">{{ student.email }}</td>
+        <td style="text-align: center;">{{ student.lesson_views }}</td>
+        <td style="text-align: center;">{{ student.quiz_attempts }}</td>
+        <td style="text-align: center; font-weight: bold;">{{ student.total_activities }}</td>
+        <td style="font-size: 11px;">
+          {% if student.first_activity %}
+            {{ student.first_activity.strftime('%Y-%m-%d %H:%M') if student.first_activity else 'N/A' }}
+          {% else %}
+            N/A
+          {% endif %}
+        </td>
+        <td style="font-size: 11px;">
+          {% if student.last_activity %}
+            {{ student.last_activity.strftime('%Y-%m-%d %H:%M') if student.last_activity else 'N/A' }}
+          {% else %}
+            N/A
+          {% endif %}
+        </td>
+        <td style="text-align: center; font-weight: bold;">
+          {% if student.total_activities >= 20 %}
+            High
+          {% elif student.total_activities >= 10 %}
+            Medium
+          {% else %}
+            Low
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-title">Engagement Levels:</div>
+    <span class="legend-item high-engagement">High (20+ activities)</span>
+    <span class="legend-item medium-engagement">Medium (10-19 activities)</span>
+    <span class="legend-item low-engagement">Low (0-9 activities)</span>
+  </div>
+</body>
+</html>

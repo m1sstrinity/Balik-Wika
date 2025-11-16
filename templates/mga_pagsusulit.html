@@ -1496,6 +1496,31 @@ let userAnswers = {};
 let hasAnswered = false;
 let studentMasteryLevel = 'beginner'; // Will be fetched from server
 
+// Track student activity
+async function trackActivity(activityType, contentId, contentType) {
+    try {
+        const response = await fetch('/track-activity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                activity_type: activityType,
+                content_id: contentId,
+                content_type: contentType
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Activity tracked:', data);
+        }
+    } catch (error) {
+        console.error('Error tracking activity:', error);
+        // Don't show error to user - tracking is silent
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   fetchStudentMasteryLevel();
 });
@@ -1752,6 +1777,9 @@ function showError(message) {
 
 function openQuizModal(quizId, quizTitle) {
   console.log("Opening quiz:", quizId, quizTitle);
+  
+  // ✅ TRACK QUIZ ATTEMPT - Add this line
+  trackActivity('quiz_attempt', quizId, 'quiz');
   
   // Show modal immediately with loading
   document.getElementById('subjectModal').style.display = 'block';

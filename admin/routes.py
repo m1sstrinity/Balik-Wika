@@ -19,6 +19,227 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# ============================================
+# HELPER FUNCTIONS FOR ACTIVITY TRACKING
+# ============================================
+
+def log_activity(user_id, activity_type, content_id, content_type):
+    """Log student activity to database"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        INSERT INTO student_activity_log 
+        (user_id, activity_type, content_id, content_type, visited_at)
+        VALUES (%s, %s, %s, %s, NOW())
+    """
+    
+    try:
+        cursor.execute(query, (user_id, activity_type, content_id, content_type))
+        conn.commit()
+        return True
+    except Exception as e:
+        conn.rollback()
+        print(f"Error logging activity: {e}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def generate_admin_report(start_date=None, end_date=None, user_id=None):
+    """Generate admin engagement report with optional filters"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT 
+            u.id,
+            CONCAT(u.first_name, ' ', u.last_name) as name,
+            u.first_name,
+            u.last_name,
+            u.email,
+            COALESCE(COUNT(CASE WHEN sal.content_type = 'lesson' THEN 1 END), 0) as lesson_views,
+            COALESCE(COUNT(CASE WHEN sal.content_type = 'quiz' THEN 1 END), 0) as quiz_attempts,
+            COALESCE(COUNT(sal.id), 0) as total_activities,
+            MIN(sal.visited_at) as first_activity,
+            MAX(sal.visited_at) as last_activity
+        FROM users u
+        LEFT JOIN student_activity_log sal ON u.id = sal.user_id
+        WHERE u.role = 'student'
+    """
+    
+    params = []
+    
+    if start_date:
+        query += " AND sal.visited_at >= %s"
+        params.append(start_date)
+    
+    if end_date:
+        query += " AND sal.visited_at <= %s"
+        params.append(end_date)
+    
+    if user_id:
+        query += " AND u.id = %s"
+        params.append(user_id)
+    
+    query += """
+        GROUP BY u.id, u.first_name, u.last_name, u.email
+        ORDER BY total_activities DESC, u.last_name, u.first_name
+    """
+    
+    try:
+        cursor.execute(query, tuple(params) if params else None)
+        
+        if db_config.is_production:
+            # Production (Railway) - returns dict-like rows
+            results = cursor.fetchall()
+        else:
+            # Local SQLite - returns tuples, need to convert
+            columns = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+            results = [dict(zip(columns, row)) for row in rows]
+        
+        return results
+    except Exception as e:
+        print(f"Error generating report: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_student_activities(user_id):
+    """Get all activities for a specific student"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT 
+            sal.id,
+            sal.activity_type,
+            sal.content_id,
+            sal.content_type,
+            sal.visited_at,
+            CASE 
+                WHEN sal.content_type = 'lesson' THEN l.title
+                WHEN sal.content_type = 'quiz' THEN q.title
+                ELSE 'Unknown'
+            END as content_title
+        FROM student_activity_log sal
+        LEFT JOIN lessons l ON sal.content_type = 'lesson' AND sal.content_id = l.id
+        LEFT JOIN quizzes q ON sal.content_type = 'quiz' AND sal.content_id = q.id
+        WHERE sal.user_id = %s
+        ORDER BY sal.visited_at DESC
+    """
+    
+    try:
+        cursor.execute(query, (user_id,))
+        
+        if db_config.is_production:
+            results = cursor.fetchall()
+        else:
+            columns = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+            results = [dict(zip(columns, row)) for row in rows]
+        
+        return results
+    except Exception as e:
+        print(f"Error getting student activities: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_content_stats(content_id, content_type):
+    """Get statistics for a specific lesson or quiz"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT 
+            COUNT(DISTINCT user_id) as unique_students,
+            COUNT(*) as total_views,
+            MIN(visited_at) as first_view,
+            MAX(visited_at) as last_view
+        FROM student_activity_log
+        WHERE content_id = %s AND content_type = %s
+    """
+    
+    try:
+        cursor.execute(query, (content_id, content_type))
+        
+        if db_config.is_production:
+            result = cursor.fetchone()
+        else:
+            columns = [desc[0] for desc in cursor.description]
+            row = cursor.fetchone()
+            result = dict(zip(columns, row)) if row else None
+        
+        return result
+    except Exception as e:
+        print(f"Error getting content stats: {e}")
+        return None
+    finally:
+        cursor.close()
+        conn.close()
+
+
+def get_teacher_report(teacher_id):
+    """Generate engagement report for a specific teacher's content"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    query = """
+        SELECT 
+            'lesson' as content_type,
+            l.id as content_id,
+            l.title as content_title,
+            COUNT(DISTINCT sal.user_id) as unique_students,
+            COUNT(sal.id) as total_views,
+            MAX(sal.visited_at) as last_viewed
+        FROM lessons l
+        LEFT JOIN student_activity_log sal ON l.id = sal.content_id AND sal.content_type = 'lesson'
+        WHERE l.teacher_id = %s
+        GROUP BY l.id, l.title
+        
+        UNION ALL
+        
+        SELECT 
+            'quiz' as content_type,
+            q.id as content_id,
+            q.title as content_title,
+            COUNT(DISTINCT sal.user_id) as unique_students,
+            COUNT(sal.id) as total_attempts,
+            MAX(sal.visited_at) as last_attempted
+        FROM quizzes q
+        LEFT JOIN student_activity_log sal ON q.id = sal.content_id AND sal.content_type = 'quiz'
+        WHERE q.teacher_id = %s
+        GROUP BY q.id, q.title
+        
+        ORDER BY last_viewed DESC NULLS LAST
+    """
+    
+    try:
+        cursor.execute(query, (teacher_id, teacher_id))
+        
+        if db_config.is_production:
+            results = cursor.fetchall()
+        else:
+            columns = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+            results = [dict(zip(columns, row)) for row in rows]
+        
+        return results
+    except Exception as e:
+        print(f"Error getting teacher report: {e}")
+        return []
+    finally:
+        cursor.close()
+        conn.close()
+
+
 
 @admin_bp.route('/')
 def index():
@@ -109,6 +330,121 @@ def index():
         registration_data=registration_data,
         pending_accounts=pending_accounts
     )
+
+# ============================================
+# NEW ACTIVITY TRACKING ROUTES
+# ============================================
+
+@admin_bp.route('/print-student-engagement')
+def print_student_engagement():
+    """Generate printable student engagement report"""
+    if 'user_role' not in session or session['user_role'] != 'admin':
+        flash("Access denied. Admins only.", "error")
+        return redirect(url_for('login'))
+    
+    # Get engagement data using helper function
+    students = generate_admin_report()
+    
+    # Get summary statistics
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        # Count only users with role='student'
+        cursor.execute("SELECT COUNT(*) FROM users WHERE role = 'student'")
+        if db_config.is_production:
+            total_students = cursor.fetchone()['count']
+        else:
+            total_students = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM lessons")
+        if db_config.is_production:
+            total_lessons = cursor.fetchone()['count']
+        else:
+            total_lessons = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM quizzes")
+        if db_config.is_production:
+            total_quizzes = cursor.fetchone()['count']
+        else:
+            total_quizzes = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM student_activity_log")
+        if db_config.is_production:
+            total_activities = cursor.fetchone()['count']
+        else:
+            total_activities = cursor.fetchone()[0]
+        
+    except Exception as e:
+        print(f"Error getting summary stats: {e}")
+        total_students = 0
+        total_lessons = 0
+        total_quizzes = 0
+        total_activities = 0
+    finally:
+        cursor.close()
+        conn.close()
+    
+    return render_template('admin/print_student_engagement.html',
+                         students=students,
+                         current_date=datetime.now().strftime('%B %d, %Y at %I:%M %p'),
+                         total_students=total_students,
+                         total_lessons=total_lessons or 0,
+                         total_quizzes=total_quizzes or 0,
+                         total_activities=total_activities or 0)
+
+
+@admin_bp.route('/reports/engagement')
+def admin_engagement_report():
+    """API endpoint for engagement report with filters"""
+    if 'user_role' not in session or session['user_role'] != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    user_id = request.args.get('user_id')
+    
+    report_data = generate_admin_report(start_date, end_date, user_id)
+    
+    return jsonify({
+        'success': True,
+        'data': report_data
+    })
+
+
+@admin_bp.route('/reports/student/<int:user_id>')
+def student_activity_report(user_id):
+    """Get detailed activity report for a specific student"""
+    if 'user_role' not in session or session['user_role'] != 'admin':
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 401
+    
+    # Verify user is a student
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT role FROM users WHERE id = %s", (user_id,))
+    result = cursor.fetchone()
+    
+    if db_config.is_production:
+        role = result['role'] if result else None
+    else:
+        role = result[0] if result else None
+    
+    cursor.close()
+    conn.close()
+    
+    if not role or role != 'student':
+        return jsonify({
+            'success': False,
+            'message': 'User is not a student'
+        }), 404
+    
+    activities = get_student_activities(user_id)
+    
+    return jsonify({
+        'success': True,
+        'user_id': user_id,
+        'activities': activities
+    })
 
 
 @admin_bp.route('/students')

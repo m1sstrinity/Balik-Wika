@@ -1181,6 +1181,31 @@ body {
         let lessonsData = {};
         let subjectsData = [];
 
+        // Track student activity function
+async function trackActivity(activityType, contentId, contentType) {
+    try {
+        const response = await fetch('/track-activity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                activity_type: activityType,
+                content_id: contentId,
+                content_type: contentType
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Activity tracked:', data);
+        }
+    } catch (error) {
+        console.error('Error tracking activity:', error);
+    }
+}
+
+
         // Fetch subjects from backend
         async function fetchSubjects() {
             try {
@@ -1210,6 +1235,7 @@ body {
                 showError('Hindi makuha ang mga aralin. Mangyaring subukan muli.');
             }
         }
+        
 
         // Update subjects display dynamically
         function updateSubjectsDisplay() {
@@ -1258,6 +1284,9 @@ body {
                 }
             });
         });
+
+        // Track Viewing Lessons
+        
 
         // Subject modal functionality
         function openSubjectModal(subject) {
@@ -1309,9 +1338,12 @@ body {
             document.body.style.overflow = 'auto';
         }
 
-       // Lesson modal functionality (UPDATED WITH VIDEO SUPPORT)
+       // Lesson modal functionality (UPDATED WITH VIDEO SUPPORT + TRACKING)
 async function openLessonModal(lesson) {
     console.log('Opening lesson:', lesson); // Debug
+    
+    // ✅ TRACK LESSON VIEW - Add this line
+    trackActivity('lesson_view', lesson.id, 'lesson');
     
     document.getElementById('lessonModalTitle').textContent = lesson.title;
     document.getElementById('lessonContent').textContent = lesson.content;
@@ -1325,7 +1357,7 @@ async function openLessonModal(lesson) {
     });
     document.getElementById('lessonDate').textContent = formattedDate;
     
-    // Load videos for this lesson - ADD THIS SECTION
+    // Load videos for this lesson
     try {
         const response = await fetch(`/get_lesson_videos/${lesson.id}`);
         const data = await response.json();
