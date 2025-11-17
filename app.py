@@ -881,6 +881,7 @@ def dashboard():
 def student_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
+    
     try:
         cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
         user = cursor.fetchone()
@@ -890,7 +891,32 @@ def student_dashboard():
             conn.close()
             return redirect(url_for('login'))
 
-        # ✅ FIX: Add data URI prefix for profile picture
+        # ✅ GET STUDENT PROGRESS FROM ML CLASSIFIER
+        try:
+            from teacher.ml_classifier_sklearn_postgresql import calculate_student_metrics
+            
+            # Calculate metrics using your ML classifier
+            metrics = calculate_student_metrics(session['user_id'], conn)
+            
+            print(f"[DEBUG] Student metrics: {metrics}")
+            
+        except Exception as ml_error:
+            print(f"[ERROR] ML calculation failed: {ml_error}")
+            import traceback
+            traceback.print_exc()
+            
+            # Fallback to default metrics if ML fails
+            metrics = {
+                'avg_score': 0.0,
+                'completion_rate': 0.0,
+                'progress_percentage': 0.0,
+                'score_trend': 0.0,
+                'failed_count': 0,
+                'mastery_level': 'Beginner',
+                'total_quizzes': 0
+            }
+
+        # Handle profile picture
         profile_picture = None
         if user['user_profile']:
             if isinstance(user['user_profile'], (bytes, memoryview)):
@@ -899,6 +925,7 @@ def student_dashboard():
             elif isinstance(user['user_profile'], str):
                 profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
 
+        # Get suggested topics
         cursor.execute('''
             SELECT s.subject_id, s.name, s.description, s.icon, s.color,
                    COUNT(l.lesson_id) AS lesson_count
@@ -919,21 +946,43 @@ def student_dashboard():
             'lesson_count': s['lesson_count']
         } for s in suggested_subjects]
 
+        # Get current date
+        current_date = datetime.now().strftime('%A, %B %d, %Y')
+
         cursor.close()
         conn.close()
 
         return render_template('student_dashboard.html', 
                              user=user, 
                              profile_picture=profile_picture,
-                             suggested_topics=suggested_topics)
+                             suggested_topics=suggested_topics,
+                             current_date=current_date,
+                             # ✅ PASS METRICS TO TEMPLATE
+                             metrics=metrics)
     
     except Exception as e:
-        cursor.close()
-        conn.close()
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+        print(f"[ERROR] Dashboard error: {e}")
+        import traceback
+        traceback.print_exc()
+        
         return render_template('student_dashboard.html', 
                              user=user if 'user' in locals() else None, 
                              profile_picture=None,
                              suggested_topics=[],
+                             current_date=datetime.now().strftime('%A, %B %d, %Y'),
+                             metrics={
+                                 'avg_score': 0.0,
+                                 'completion_rate': 0.0,
+                                 'progress_percentage': 0.0,
+                                 'score_trend': 0.0,
+                                 'failed_count': 0,
+                                 'mastery_level': 'Beginner',
+                                 'total_quizzes': 0
+                             },
                              error=f'Error loading dashboard: {str(e)}')
     
 @app.route('/mga_pagsusulit')
