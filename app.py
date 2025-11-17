@@ -881,7 +881,9 @@ def dashboard():
 def student_dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
+    
     try:
+        # Get user info
         cursor.execute("SELECT * FROM users WHERE id = %s", (session['user_id'],))
         user = cursor.fetchone()
         
@@ -890,15 +892,86 @@ def student_dashboard():
             conn.close()
             return redirect(url_for('login'))
 
-        # ✅ FIX: Add data URI prefix for profile picture
+        # ✅ GET METRICS FROM student_metrics TABLE
+        try:
+            cursor.execute("""
+                SELECT 
+                    avg_score,
+                    score_trend,
+                    total_attempts as total_quizzes,
+                    failed_quizzes_count as failed_count,
+                    consecutive_fails,
+                    days_inactive
+                FROM student_metrics
+                WHERE user_id = %s
+            """, (session['user_id'],))
+            
+            db_metrics = cursor.fetchone()
+            
+            if db_metrics:
+                # ✅ Get mastery level from users table
+                mastery_level = user['mastery_level'] or 'Beginner'
+                
+                # ✅ Calculate completion rate (total quizzes taken vs available)
+                cursor.execute("SELECT COUNT(*) as count FROM quizzes")
+                total_available = cursor.fetchone()['count']
+                completion_rate = (db_metrics['total_quizzes'] / total_available * 100) if total_available > 0 else 0
+                
+                # ✅ Build metrics dictionary
+                metrics = {
+                    'avg_score': float(db_metrics['avg_score']) if db_metrics['avg_score'] else 0.0,
+                    'completion_rate': round(completion_rate, 2),
+                    'progress_percentage': float(db_metrics['avg_score']) if db_metrics['avg_score'] else 0.0,
+                    'score_trend': float(db_metrics['score_trend']) if db_metrics['score_trend'] else 0.0,
+                    'failed_count': db_metrics['failed_count'] or 0,
+                    'mastery_level': mastery_level,
+                    'total_quizzes': db_metrics['total_quizzes'] or 0
+                }
+                
+                print(f"[DEBUG] Student metrics loaded from database: {metrics}")
+            else:
+                # ✅ No metrics found, use defaults
+                print(f"[WARNING] No metrics found for user {session['user_id']}, using defaults")
+                metrics = {
+                    'avg_score': 0.0,
+                    'completion_rate': 0.0,
+                    'progress_percentage': 0.0,
+                    'score_trend': 0.0,
+                    'failed_count': 0,
+                    'mastery_level': user['mastery_level'] or 'Beginner',
+                    'total_quizzes': 0
+                }
+            
+        except Exception as metrics_error:
+            print(f"[ERROR] Failed to load metrics: {metrics_error}")
+            import traceback
+            traceback.print_exc()
+            
+            # ✅ Fallback metrics
+            metrics = {
+                'avg_score': 0.0,
+                'completion_rate': 0.0,
+                'progress_percentage': 0.0,
+                'score_trend': 0.0,
+                'failed_count': 0,
+                'mastery_level': user['mastery_level'] or 'Beginner',
+                'total_quizzes': 0
+            }
+
+        # Handle profile picture
         profile_picture = None
         if user['user_profile']:
-            if isinstance(user['user_profile'], (bytes, memoryview)):
-                img_data = bytes(user['user_profile']) if isinstance(user['user_profile'], memoryview) else user['user_profile']
-                profile_picture = f"data:image/jpeg;base64,{base64.b64encode(img_data).decode('utf-8')}"
-            elif isinstance(user['user_profile'], str):
-                profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
+            try:
+                if isinstance(user['user_profile'], (bytes, memoryview)):
+                    img_data = bytes(user['user_profile']) if isinstance(user['user_profile'], memoryview) else user['user_profile']
+                    profile_picture = f"data:image/jpeg;base64,{base64.b64encode(img_data).decode('utf-8')}"
+                elif isinstance(user['user_profile'], str):
+                    profile_picture = f"data:image/jpeg;base64,{user['user_profile']}"
+            except Exception as img_error:
+                print(f"[WARNING] Profile picture processing failed: {img_error}")
+                profile_picture = None
 
+        # Get suggested topics
         cursor.execute('''
             SELECT s.subject_id, s.name, s.description, s.icon, s.color,
                    COUNT(l.lesson_id) AS lesson_count
@@ -919,23 +992,43 @@ def student_dashboard():
             'lesson_count': s['lesson_count']
         } for s in suggested_subjects]
 
+        # Get current date
+        current_date = datetime.now().strftime('%A, %B %d, %Y')
+
         cursor.close()
         conn.close()
 
         return render_template('student_dashboard.html', 
                              user=user, 
                              profile_picture=profile_picture,
-                             suggested_topics=suggested_topics)
+                             suggested_topics=suggested_topics,
+                             current_date=current_date,
+                             metrics=metrics)
     
     except Exception as e:
-        cursor.close()
-        conn.close()
+        if 'cursor' in locals() and cursor:
+            cursor.close()
+        if 'conn' in locals() and conn:
+            conn.close()
+        print(f"[ERROR] Dashboard error: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # ✅ Return error page with default metrics
         return render_template('student_dashboard.html', 
                              user=user if 'user' in locals() else None, 
                              profile_picture=None,
                              suggested_topics=[],
-                             error=f'Error loading dashboard: {str(e)}')
-    
+                             current_date=datetime.now().strftime('%A, %B %d, %Y'),
+                             metrics={
+                                 'avg_score': 0.0,
+                                 'completion_rate': 0.0,
+                                 'progress_percentage': 0.0,
+                                 'score_trend': 0.0,
+                                 'failed_count': 0,
+                                 'mastery_level': 'Beginner',
+                                 'total_quizzes': 0
+                             })
 @app.route('/mga_pagsusulit')
 @require_role('student')  # Assuming you want only students to access this
 def mga_pagsusulit():
