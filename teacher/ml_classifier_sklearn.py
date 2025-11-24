@@ -506,15 +506,13 @@ def update_student_metrics(user_id, metrics, db_connection):
     cursor.close()
 
 
-def get_all_students_with_classification(db_connection, class_number=None):
+def get_all_students_with_classification(db_connection):
     """
     Get all students with their ML-classified mastery levels.
-    Optionally filter by class_number.
     AUTO-FIXES missing columns!
     
     Args:
         db_connection: PostgreSQL database connection
-        class_number: Optional class number to filter students (e.g., "Class 1")
     
     Returns:
         list: List of dictionaries containing student data with classifications
@@ -524,20 +522,12 @@ def get_all_students_with_classification(db_connection, class_number=None):
     
     cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
-    # Get all students, optionally filtered by class_number
-    if class_number:
-        cursor.execute("""
-            SELECT id, first_name, last_name, email, mastery_level, class_number
-            FROM users 
-            WHERE role = 'student' AND status = 'active' AND class_number = %s
-        """, (class_number,))
-    else:
-        cursor.execute("""
-            SELECT id, first_name, last_name, email, mastery_level, class_number
-            FROM users 
-            WHERE role = 'student' AND status = 'active'
-        """)
-    
+    # Get all students
+    cursor.execute("""
+        SELECT id, first_name, last_name, email, mastery_level
+        FROM users 
+        WHERE role = 'student' AND status = 'active'
+    """)
     students = cursor.fetchall()
     
     student_data = []
@@ -564,8 +554,7 @@ def get_all_students_with_classification(db_connection, class_number=None):
                 'completion_rate': metrics['completion_rate'],
                 'unlocked_levels': metrics['unlocked_levels'].split(', '),  # Convert to list
                 'last_activity': metrics['last_activity'],
-                'progress_percentage': metrics['progress_percentage'],
-                'class_number': student.get('class_number', 'N/A')  # Include class number
+                'progress_percentage': metrics['progress_percentage']
             })
         
         except Exception as e:
@@ -576,58 +565,6 @@ def get_all_students_with_classification(db_connection, class_number=None):
     cursor.close()
     return student_data
 
-
-def get_classification_summary(db_connection, class_number=None):
-    """
-    Get summary counts for each mastery level.
-    Optionally filter by class_number.
-    
-    Args:
-        db_connection: PostgreSQL database connection
-        class_number: Optional class number to filter students
-    
-    Returns:
-        dict: Counts for each level
-    """
-    ensure_mastery_level_column(db_connection)
-    cursor = db_connection.cursor(cursor_factory=RealDictCursor)
-    
-    # Add class_number filter if provided
-    class_filter = ""
-    params = []
-    
-    if class_number:
-        class_filter = "AND class_number = %s"
-        params = [class_number]
-    
-    cursor.execute(f"""
-        SELECT COUNT(*) as count FROM users 
-        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Beginner' {class_filter}
-    """, params)
-    beginner_count = cursor.fetchone()['count']
-    
-    cursor.execute(f"""
-        SELECT COUNT(*) as count FROM users 
-        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Intermediate' {class_filter}
-    """, params)
-    intermediate_count = cursor.fetchone()['count']
-    
-    cursor.execute(f"""
-        SELECT COUNT(*) as count FROM users 
-        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Advanced' {class_filter}
-    """, params)
-    advanced_count = cursor.fetchone()['count']
-    
-    total_count = beginner_count + intermediate_count + advanced_count
-    
-    cursor.close()
-    
-    return {
-        'beginner': beginner_count,
-        'intermediate': intermediate_count,
-        'advanced': advanced_count,
-        'total': total_count
-    }
 
 def classify_single_student(user_id, db_connection):
     """
