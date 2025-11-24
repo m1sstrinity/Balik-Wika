@@ -181,24 +181,25 @@
         }
 
         /// Navigation handler - Fixed version
+// Navigation handler - Fixed version
 function handleNavigation() {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', function(e) {
-            // Skip the active class removal for logout button  
+            // Skip for logout button
             if (this.id === 'logout-btn') {
-                return; // Don't modify active states for logout
+                return;
             }
             
-            // Remove active class from all nav items
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
-            // Don't prevent default for actual links
+            // Only prevent default for placeholder links
             if (this.getAttribute('href') === '#') {
                 e.preventDefault();
-            } else {
-                // Add active class to clicked item
-                this.classList.add('active');
+                return;
             }
+            
+            // For real links, just update the active state
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+            // Let the browser handle the actual navigation
         });
     });
 }
