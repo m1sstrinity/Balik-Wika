@@ -506,13 +506,15 @@ def update_student_metrics(user_id, metrics, db_connection):
     cursor.close()
 
 
-def get_all_students_with_classification(db_connection):
+def get_all_students_with_classification(db_connection, class_number=None):
     """
     Get all students with their ML-classified mastery levels.
+    Optionally filter by class_number.
     AUTO-FIXES missing columns!
     
     Args:
         db_connection: PostgreSQL database connection
+        class_number: Optional class number to filter students (e.g., "Class 1")
     
     Returns:
         list: List of dictionaries containing student data with classifications
@@ -522,12 +524,20 @@ def get_all_students_with_classification(db_connection):
     
     cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
-    # Get all students
-    cursor.execute("""
-        SELECT id, first_name, last_name, email, mastery_level
-        FROM users 
-        WHERE role = 'student' AND status = 'active'
-    """)
+    # Get all students, optionally filtered by class_number
+    if class_number:
+        cursor.execute("""
+            SELECT id, first_name, last_name, email, mastery_level, class_number
+            FROM users 
+            WHERE role = 'student' AND status = 'active' AND class_number = %s
+        """, (class_number,))
+    else:
+        cursor.execute("""
+            SELECT id, first_name, last_name, email, mastery_level, class_number
+            FROM users 
+            WHERE role = 'student' AND status = 'active'
+        """)
+    
     students = cursor.fetchall()
     
     student_data = []
@@ -554,7 +564,8 @@ def get_all_students_with_classification(db_connection):
                 'completion_rate': metrics['completion_rate'],
                 'unlocked_levels': metrics['unlocked_levels'].split(', '),  # Convert to list
                 'last_activity': metrics['last_activity'],
-                'progress_percentage': metrics['progress_percentage']
+                'progress_percentage': metrics['progress_percentage'],
+                'class_number': student.get('class_number', 'N/A')  # Include class number
             })
         
         except Exception as e:
@@ -564,7 +575,6 @@ def get_all_students_with_classification(db_connection):
     
     cursor.close()
     return student_data
-
 
 def classify_single_student(user_id, db_connection):
     """
@@ -585,12 +595,14 @@ def classify_single_student(user_id, db_connection):
     return metrics
 
 
-def get_classification_summary(db_connection):
+def get_classification_summary(db_connection, class_number=None):
     """
     Get summary counts for each mastery level.
+    Optionally filter by class_number.
     
     Args:
         db_connection: PostgreSQL database connection
+        class_number: Optional class number to filter students
     
     Returns:
         dict: Counts for each level
@@ -598,22 +610,30 @@ def get_classification_summary(db_connection):
     ensure_mastery_level_column(db_connection)
     cursor = db_connection.cursor(cursor_factory=RealDictCursor)
     
-    cursor.execute("""
+    # Add class_number filter if provided
+    class_filter = ""
+    params = []
+    
+    if class_number:
+        class_filter = "AND class_number = %s"
+        params = [class_number]
+    
+    cursor.execute(f"""
         SELECT COUNT(*) as count FROM users 
-        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Beginner'
-    """)
+        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Beginner' {class_filter}
+    """, params)
     beginner_count = cursor.fetchone()['count']
     
-    cursor.execute("""
+    cursor.execute(f"""
         SELECT COUNT(*) as count FROM users 
-        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Intermediate'
-    """)
+        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Intermediate' {class_filter}
+    """, params)
     intermediate_count = cursor.fetchone()['count']
     
-    cursor.execute("""
+    cursor.execute(f"""
         SELECT COUNT(*) as count FROM users 
-        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Advanced'
-    """)
+        WHERE role = 'student' AND status = 'active' AND mastery_level = 'Advanced' {class_filter}
+    """, params)
     advanced_count = cursor.fetchone()['count']
     
     total_count = beginner_count + intermediate_count + advanced_count
@@ -626,7 +646,6 @@ def get_classification_summary(db_connection):
         'advanced': advanced_count,
         'total': total_count
     }
-
 
 def get_model_info():
     """

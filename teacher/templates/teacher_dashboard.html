@@ -180,29 +180,6 @@
             });
         }
 
-        /// Navigation handler - Fixed version
-function handleNavigation() {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', function(e) {
-            // Skip the active class removal for logout button  
-            if (this.id === 'logout-btn') {
-                return; // Don't modify active states for logout
-            }
-            
-            // Remove active class from all nav items
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            
-            // Don't prevent default for actual links
-            if (this.getAttribute('href') === '#') {
-                e.preventDefault();
-            } else {
-                // Add active class to clicked item
-                this.classList.add('active');
-            }
-        });
-    });
-}
-
         // Animation function
         function animateElements() {
             const animateSequentially = (elements) => {
