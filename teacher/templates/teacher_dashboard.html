@@ -180,6 +180,27 @@
             });
         }
 
+        function handleNavigation() {
+        // Set active state based on current URL
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const href = item.getAttribute('href');
+            
+            // Skip logout button
+            if (item.id === 'logout-btn') {
+                return;
+            }
+            
+            // Remove active from all
+            item.classList.remove('active');
+            
+            // Add active to matching path
+            if (href && href !== '#' && currentPath === href) {
+                item.classList.add('active');
+            }
+        });
+    }
+
         // Animation function
         function animateElements() {
             const animateSequentially = (elements) => {
