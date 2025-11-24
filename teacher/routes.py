@@ -473,9 +473,9 @@ def kasanayan_mag_aral():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Get teacher information
+        # Get teacher information INCLUDING class_number
         cursor.execute(
-            "SELECT first_name, last_name, email, user_profile FROM users WHERE id = %s AND role = 'teacher'",
+            "SELECT first_name, last_name, email, user_profile, class_number FROM users WHERE id = %s AND role = 'teacher'",
             (user_id,)
         )
         user = cursor.fetchone()
@@ -485,6 +485,15 @@ def kasanayan_mag_aral():
             cursor.close()
             conn.close()
             return redirect(url_for('login'))
+        
+        # Get teacher's class number
+        teacher_class_number = user.get('class_number')
+        
+        if not teacher_class_number:
+            flash("You are not assigned to any class yet. Please contact the administrator.", "warning")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('teacher.teacher_dashboard'))
         
         # Handle profile picture
         profile_picture = None
@@ -505,13 +514,12 @@ def kasanayan_mag_aral():
         # Get teacher name
         teacher_name = user['first_name'] if user['first_name'] else "Guro"
         
-        # ML CLASSIFICATION: Get all students with their mastery levels
-        print("[DEBUG] Running ML classification...")
-        students_data = get_all_students_with_classification(conn)
-        summary = get_classification_summary(conn)
-        print(f"[DEBUG] Classified {len(students_data)} students")
+        # ML CLASSIFICATION: Get students filtered by class_number
+        print(f"[DEBUG] Running ML classification for class: {teacher_class_number}")
+        students_data = get_all_students_with_classification(conn, class_number=teacher_class_number)
+        summary = get_classification_summary(conn, class_number=teacher_class_number)
+        print(f"[DEBUG] Classified {len(students_data)} students in {teacher_class_number}")
         print(f"[DEBUG] Summary: {summary}")
-        print(f"[DEBUG] First student (if any): {students_data[0] if students_data else 'No students'}")
         
         cursor.close()
         conn.close()
@@ -523,7 +531,8 @@ def kasanayan_mag_aral():
             students=students_data,
             summary=summary,
             profile_picture=profile_picture,
-            teacher_name=teacher_name
+            teacher_name=teacher_name,
+            teacher_class=teacher_class_number  # NEW: Pass class info to template
         )
     
     except Exception as e:
