@@ -273,6 +273,46 @@
             height: 12px;
             border-radius: 50%;
         }
+        .section-title-with-print {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title-with-print h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .print-button {
+            background: #3498db;
+            color: white;
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: 'Instrument Serif', serif;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .print-button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .print-button i {
+            font-size: 16px;
+        }
 
         .legend-item .dot.beginner { background-color: #ffc107; }
         .legend-item .dot.intermediate { background-color: #17a2b8; }
@@ -337,11 +377,17 @@
         </div>
 
         <!-- Main Content -->
-        <div class="content">
-            <h2 class="section-title">
-                <i class="fas fa-list-alt"></i>
-                Detalyadong Listahan ng mga Estudyante
-            </h2>
+            <div class="content">
+                <div class="section-title-with-print">
+                    <h2 class="section-title">
+                        <i class="fas fa-list-alt"></i>
+                        Detalyadong Listahan ng mga Estudyante
+                    </h2>
+                    <a href="{{ url_for('teacher.print_students') }}" target="_blank" class="print-button">
+                        <i class="fas fa-print"></i>
+                        Print List
+                    </a>
+                </div>
 
             <!-- Legend -->
             <div class="legend">
