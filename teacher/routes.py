@@ -542,6 +542,65 @@ def kasanayan_mag_aral():
         flash(f"Error loading student data: {str(e)}", "error")
         return redirect(url_for('teacher.teacher_dashboard'))
     
+@teacher_bp.route('/print_students')
+def print_students():
+    """Print-friendly view of students for teacher's class"""
+    is_valid, error_msg = require_teacher_login()
+    if not is_valid:
+        flash(error_msg, "error")
+        return redirect(url_for('login'))
+    
+    user_id = session.get('user_id')
+    
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get teacher information including class_number
+        cursor.execute(
+            "SELECT first_name, last_name, class_number FROM users WHERE id = %s AND role = 'teacher'",
+            (user_id,)
+        )
+        teacher = cursor.fetchone()
+        
+        if not teacher:
+            flash("Teacher account not found.", "error")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('login'))
+        
+        teacher_class_number = teacher.get('class_number')
+        
+        if not teacher_class_number:
+            flash("You are not assigned to any class yet.", "warning")
+            cursor.close()
+            conn.close()
+            return redirect(url_for('teacher.kasanayan_mag_aral'))
+        
+        # Get teacher name
+        teacher_name = f"{teacher['first_name']} {teacher['last_name']}"
+        
+        # Get students with classification
+        students_data = get_all_students_with_classification(conn, class_number=teacher_class_number)
+        summary = get_classification_summary(conn, class_number=teacher_class_number)
+        
+        cursor.close()
+        conn.close()
+        
+        return render_template(
+            'print_students.html',
+            teacher_name=teacher_name,
+            teacher_class=teacher_class_number,
+            students=students_data,
+            summary=summary,
+            print_date=datetime.now().strftime('%B %d, %Y')
+        )
+    
+    except Exception as e:
+        print(f"Error in print_students route: {e}")
+        flash(f"Error loading student data: {str(e)}", "error")
+        return redirect(url_for('teacher.kasanayan_mag_aral'))
+    
 
 @teacher_bp.route('/student/<int:student_id>')
 def student_detail(student_id):
