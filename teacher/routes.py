@@ -580,8 +580,28 @@ def print_students():
         # Get teacher name
         teacher_name = f"{teacher['first_name']} {teacher['last_name']}"
         
-        # Get students with classification
-        students_data = get_all_students_with_classification(conn, class_number=teacher_class_number)
+        # Get students in this class with basic information
+        cursor.execute(
+            """SELECT id, first_name, last_name, email, status 
+               FROM users 
+               WHERE role = 'student' AND class_number = %s
+               ORDER BY last_name, first_name""",
+            (teacher_class_number,)
+        )
+        students = cursor.fetchall()
+        
+        # Format student data for template
+        students_data = []
+        for student in students:
+            students_data.append({
+                'id': student['id'],
+                'first_name': student['first_name'] or '',
+                'last_name': student['last_name'] or '',
+                'email': student['email'],
+                'status': student['status'] or 'active'
+            })
+        
+        # Get classification summary (optional, for summary cards)
         summary = get_classification_summary(conn, class_number=teacher_class_number)
         
         cursor.close()
