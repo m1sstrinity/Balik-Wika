@@ -601,9 +601,6 @@ def print_students():
                 'status': student['status'] or 'active'
             })
         
-        # Get classification summary (optional, for summary cards)
-        summary = get_classification_summary(conn, class_number=teacher_class_number)
-        
         cursor.close()
         conn.close()
         
@@ -612,7 +609,6 @@ def print_students():
             teacher_name=teacher_name,
             teacher_class=teacher_class_number,
             students=students_data,
-            summary=summary,
             print_date=datetime.now().strftime('%B %d, %Y')
         )
     
