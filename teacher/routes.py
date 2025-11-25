@@ -580,7 +580,7 @@ def print_students():
         # Get teacher name
         teacher_name = f"{teacher['first_name']} {teacher['last_name']}"
         
-        # Get students in this class with basic information
+        # Get students in this class with basic information - ONLY 5 FIELDS
         cursor.execute(
             """SELECT id, first_name, last_name, email, status 
                FROM users 
@@ -590,7 +590,7 @@ def print_students():
         )
         students = cursor.fetchall()
         
-        # Format student data for template
+        # Format student data for template - ONLY 5 FIELDS
         students_data = []
         for student in students:
             students_data.append({
@@ -604,13 +604,22 @@ def print_students():
         cursor.close()
         conn.close()
         
-        return render_template(
+        # Render template with cache-busting headers
+        from flask import make_response
+        response = make_response(render_template(
             'print_students.html',
             teacher_name=teacher_name,
             teacher_class=teacher_class_number,
             students=students_data,
             print_date=datetime.now().strftime('%B %d, %Y')
-        )
+        ))
+        
+        # ADD THESE CACHE-BUSTING HEADERS
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        
+        return response
     
     except Exception as e:
         print(f"Error in print_students route: {e}")
