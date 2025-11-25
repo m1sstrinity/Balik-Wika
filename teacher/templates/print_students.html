@@ -98,9 +98,9 @@
         }
 
         .students-table th {
-            padding: 12px;
+            padding: 12px 8px;
             text-align: left;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
         }
 
@@ -113,15 +113,15 @@
         }
 
         .students-table td {
-            padding: 10px 12px;
-            font-size: 13px;
+            padding: 10px 8px;
+            font-size: 12px;
         }
 
         .mastery-badge {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             text-transform: uppercase;
         }
@@ -139,6 +139,24 @@
         .mastery-badge.advanced {
             background: #e8f8f0;
             color: #27ae60;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-badge.active {
+            background: #e8f8f0;
+            color: #27ae60;
+        }
+
+        .status-badge.inactive {
+            background: #f5f5f5;
+            color: #888;
         }
 
         .print-buttons {
@@ -182,7 +200,7 @@
         /* Print-specific styles */
         @media print {
             body {
-                padding: 20px;
+                padding: 15px;
             }
 
             .print-buttons {
@@ -191,10 +209,16 @@
 
             .students-table {
                 page-break-inside: avoid;
+                font-size: 11px;
             }
 
             .students-table tbody tr {
                 page-break-inside: avoid;
+            }
+
+            .students-table th,
+            .students-table td {
+                padding: 8px 6px;
             }
 
             .print-header {
@@ -212,6 +236,7 @@
 
         @page {
             margin: 1cm;
+            size: landscape;
         }
     </style>
 </head>
@@ -219,7 +244,7 @@
     <!-- Print Buttons (hidden when printing) -->
     <div class="print-buttons">
         <button onclick="window.print()" class="print-btn">🖨️ Print Student List</button>
-        <button onclick="window.location.href='{{ url_for('teacher.kasanayan_mag_aral') }}'" class="print-btn back-btn">← Back to Dashboard</button>
+        <button onclick="window.history.back()" class="print-btn back-btn">← Back to Dashboard</button>
     </div>
 
     <!-- Header -->
@@ -262,13 +287,15 @@
     <table class="students-table">
         <thead>
             <tr>
-                <th style="width: 5%;">#</th>
-                <th style="width: 25%;">Student Name</th>
-                <th style="width: 25%;">Email</th>
-                <th style="width: 15%;">Mastery Level</th>
-                <th style="width: 10%;">Avg Score</th>
-                <th style="width: 10%;">Quizzes</th>
+                <th style="width: 3%;">#</th>
+                <th style="width: 18%;">Student Name</th>
+                <th style="width: 20%;">Email</th>
+                <th style="width: 12%;">Mastery Level</th>
+                <th style="width: 8%;">Avg Score</th>
+                <th style="width: 7%;">Quizzes</th>
+                <th style="width: 12%;">Registered At</th>
                 <th style="width: 10%;">Last Active</th>
+                <th style="width: 10%;">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -285,12 +312,18 @@
                     </td>
                     <td>{{ student.avg_score }}%</td>
                     <td>{{ student.total_quizzes }}</td>
+                    <td>{{ student.registered_at }}</td>
                     <td>{{ student.last_activity }}</td>
+                    <td>
+                        <span class="status-badge {{ student.status.lower() }}">
+                            {{ student.status }}
+                        </span>
+                    </td>
                 </tr>
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td colspan="7" style="text-align: center; padding: 40px; color: #888;">
+                    <td colspan="9" style="text-align: center; padding: 40px; color: #888;">
                         No students found in this class.
                     </td>
                 </tr>
@@ -305,11 +338,6 @@
     </div>
 
     <script>
-        // Auto-print option (optional - comment out if not needed)
-        // window.onload = function() {
-        //     setTimeout(() => window.print(), 500);
-        // };
-
         // Print on Ctrl+P
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'p') {

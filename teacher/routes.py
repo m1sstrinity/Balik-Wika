@@ -542,65 +542,88 @@ def kasanayan_mag_aral():
         flash(f"Error loading student data: {str(e)}", "error")
         return redirect(url_for('teacher.teacher_dashboard'))
     
-@teacher_bp.route('/print_students')
-def print_students():
-    """Print-friendly view of students for teacher's class"""
-    is_valid, error_msg = require_teacher_login()
-    if not is_valid:
-        flash(error_msg, "error")
-        return redirect(url_for('login'))
+@teacher_bp.route('/print_student_list')
+def print_student_list():
+    """Generate printable student list with proper data mapping"""
     
-    user_id = session.get('user_id')
+    if 'user_id' not in session or session.get('role') != 'teacher':
+        return redirect(url_for('auth.login'))
     
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        # Get teacher information including class_number
-        cursor.execute(
-            "SELECT first_name, last_name, class_number FROM users WHERE id = %s AND role = 'teacher'",
-            (user_id,)
-        )
-        teacher = cursor.fetchone()
-        
-        if not teacher:
-            flash("Teacher account not found.", "error")
-            cursor.close()
-            conn.close()
-            return redirect(url_for('login'))
-        
-        teacher_class_number = teacher.get('class_number')
-        
-        if not teacher_class_number:
-            flash("You are not assigned to any class yet.", "warning")
-            cursor.close()
-            conn.close()
-            return redirect(url_for('teacher.kasanayan_mag_aral'))
-        
-        # Get teacher name
-        teacher_name = f"{teacher['first_name']} {teacher['last_name']}"
-        
-        # Get students with classification
-        students_data = get_all_students_with_classification(conn, class_number=teacher_class_number)
-        summary = get_classification_summary(conn, class_number=teacher_class_number)
-        
-        cursor.close()
-        conn.close()
-        
-        return render_template(
-            'print_students.html',
-            teacher_name=teacher_name,
-            teacher_class=teacher_class_number,
-            students=students_data,
-            summary=summary,
-            print_date=datetime.now().strftime('%B %d, %Y')
-        )
+    teacher_id = session['user_id']
     
-    except Exception as e:
-        print(f"Error in print_students route: {e}")
-        flash(f"Error loading student data: {str(e)}", "error")
-        return redirect(url_for('teacher.kasanayan_mag_aral'))
+    # Get teacher information
+    teacher = User.query.get(teacher_id)
+    teacher_name = f"{teacher.first_name} {teacher.last_name}"
+    teacher_class = teacher.class_number or "Not Assigned"
     
+    # Get all students in the teacher's class
+    students = User.query.filter_by(
+        role='student',
+        class_number=teacher.class_number
+    ).all()
+    
+    # Prepare student data with proper mapping
+    student_data = []
+    mastery_counts = {'beginner': 0, 'intermediate': 0, 'advanced': 0}
+    
+    for student in students:
+        # Get quiz statistics
+        quizzes = QuizAttempt.query.filter_by(user_id=student.id).all()
+        total_quizzes = len(quizzes)
+        avg_score = sum(q.score for q in quizzes) / total_quizzes if total_quizzes > 0 else 0
+        
+        # Determine mastery level based on average score
+        if avg_score >= 80:
+            mastery_level = 'advanced'
+        elif avg_score >= 60:
+            mastery_level = 'intermediate'
+        else:
+            mastery_level = 'beginner'
+        
+        mastery_counts[mastery_level] += 1
+        
+        # Get last activity date
+        last_activity = "Never"
+        if quizzes:
+            last_quiz = max(quizzes, key=lambda q: q.date_taken)
+            last_activity = last_quiz.date_taken.strftime('%b %d, %Y')
+        elif student.registered:
+            last_activity = student.registered.strftime('%b %d, %Y')
+        
+        # Map database fields to template fields
+        student_data.append({
+            'name': f"{student.first_name} {student.last_name}",  # Combine first and last name
+            'email': student.email,
+            'mastery_level': mastery_level,
+            'avg_score': round(avg_score, 1),
+            'total_quizzes': total_quizzes,
+            'last_activity': last_activity,
+            'registered_at': student.registered.strftime('%B %d, %Y') if student.registered else 'N/A',
+            'status': student.status if hasattr(student, 'status') else 'Active'
+        })
+    
+    # Sort students by name
+    student_data.sort(key=lambda x: x['name'])
+    
+    # Prepare summary data
+    summary = {
+        'total': len(student_data),
+        'beginner': mastery_counts['beginner'],
+        'intermediate': mastery_counts['intermediate'],
+        'advanced': mastery_counts['advanced']
+    }
+    
+    # Current date for the report
+    print_date = datetime.now().strftime('%B %d, %Y at %I:%M %p')
+    
+    return render_template(
+        'teacher/print_student_list.html',
+        teacher_name=teacher_name,
+        teacher_class=teacher_class,
+        students=student_data,
+        summary=summary,
+        print_date=print_date
+    )
 
 @teacher_bp.route('/student/<int:student_id>')
 def student_detail(student_id):
