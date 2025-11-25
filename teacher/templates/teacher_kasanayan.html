@@ -296,36 +296,6 @@
                 font-size: 1.8rem;
             }
         }
-        .print-button {
-            background: #3498db;
-            color: white;
-            padding: 10px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            cursor: pointer;
-            font-family: 'Instrument Serif', serif;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.3s ease;
-        }
-
-        .print-button:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .print-button i {
-            font-size: 16px;
-        }
-
-        .section-header-with-button {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
@@ -367,12 +337,11 @@
         </div>
 
         <!-- Main Content -->
-        <div class="section-header-with-button">
-            <h2 style="font-weight: bold; font-size: 24px;">Detalyadong Listahan ng mga Estudyante</h2>
-            <a href="{{ url_for('teacher.print_students') }}" target="_blank" class="print-button">
-                <i class="fas fa-print"></i>
-                Print Student List
-            </a>
+        <div class="content">
+            <h2 class="section-title">
+                <i class="fas fa-list-alt"></i>
+                Detalyadong Listahan ng mga Estudyante
+            </h2>
 
             <!-- Legend -->
             <div class="legend">
