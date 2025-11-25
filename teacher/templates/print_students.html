@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List - {{ teacher_class }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Instrument Serif', serif;
+            padding: 40px;
+            background: white;
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+        }
+
+        .print-header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .print-header .school-info {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .teacher-info {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .teacher-info div {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .teacher-info strong {
+            color: #000;
+            font-size: 16px;
+        }
+
+        .summary-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #ddd;
+        }
+
+        .summary-card.beginner { border-color: #e74c3c; }
+        .summary-card.intermediate { border-color: #f39c12; }
+        .summary-card.advanced { border-color: #27ae60; }
+
+        .summary-card h3 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .summary-card p {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .students-table thead {
+            background: #2c3e50;
+            color: white;
+        }
+
+        .students-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .students-table tbody tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .students-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .students-table td {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .mastery-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .mastery-badge.beginner {
+            background: #ffeaea;
+            color: #e74c3c;
+        }
+
+        .mastery-badge.intermediate {
+            background: #fff4e6;
+            color: #f39c12;
+        }
+
+        .mastery-badge.advanced {
+            background: #e8f8f0;
+            color: #27ae60;
+        }
+
+        .print-buttons {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .print-btn {
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-family: 'Instrument Serif', serif;
+            margin: 0 10px;
+        }
+
+        .print-btn:hover {
+            background: #2980b9;
+        }
+
+        .back-btn {
+            background: #95a5a6;
+        }
+
+        .back-btn:hover {
+            background: #7f8c8d;
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+
+        /* Print-specific styles */
+        @media print {
+            body {
+                padding: 20px;
+            }
+
+            .print-buttons {
+                display: none;
+            }
+
+            .students-table {
+                page-break-inside: avoid;
+            }
+
+            .students-table tbody tr {
+                page-break-inside: avoid;
+            }
+
+            .print-header {
+                page-break-after: avoid;
+            }
+
+            .teacher-info {
+                page-break-after: avoid;
+            }
+
+            .summary-section {
+                page-break-after: avoid;
+            }
+        }
+
+        @page {
+            margin: 1cm;
+        }
+    </style>
+</head>
+<body>
+    <!-- Print Buttons (hidden when printing) -->
+    <div class="print-buttons">
+        <button onclick="window.print()" class="print-btn">🖨️ Print Student List</button>
+        <button onclick="window.location.href='{{ url_for('teacher.kasanayan_mag_aral') }}'" class="print-btn back-btn">← Back to Dashboard</button>
+    </div>
+
+    <!-- Header -->
+    <div class="print-header">
+        <h1>BalikWika - Detalyadong Listahan ng mga Estudyante</h1>
+        <div class="school-info">Student Progress Report</div>
+        <div class="school-info">Generated on: {{ print_date }}</div>
+    </div>
+
+    <!-- Teacher Information -->
+    <div class="teacher-info">
+        <div>
+            <strong>Teacher:</strong> {{ teacher_name }}
+        </div>
+        <div>
+            <strong>Class:</strong> {{ teacher_class }}
+        </div>
+        <div>
+            <strong>Total Students:</strong> {{ summary.total }}
+        </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+        <div class="summary-card beginner">
+            <h3>{{ summary.beginner }}</h3>
+            <p>Beginner Students</p>
+        </div>
+        <div class="summary-card intermediate">
+            <h3>{{ summary.intermediate }}</h3>
+            <p>Intermediate Students</p>
+        </div>
+        <div class="summary-card advanced">
+            <h3>{{ summary.advanced }}</h3>
+            <p>Advanced Students</p>
+        </div>
+    </div>
+
+    <!-- Students Table -->
+    <table class="students-table">
+        <thead>
+            <tr>
+                <th style="width: 5%;">#</th>
+                <th style="width: 25%;">Student Name</th>
+                <th style="width: 25%;">Email</th>
+                <th style="width: 15%;">Mastery Level</th>
+                <th style="width: 10%;">Avg Score</th>
+                <th style="width: 10%;">Quizzes</th>
+                <th style="width: 10%;">Last Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if students %}
+                {% for student in students %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.email }}</td>
+                    <td>
+                        <span class="mastery-badge {{ student.mastery_level }}">
+                            {{ student.mastery_level }}
+                        </span>
+                    </td>
+                    <td>{{ student.avg_score }}%</td>
+                    <td>{{ student.total_quizzes }}</td>
+                    <td>{{ student.last_activity }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #888;">
+                        No students found in this class.
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>BalikWika Learning Management System</p>
+        <p>This document contains confidential student information.</p>
+    </div>
+
+    <script>
+        // Auto-print option (optional - comment out if not needed)
+        // window.onload = function() {
+        //     setTimeout(() => window.print(), 500);
+        // };
+
+        // Print on Ctrl+P
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                window.print();
+            }
+        });
+    </script>
+</body>
+</html>
