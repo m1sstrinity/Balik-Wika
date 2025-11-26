@@ -351,11 +351,12 @@ def login():
         else:
             print(f"[DEBUG] No user found with email: {email}")
         
-        conn.close()
-
+        
         if user and check_password_hash(user['password'], password):
             print(f"[DEBUG] Password verification successful for {email}")
-            
+
+            conn.close()    
+
             # Check verification status first
             if not user['is_verified']:
                 print(f"[DEBUG] User not verified, redirecting to OTP verification")
