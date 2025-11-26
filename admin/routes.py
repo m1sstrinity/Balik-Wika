@@ -912,7 +912,7 @@ def print_students():
                 'status': row['status'] if isinstance(row, dict) else row[5]
             })
         
-        return render_template('print_students.html', students=students)
+        return render_template('admin_print_students.html', students=students)
     
     except Exception as e:
         conn.close()
