@@ -13,7 +13,7 @@ This project was a collaborative effort by:
 
 ## 🛠️ Tech Stack
 * **Design:** Figma, Balsamiq
-* **Languages:** Python, Java
+* **Languages:** HTML, CSS, Python Flask, JavaScript
 * **Database:** MySQL, PostgreSQL
 
 ## 🚀 Key Features
